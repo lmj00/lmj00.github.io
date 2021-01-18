@@ -1,15 +1,7 @@
 source "https://rubygems.org"
-gem 'tzinfo'
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw]
-gem "jekyll", ">=3.8.6"
 
-# Official Plugins
+gem "jekyll", "~> 4.2.0"
+
 group :jekyll_plugins do
-  gem "jekyll-paginate"
-  gem "jekyll-redirect-from"
-  gem "jekyll-seo-tag", "~> 2.6.1"
-end
-
-group :test do
-  gem "html-proofer"
+  gem "jekyll-feed", "~> 0.12"
 end

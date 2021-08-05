@@ -32,3 +32,16 @@ models.CharField(validators=[MinLengthValidator(10, 'error message'])
 ```django
 models.~~Field(validators[함수])
 ```
+
+
+## Form
+- Model을 쓰지 않는 일반 form의 경우 사용
+- validator, clean_{field_name}을 사용
+```django
+def clean_title(self):
+    title = self.cleaned_data['title']
+    if ~~~:
+        raise ValidationError('error message')
+```
+`모든 form class는 cleaned_data를 가지고 있는데,  
+이 안에는 form 필드를 정의할 때 넣어준 유효성 검증을 통과한 데이터가 들어 있다.`

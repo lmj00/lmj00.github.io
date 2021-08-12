@@ -1,0 +1,28 @@
+---
+title: "[Django] Generic View (ListView)"
+layout: post
+---
+
+## views
+```python
+from django.views.generic import ListView
+
+class PracticeLIstView(ListView):  
+    model = {사용할 모델}
+    template_name = 'diary/page_list.html' 
+    context_object_name = 'diary'
+    ordering = ['-dt_created']
+    paginate_by = 6
+    page_kwarg = 'page' # 현재 페이지를 쿼리스트링의 변수 값으로 조회
+``` 
+
+## template
+```python
+{% raw %}{% if 'page_obj.diary' %} 
+    ~~~
+{% end if %}{% endraw %}
+```
+`페이지네이션을 적용해서 페이지를 page_obj로 전달함`<br/>
+`django는 쿼리스트링에서 page_kwarg에 해당 되는 변수를 찾아서
+페이지로 처리함` <br/>
+`page. 이라고 되어있는 부분을 page_obj라고 바꿔야 함`

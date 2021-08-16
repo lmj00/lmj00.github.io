@@ -1,0 +1,23 @@
+---
+title: "[Django] User" 
+layout: post
+---
+
+## django.contrib.auth
+- User(기본 유저 모델)
+- AbstarctUser(상속 받아서 사용)
+- AbstractBaseUser(모든 필드를 직접 정의) 
+<br/>
+
+`User 모델은 한 번 정의하면 다른 모델로 바꾸기 어렵기 때문에 django에서 권장하지 않음`
+
+
+## AbstractUser
+```python
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstarctUser):
+   ~~~
+```
+`settings.py에 가서 아래 부분에 AUTH_USER_MODEL = '{앱 이름}.User'`
+

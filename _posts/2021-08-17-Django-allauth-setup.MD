@@ -1,5 +1,5 @@
 ---
-title: "[Django] allauth-setup"
+title: "[Django] allauth setup"
 layout: post
 ---
 

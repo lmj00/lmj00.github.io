@@ -14,3 +14,9 @@ SESSION_COOKIE_AGE = {초}
 ```terminal
 python manage.py clearsessions
 ```
+
+
+## 브라우저를 닫아도 유저 기억하기
+```terminal
+ACCOUNT_SESSION_REMEMBER = True
+```

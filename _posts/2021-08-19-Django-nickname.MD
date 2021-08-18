@@ -12,7 +12,7 @@ class User(AbstractUser):
 
 ## admin
 ```terminal
-UserAdmin.fieldsets += ("Custom fields", {"fields": ("nickname", )})
+UserAdmin.fieldsets += (("Custom fields", {"fields": ("nickname", )}),)
 ```
 `User 모델의 추가 필드는 어드민 페이지에 나타나지 않기 때문에 추가`
 

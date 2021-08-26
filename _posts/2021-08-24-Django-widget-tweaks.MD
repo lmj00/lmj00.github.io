@@ -9,20 +9,19 @@ layout: post
 3. 템플릿으로 가서 {% raw %} {% load widget_tweaks %} {% endraw %} 추가
 
 ```django
-{% raw %}{{ form.email|attr:"class:{클래스 이름}" }} 또는
-{{ form.email|add_class:"{클래스 이름}" }} {% endraw %}
+{% raw %}{{ form.{name}|add_class:{class name}|attr:"placeholder:~~"}} {% endraw %}
 ```
 
 
 ## error class 추가하기
 ```django
-{% raw %}{{ form.email|add_error_class:"error" }}{% endraw %}
+{% raw %}{{ form.{name}|add_error_class:"error" }}{% endraw %}
 ```
 
 
 ## 에러 메세지
 ```django
-{% raw %}{% for error in form.{필드}.errors %}
+{% raw %}{% for error in form.{name}.errors %}
     <div class="~~">{{ error }}</div>
 {% endfor %}{% endraw %} 
 ```

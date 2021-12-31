@@ -1,6 +1,7 @@
 ---
 title: "[Django] non-field error"
 layout: post
+categories: Django
 ---
 
 ## 폼 전체에 대한 오류 접근

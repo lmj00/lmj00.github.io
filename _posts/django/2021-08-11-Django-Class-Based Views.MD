@@ -1,6 +1,7 @@
 ---
 title: "[Django] Class-Based Views"
 layout: post
+categories: Django
 ---
 
 ## 클래스형 뷰

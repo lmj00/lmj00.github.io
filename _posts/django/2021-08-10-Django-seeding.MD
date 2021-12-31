@@ -1,6 +1,7 @@
 ---
 title: "[Django] Seeding"
 layout: post
+categories: Django
 ---
 
 ## 시딩

@@ -1,6 +1,7 @@
 ---
 title: "[Django] session"
 layout: post
+categories: Django
 ---
 
 ## 쿠키 지속 시간

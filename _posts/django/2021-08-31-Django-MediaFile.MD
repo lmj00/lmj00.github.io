@@ -1,6 +1,7 @@
 ---
 title: "[Django] Media Field"
 layout: post
+categories: Django
 --- 
 
 ### 미디어 파일 URL

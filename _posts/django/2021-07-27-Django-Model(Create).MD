@@ -1,6 +1,7 @@
 ---
 title: "[Django] Model (Create)"
 layout: post
+categories: Django
 ---
 
 ### shell 진입

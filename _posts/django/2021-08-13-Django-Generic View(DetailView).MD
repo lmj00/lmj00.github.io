@@ -1,6 +1,7 @@
 ---
 title: "[Django] Generic View (DetailView)"
 layout: post
+categories: Django
 ---
 
 ## views

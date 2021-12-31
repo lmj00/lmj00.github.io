@@ -1,6 +1,7 @@
 ---
 title: "[Django] Field"
 layout: post
+categories: Django
 ---
 
 ### 필드에 url

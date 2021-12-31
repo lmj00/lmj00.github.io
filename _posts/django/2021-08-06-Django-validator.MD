@@ -1,6 +1,7 @@
 ---
 title: "[Django] Validation"
 layout: post
+categories: Django
 ---
 
 ## 유효성 검사

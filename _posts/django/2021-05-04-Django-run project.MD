@@ -1,6 +1,7 @@
 ---
 title: "[Django] 프로젝트 실행"
 layout: post
+categories: Django
 ---
 
 ```terminal

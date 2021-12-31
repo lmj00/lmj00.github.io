@@ -1,6 +1,7 @@
 ---
 title: "[Django] User" 
 layout: post
+categories: Django
 ---
 
 ## django.contrib.auth

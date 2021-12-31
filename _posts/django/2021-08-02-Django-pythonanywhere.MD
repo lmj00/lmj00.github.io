@@ -1,6 +1,7 @@
 ---
 title: "[Django] pythonanywhere"
 layout: post
+categories: Django
 ---
 
 ## bash 

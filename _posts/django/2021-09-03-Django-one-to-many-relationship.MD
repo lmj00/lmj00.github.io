@@ -1,6 +1,7 @@
 ---
 title: "[Django] 관계형 모델(1:N)"
 layout: post
+categories: Django
 --- 
 
 ### 1:N

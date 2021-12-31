@@ -1,6 +1,7 @@
 ---
 title: "[Django] 배포 두 가지 방법"
 layout: post
+categories: Django
 ---
 
 ## 클라우드 서비스

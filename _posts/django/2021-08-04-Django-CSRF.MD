@@ -1,6 +1,7 @@
 ---
 title: "[Django] CSRF"
 layout: post
+categories: Django
 ---
 
 ## CSRF(Cross-Site Request Forgery)

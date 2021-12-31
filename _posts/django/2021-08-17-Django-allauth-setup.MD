@@ -1,6 +1,7 @@
 ---
 title: "[Django] allauth setup"
 layout: post
+categories: Django
 ---
 
 ## setup

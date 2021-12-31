@@ -1,6 +1,7 @@
 ---
 title: "[Django] ImageField"
 layout: post
+categories: Django
 --- 
 
 - 폼에 업로드 된 이미지를 media root로 넣어줌

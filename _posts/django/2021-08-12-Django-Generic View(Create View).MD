@@ -1,6 +1,7 @@
 ---
 title: "[Django] Generic View (CreateView)"
 layout: post
+categories: Django
 ---
 
 ```python

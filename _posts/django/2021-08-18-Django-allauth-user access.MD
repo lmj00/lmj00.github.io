@@ -1,6 +1,7 @@
 ---
 title: "[Django] allauth user access"
 layout: post
+categories: Django
 ---
 
 ## allauth-redirection

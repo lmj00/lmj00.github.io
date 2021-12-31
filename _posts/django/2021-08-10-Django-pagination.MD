@@ -1,6 +1,7 @@
 ---
 title: "[Django] Pagination"
 layout: post
+categories: Django
 ---
 
 ## Pagination 속성

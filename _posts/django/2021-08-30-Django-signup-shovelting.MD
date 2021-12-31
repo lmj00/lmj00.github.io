@@ -1,6 +1,7 @@
 ---
 title: "[삽질] Django 회원가입"
 layout: post
+categories: Django
 ---
 
 allauth에 제공하는 기본 폼으로 했을 땐 가입이 잘 됐는데, <br/><br/>

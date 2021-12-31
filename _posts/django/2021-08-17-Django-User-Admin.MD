@@ -1,6 +1,7 @@
 ---
 title: "[Django] User Admin" 
 layout: post
+categories: Django
 ---
 
 ## Admin 등록

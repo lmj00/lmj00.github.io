@@ -1,6 +1,7 @@
 ---
 title: "[Django] nickname"
 layout: post
+categories: Django
 ---
 
 ## model 정의

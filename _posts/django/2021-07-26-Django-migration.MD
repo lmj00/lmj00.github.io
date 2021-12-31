@@ -1,6 +1,7 @@
 ---
 title: "[Django] Migration"
 layout: post
+categories: Django
 ---
 
 ### migration

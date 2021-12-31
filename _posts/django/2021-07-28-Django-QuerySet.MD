@@ -1,6 +1,7 @@
 ---
 title: "[Django] QuerySet"
 layout: post
+categories: Django
 ---
 
 ## QuerySet

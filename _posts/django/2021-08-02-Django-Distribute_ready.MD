@@ -1,6 +1,7 @@
 ---
 title: "[Django] 배포 준비"
 layout: post
+categories: Django
 ---
 
 1.  디버그 모드 끄기

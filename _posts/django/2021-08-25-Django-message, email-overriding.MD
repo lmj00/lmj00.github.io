@@ -1,6 +1,7 @@
 ---
 title: "[Django] 메시지, 이메일 오버라이딩"
 layout: post
+categories: Django
 ---
 
 - app name은 allauth 보다 위에 있어야 한다.

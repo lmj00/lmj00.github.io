@@ -1,6 +1,7 @@
 ---
 title: "[Django] View를 간편하게"
 layout: post
+categories: Django
 ---
 
 ## model 데이터	

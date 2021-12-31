@@ -1,6 +1,7 @@
 ---
 title: "[Git] 커밋 가이드 라인"
 layout: post
+categories: Git
 --- 
 
 ## 커밋 메시지

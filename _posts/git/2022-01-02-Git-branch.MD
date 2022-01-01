@@ -1,0 +1,46 @@
+---
+title: "[Git] Branch"
+layout: post
+categories: Git
+--- 
+ 
+## Branch
+- 코드 관리  
+- 루트 커밋을 시작으로 계속되는 수정의 흐름
+- 작업의 흐름을 분리
+
+## On branch master
+- master라는 브랜치 위에 있다.
+- repository를 만들고 커밋을 하면 기본으로 세팅되는 브랜치
+
+
+## 브랜치 만들기
+```terminal
+$ git branch {이름}
+```
+
+
+## 브랜치 이동
+```terminal
+$ git checkout {이름}
+```
+
+
+## 현재 브랜치 확인
+```terminal
+$ git branch
+```
+
+
+## 브랜치 삭제
+```terminal
+$ git branch -d {이름}
+```
+
+
+## 브랜치 만들고 바로 이동
+```terminal
+$ git checkout -b {이름}
+```
+
+

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ad45884d-a008-48c6-b81e-df46c6604d3d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/_posts/2021-08-24-Django-widget-tweaks.MD" beforeDir="false" afterPath="$PROJECT_DIR$/_posts/2021-08-24-Django-widget-tweaks.MD" afterDir="false" />
-    </list>
+    <list default="true" id="ad45884d-a008-48c6-b81e-df46c6604d3d" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -11,6 +9,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
   </component>
   <component name="ProjectId" id="1xHQuacpJi9Qlvirf0kvdFq3fIW" />
   <component name="ProjectViewState">
@@ -20,6 +21,8 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -31,6 +34,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1630009757564</updated>
+      <workItem from="1641015475475" duration="2000" />
     </task>
     <servers />
   </component>

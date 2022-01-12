@@ -1,5 +1,5 @@
 ---
-title: "[Git] Remote repository 커밋 취소"
+title: "[Git] revert"
 layout: post
 categories: Git
 --- 

@@ -1,0 +1,32 @@
+---
+title: "[Git] reflog"
+layout: post
+categories: Git
+--- 
+ 
+## reset
+- reset을 해도 그 이후의 커밋들은 삭제 되지 않는다.
+- HEAD가 가리키던 branch가 해당 커밋을 가리키는 것이다.
+
+
+## reflog
+- 커밋 해시를 모를 경우 사용(reset 했을 경우)
+- HEAD가 가리켜왔던 커밋들을 기록한 정보
+- 자세히 보려면 `git log -g`
+
+
+```terminal
+$ git reflog
+
+72d0a38 (HEAD -> master, origin/master) HEAD@{0}: reset: moving to 72d0
+2f23150 HEAD@{1}: reset: moving to 2f23
+72d0a38 (HEAD -> master, origin/master) HEAD@{2}: revert: Revert "Add the info of calculator.py in README.md"
+c142ae6 HEAD@{3}: revert: Revert "Add the info of calculator.py in README.md"
+8a1b22b HEAD@{4}: revert: Revert "Update README.md"
+
+```
+```terminal
+git reset --hard 2f23
+git reset --hard HEAD@{1}
+```
+`서로 같은 의미`

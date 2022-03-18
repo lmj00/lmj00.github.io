@@ -5,15 +5,31 @@
 
   <body>
 
-    {%- include header.html -%}
-
-    <main class="page-content" aria-label="Content">
+  {%- include header.html -%}
+  <ul>
+    <div id="search-demo-container">
+      <input type="search" id="search-input" placeholder="search...">
+      <ul id="results-container"></ul>
+    </div>
+  </ul>
+  <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        {{ content }}
+      {{ content }}
       </div>
-    </main>
+  </main>
 
-    {%- include footer.html -%}
+  {%- include footer.html -%}
+
+  <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+
+  <script>
+    var sjs = SimpleJekyllSearch({
+      searchInput: document.getElementById('search-input'),
+      resultsContainer: document.getElementById('results-container'),
+      json: '/search.json'
+    }) 
+  </script>
 
   </body>
 

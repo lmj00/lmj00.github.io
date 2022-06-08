@@ -1,0 +1,25 @@
+---
+title: "[Django] humanize"
+layout: post
+categories: Django
+--- 
+
+## 숫자 렌더링
+INSTALLED_APPS에 [django.contrib.humanize](https://docs.djangoproject.com/en/4.0/ref/contrib/humanize/) 추가
+
+```django
+{% raw %}{% load humanize %}{% endraw %}  
+...
+{% raw %}{{ 30000 | intcomma }}{% endraw %}
+
+>>> 30,000
+```
+
+## filter
+- apnumber
+- intcomma
+- intword
+- naturalday
+- naturaltime
+- ordinal
+

@@ -56,5 +56,10 @@ theme: minima
 plugins:
  - jekyll-feed
  - jekyll-seo-tag
+ - jekyll-paginate
 
 future: true
+
+paginate: 8
+paginate_path: "/page:num/"
+ 

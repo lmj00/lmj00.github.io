@@ -42,15 +42,39 @@ layout: default
       <div class="pager">
         <ul class="pagination">
         {%- if paginator.previous_page %}
-          <li><a href="{{ paginator.previous_page_path | relative_url }}" class="previous-page">{{ paginator.previous_page }}</a></li>
+          <li>
+            <a href="/" class="previous-page">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-double-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                <path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a href="{{ paginator.previous_page_path | relative_url }}" 
+            class="previous-page">{{ paginator.previous_page }}</a>
+          </li>
         {%- else %}
-          <li><div class="pager-edge">•</div></li>
+          <!-- <li><div class="pager-edge">•</div></li> -->
         {%- endif %}
-          <li><div class="current-page">{{ paginator.page }}</div></li>
+          <li>
+            <div class="current-page">{{ paginator.page }}</div>
+          </li>
         {%- if paginator.next_page %}
-          <li><a href="{{ paginator.next_page_path | relative_url }}" class="next-page">{{ paginator.next_page }}</a></li>
-        {%- else %}
-          <li><div class="pager-edge">•</div></li>
+          <li>
+            <a href="{{ paginator.next_page_path | relative_url }}" 
+            class="next-page">{{ paginator.next_page }}</a>
+          </li>
+          <li>
+            <a href="/page{{ paginator.total_pages }}" class="next-page">
+               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-double-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"/>
+                <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"/>
+              </svg>
+            </a>
+          </li>
+        {%- else %}   
+          <!-- <li><div class="pager-edge">•</div></li> -->
         {%- endif %}
         </ul>
       </div>

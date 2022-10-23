@@ -24,6 +24,13 @@ $ python manage.py migrate
 - ORM이 migration 폴더 안에 있는 .py 파일을 확인 후, SQL로 변환하여 실행
 
 
+## migrations 파일 이름 설정
+```terminal
+$ python manage.py makemigrations --name {파일 이름}
+```
+![image](https://user-images.githubusercontent.com/54443194/197416777-23e89cf8-311d-4646-b6e0-da9504aa5922.png)
+- 가끔 xxxx_auto.py와 같이 생성되기 때문에 변경된 흐름을 알 수 있도록 이름을 정해주는 게 좋다.
+
 
 ### 이전 migration으로 되돌리기
 ```terminal

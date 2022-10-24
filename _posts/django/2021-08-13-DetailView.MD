@@ -1,5 +1,5 @@
 ---
-title: "[Django] Generic View (DetailView)"
+title: "[Django] DetailView"
 layout: post
 categories: Django
 ---

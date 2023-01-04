@@ -1,5 +1,5 @@
 ---
 layout: category
 
-title: GitHub-Blog
+title: github-blog
 ---

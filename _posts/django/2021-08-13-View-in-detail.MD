@@ -1,7 +1,7 @@
 ---
-title: "[Django] View를 간편하게"
+title: "view"
 layout: post
-categories: Django
+categories: django
 ---
 
 ## model 데이터	

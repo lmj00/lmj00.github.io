@@ -1,7 +1,7 @@
 ---
-title: "[Spring] thymeleaf pagination"
+title: "thymeleaf pagination"
 layout: post
-categories: Spring
+categories: spring
 --- 
 
 thymeleaf에서 페이징을 구현하는데 다음과 같은 오류가 떴다.

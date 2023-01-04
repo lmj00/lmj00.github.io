@@ -1,7 +1,7 @@
 ---
-title: "[Django] Data Migrations"
+title: "Data Migrations"
 layout: post
-categories: Django
+categories: django
 --- 
 
 ## [Data Migrations](https://docs.djangoproject.com/en/4.1/topics/migrations/#data-migrations)

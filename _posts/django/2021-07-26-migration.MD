@@ -1,7 +1,7 @@
 ---
-title: "[Django] Migration"
+title: "Migration"
 layout: post
-categories: Django
+categories: django
 modified_date: 2022-10-24
 ---
 

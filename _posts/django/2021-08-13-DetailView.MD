@@ -1,7 +1,7 @@
 ---
-title: "[Django] DetailView"
+title: "DetailView"
 layout: post
-categories: Django
+categories: django
 ---
 
 ## views

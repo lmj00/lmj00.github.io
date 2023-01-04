@@ -1,5 +1,5 @@
 ---
-title: "[GitHub-Blog] push 반영이 안될 때"
+title: "[gitHub-Blog] push 반영이 안될 때"
 layout: post
 categories: github-blog
 --- 

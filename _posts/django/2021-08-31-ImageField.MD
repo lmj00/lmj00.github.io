@@ -1,7 +1,7 @@
 ---
-title: "[Django] ImageField"
+title: "ImageField"
 layout: post
-categories: Django
+categories: django
 modified_date: 2022-06-07
 --- 
 

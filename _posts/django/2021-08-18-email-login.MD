@@ -1,7 +1,7 @@
 ---
-title: "[Django] 이메일 로그인"
+title: "이메일 로그인"
 layout: post
-categories: Django
+categories: django
 ---
 
 ## 이메일로 로그인

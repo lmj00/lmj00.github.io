@@ -1,7 +1,7 @@
 ---
-title: "[Django] migration fake"
+title: "migration fake"
 layout: post
-categories: Django
+categories: django
 --- 
   
 

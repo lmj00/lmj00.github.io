@@ -1,7 +1,7 @@
 ---
-title: "[Django] Model (Read)"
+title: "Model (Read)"
 layout: post
-categories: Django
+categories: django
 ---
 
 ### 모든 데이터 조회하기

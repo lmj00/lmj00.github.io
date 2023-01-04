@@ -1,7 +1,7 @@
 ---
-title: "[Django] 이메일 인증"
+title: "이메일 인증"
 layout: post
-categories: Django
+categories: django
 ---
 
 ### 이메일 인증

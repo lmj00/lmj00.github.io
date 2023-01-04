@@ -1,7 +1,7 @@
 ---
-title: "[Django] Many-To-Many Field"
+title: "Many-To-Many Field"
 layout: post
-categories: Django
+categories: django
 --- 
 
 ## [Many-to-Many Field](https://docs.djangoproject.com/en/3.2/ref/models/fields/#manytomanyfield)

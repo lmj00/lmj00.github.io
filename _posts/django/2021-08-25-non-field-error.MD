@@ -1,7 +1,7 @@
 ---
-title: "[Django] non-field error"
+title: "non-field error"
 layout: post
-categories: Django
+categories: django
 ---
 
 ## 폼 전체에 대한 오류 접근

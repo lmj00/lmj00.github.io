@@ -1,7 +1,7 @@
 ---
-title: "[Django] allauth setup"
+title: "allauth setup"
 layout: post
-categories: Django
+categories: django
 ---
 
 ## setup

@@ -1,7 +1,7 @@
 ---
-title: "[Django] render, redirect, reverse"
+title: "render, redirect, reverse"
 layout: post
-categories: Django
+categories: django
 --- 
  
 헷갈려서 작성했다.

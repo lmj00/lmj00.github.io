@@ -1,7 +1,7 @@
 ---
-title: "[Django] CreateView"
+title: "CreateView"
 layout: post
-categories: Django
+categories: django
 ---
 
 ```python

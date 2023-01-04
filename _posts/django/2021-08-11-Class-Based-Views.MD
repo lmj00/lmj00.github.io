@@ -1,7 +1,7 @@
 ---
-title: "[Django] Class-Based Views"
+title: "Class-Based Views"
 layout: post
-categories: Django
+categories: django
 ---
 
 ## 클래스형 뷰

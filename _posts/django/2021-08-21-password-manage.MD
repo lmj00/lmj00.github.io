@@ -1,7 +1,7 @@
 ---
-title: "[Django] 비밀번호 관리"
+title: "비밀번호 관리"
 layout: post
-categories: Django
+categories: django
 ---
 
 ### timeout

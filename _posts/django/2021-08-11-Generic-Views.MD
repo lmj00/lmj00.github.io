@@ -1,6 +1,7 @@
 ---
-title: "[Django] Generic Views"
+title: "Generic Views"
 layout: post
+categories: django
 ---
 
 ## 제네릭 뷰

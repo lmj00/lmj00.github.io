@@ -1,7 +1,7 @@
 ---
-title: "[Django] migration 오류"
+title: "migration 오류"
 layout: post
-categories: Django
+categories: django
 --- 
 
 

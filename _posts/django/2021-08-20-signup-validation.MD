@@ -1,6 +1,7 @@
 ---
-title: "[Django] signup validation"
+title: "signup validation"
 layout: post
+categories: django
 ---
  
 

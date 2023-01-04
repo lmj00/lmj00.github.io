@@ -1,7 +1,7 @@
 ---
-title: "[Django] Model (Create)"
+title: "Model (Create)"
 layout: post
-categories: Django
+categories: django
 ---
 
 ### shell 진입

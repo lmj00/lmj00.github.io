@@ -1,7 +1,7 @@
 ---
-title: "[Django] widget-tweaks"
+title: "widget-tweaks"
 layout: post
-categories: Django
+categories: django
 ---
 
 ### input 태그에 속성 추가

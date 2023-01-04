@@ -1,7 +1,7 @@
 ---
-title: "[Django] Model (Update, Delete)"
+title: "Model (Update, Delete)"
 layout: post
-categories: Django
+categories: django
 ---
 
 ### 데이터 수정하기

@@ -1,7 +1,7 @@
 ---
-title: "[Git] Could not resolve host: github.com"
+title: "Could not resolve host: github.com"
 layout: post
-categories: Git
+categories: git
 --- 
 
 

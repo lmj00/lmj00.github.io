@@ -1,7 +1,7 @@
 ---
-title: "[Git] Branch merge, conflict"
+title: "Branch merge, conflict"
 layout: post
-categories: Git
+categories: git
 --- 
 
 ## merge

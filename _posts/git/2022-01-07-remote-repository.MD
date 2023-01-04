@@ -1,7 +1,7 @@
 ---
-title: "[Git] Remote Repository"
+title: "Remote Repository"
 layout: post
-categories: Git
+categories: git
 --- 
 
 ## origin

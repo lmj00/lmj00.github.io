@@ -1,7 +1,7 @@
 ---
-title: "[Git] merge의 종류"
+title: "merge의 종류"
 layout: post
-categories: Git
+categories: git
 --- 
  
 ## Fast-forward merge

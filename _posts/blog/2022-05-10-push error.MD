@@ -1,7 +1,7 @@
 ---
 title: "[GitHub-Blog] push 반영이 안될 때"
 layout: post
-categories: GitHub-Blog
+categories: github-blog
 --- 
 
 push를 해도 블로그에 올라오지 않았다.<br>

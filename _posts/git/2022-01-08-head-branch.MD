@@ -1,7 +1,7 @@
 ---
-title: "[Git] HEAD와 branch"
+title: "HEAD와 branch"
 layout: post
-categories: Git
+categories: git
 --- 
 
 

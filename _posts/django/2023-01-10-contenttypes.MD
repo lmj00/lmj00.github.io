@@ -2,6 +2,7 @@
 title: "Contenttypes"
 layout: post
 categories: django
+modified_date: 2023-01-17
 --- 
 
 ## [Contenttypes](https://docs.djangoproject.com/en/2.2/ref/contrib/contenttypes/)
@@ -35,3 +36,18 @@ class TaggedItem(models.Model):
 ```python
 content_object = GenericForeignKey() # 3
 ```
+
+
+### Content type id 템플릿으로 전달
+```python
+# views.py
+from django.contrib.contenttypes.models import ContentType
+
+def get_context_data(self, **kwargs):
+    ... 
+    ContentType.objects.get(model='모델명')
+	
+    return context
+```
+
+

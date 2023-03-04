@@ -18,7 +18,7 @@ class AccountSerializer(serializers.ModelSerializer):
 ## Meta
 모든 필드 적용시 
 ```python 
-field '__all__'
+fields '__all__'
 ```
 
 <br>

@@ -5,10 +5,6 @@ categories: drf
 ---
 
 
-## @api_view()
-- DRF에서 Django의 HttpRequest, HttpResponse 대신 Request, Response로 요청 처리
-
-
 ## Request
 ```python
 @api_view(['GET', 'POST'])

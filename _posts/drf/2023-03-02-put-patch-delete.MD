@@ -27,8 +27,10 @@ from rest_framework.generics import get_object_or_404
 @api_view(['GET', 'PATCH', 'DELETE'])
 def snippet_detail(request, pk):
     snippet = get_object_or_404(Snippet, pk=pk)
-    
-    ...
+        
+    if request.method == 'GET':
+        serializer = SnippetSerializer(snippet)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     if request.method == 'PATCH':
         serializer = SnippetSerializer(snippets, data=request.data, partial=True) 
@@ -38,7 +40,7 @@ def snippet_detail(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
-        movie.delete()
+        serializer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
         
 partial - PATCH를 사용할 때 필요한 옵션

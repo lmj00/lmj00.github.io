@@ -5,6 +5,11 @@ categories: drf
 ---
 
 
+## [@api_view()](https://www.django-rest-framework.org/api-guide/views/)
+- DRF에서 Django의 HttpRequest, HttpResponse 대신 Request, Response로 요청 처리
+- Django의 View 클래스를 상속받음
+
+
 ## Request
 ```python
 @api_view(['GET', 'POST'])

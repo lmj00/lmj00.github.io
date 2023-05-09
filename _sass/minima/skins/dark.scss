@@ -34,7 +34,7 @@ $table-border-color:    $border-color-01 !default;
 
 .highlight {
   .c     { color: #545454; font-style: italic } // Comment
-  .err   { color: #f07178; background-color: #e3d2d2 } // Error
+  // .err   { color: #f07178; background-color: #e3d2d2 } // Error
   .k     { color: #89DDFF; font-weight: bold } // Keyword
   .o     { font-weight: bold } // Operator
   .cm    { color: #545454; font-style: italic } // Comment.Multiline

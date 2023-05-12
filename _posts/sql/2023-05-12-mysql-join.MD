@@ -2,6 +2,7 @@
 title: "MySQL JOIN"
 layout: post
 categories: sql
+modified_date: '2023-05-13'
 --- 
  
 
@@ -32,7 +33,16 @@ categories: sql
       - ### RIGHT OUTER JOIN 
         - LEFT OUTER JOIN과 반대
         - 테이블2에 테이블1을 ON 조건으로 합친다.
-      
+
+
+      - ### FULL OUTER JOIN
+        LEFT OUTER JOIN의 결과와 RIGHT OUTER JOIN 결과를 합친다.
+        ```sql
+        LEFT OUTER JOIN 쿼리문
+        UNION
+        RIGHT OUTER JOIN 쿼리문
+        ```
+
       <br>
 
     - ### INNER JOIN
@@ -40,16 +50,41 @@ categories: sql
       - 기준 컬럼이 NULL이 되는 경우는 없다.
       - OUTER JOIN과 다르게 기준이 되는 테이블이 없다.
 
+
+        - ### NATURAL JOIN
+          테이블에서 같은 이름의 컬럼을 찾아서 자동으로 조건으로 설정하고, INNER JOIN을 해준다.
+          ```sql
+          FROM 테이블1 NATURAL JOIN 테이블2
+          ```
+          테이블 구조 파악을 위해 NATURAL JOIN보다 INNER JOIN으로 ON 조건을 걸어주는 게 좋다.
+
+
+    - ### CROSS JOIN
+      한 테이블의 하나의 row와 다른 테이블의 모든 row를 매칭한다. row끼리의 모든 조합을 보여줌
+      ```sql
+      SELECT * FROM 테이블1 CROSS JOIN 테이블2
+      ```
+
+
+    - ### SELF JOIN
+      - 테이블이 자기 자신과 조인
+      - 한 테이블 안에서 서로 연관된 정보를 찾기 위해사용
+ 
+    
+    - ### Non-Equi JOIN
+      - 등호(=)는 Equi 조인(Equality Condition)
+      - 그 외의 부등호와 다른 조건은 Non-Equi 조인
+      
   <br>
 
   - ### 집합 연산
     테이블을 세로 방향으로 합친다. <br>
-    MySQL에서는 버전 8.0 기준으로 UNION 연산자만 지원
+    MySQL에서는 버전 8.0 기준으로 UNION 연산자만 지원하기 때문에 조인을 통해 결과를 얻어야 함.
     
     - ### UNION(합집합)
       중복을 제거하고 합친다.
 
-      ```sql
+      ```sql      
       SELECT * FROM A
       UNION
       SELECT * FROM B

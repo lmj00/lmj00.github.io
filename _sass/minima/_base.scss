@@ -47,8 +47,10 @@ ul, ol, dl, figure,
 }
 
 hr {
-  margin-top: $spacing-unit;
+  // margin-top: $spacing-unit;
+  margin-top: $spacing-unit * 2;
   margin-bottom: $spacing-unit;
+  border-color: #404040;
 }
 
 /**

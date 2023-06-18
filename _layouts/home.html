@@ -3,19 +3,39 @@ layout: default
 ---
 
 <div class="home">
-  {%- if page.title -%}
-    <h1 class="page-heading">{{ page.title }}</h1>
-  {%- endif -%}
+  {% assign posts = site.posts %}
 
-  {{ content }}
+  {% assign empty_array = '' | split: '' %}
 
+  {% for post in posts %}
+    {% if post.modified_date %}
+      {% assign empty_array = empty_array | push: post %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign empty_array = empty_array | sort:'modified_date' | reverse %}
+
+    <ul class="recent-ul">
+      <span class="post-meta">
+        최근 변경된 문서
+      </span>
+      {% for recent in empty_array limit: 10 %}
+        <li>
+          <span class="post-meta">
+            {{ recent.modified_date }}
+          </span>
+          <a href="{{ recent.url }}">
+            - {{ recent.title | escape }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
 
   {% if site.paginate %}
     {% assign posts = paginator.posts %}
   {% else %}
     {% assign posts = site.posts %}
   {% endif %}
-
 
   {%- if posts.size > 0 -%}
     {%- if page.list_title -%}
@@ -27,7 +47,7 @@ layout: default
       <li>
         <span class="post-meta">{{ post.date | date: date_format }}</span>
         <h3>
-          <a class="post-link" href="{{ post.url | relative_url }}">
+          <a class="post-link" href="{{ post.url }}">
             {{ post.title | escape }}
           </a>
         </h3>

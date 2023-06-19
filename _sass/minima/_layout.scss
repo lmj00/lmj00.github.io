@@ -346,21 +346,23 @@
 /**
  * recent
  */
-@media screen and (min-width: 1300px) {
+@media screen and (min-width: 1350px) {
   .recent-ul {
     list-style: none;
     position: absolute;
     margin-left: $spacing-unit * 26; 
   }
-  
-  #recent-span {
-    text-align: center;
-  }
 }
  
 
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1350px) {
   .recent-ul {
     display: none;    
   }
+}
+
+
+
+.custom-link{
+  cursor: pointer;
 }

@@ -340,3 +340,27 @@
     width: calc(50% - (#{$spacing-unit} / 2));
   }
 }
+
+
+
+/**
+ * recent
+ */
+@media screen and (min-width: 1300px) {
+  .recent-ul {
+    list-style: none;
+    position: absolute;
+    margin-left: $spacing-unit * 26; 
+  }
+  
+  #recent-span {
+    text-align: center;
+  }
+}
+ 
+
+@media screen and (max-width: 1300px) {
+  .recent-ul {
+    display: none;    
+  }
+}

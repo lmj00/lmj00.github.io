@@ -16,19 +16,24 @@ layout: default
   {% assign empty_array = empty_array | sort:'modified_date' | reverse %}
 
     <ul class="recent-ul">
-      <span class="post-meta">
-        최근 변경된 문서
-      </span>
+      <h3 class="recent-h">최근 변경된 문서</h3>
+
       {% for recent in empty_array limit: 10 %}
-        <li>
+        <li id="recent-li">
           <span class="post-meta">
-            {{ recent.modified_date }}
+            {{ recent.modified_date }} -
           </span>
           <a href="{{ recent.url }}">
-            - {{ recent.title | escape }}
+            {{ recent.title | escape }}
           </a>
         </li>
       {% endfor %}
+
+      <h4 id="recent-h4" class="recent-h">
+        <a href="/recent">
+          변경된 전체 문서 ({{ empty_array.size }})
+        </a>
+      </h4>
     </ul>
 
   {% if site.paginate %}

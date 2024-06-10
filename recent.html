@@ -20,6 +20,7 @@ permalink: recent/
     {% for recent in empty_array %}
         <li>
             <span class="post-meta">{{ recent.modified_date }}</span>
+            <span id="category-tag">{{ recent.categories }}</span>
             <h3>
                 <a class="post-link" href="{{ recent.url }}">
                     {{ recent.title | escape }}

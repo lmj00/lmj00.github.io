@@ -51,7 +51,7 @@ layout: default
       {%- for post in posts -%}
       <li>
         <span class="post-meta">{{ post.date | date: date_format }}</span>
-        <span id="category-tag">{{ post.categories }}</span>
+        <a href="/category/{{ post.categories }}" id="category-tag">{{ post.categories }}</a>
         <h3>
           <a class="post-link" href="{{ post.url }}">
             {{ post.title | escape }}

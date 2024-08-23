@@ -1,0 +1,1096 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2024-08-23T07:07:58+00:00</updated><id>/feed.xml</id><title type="html">공부</title><subtitle></subtitle><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><entry><title type="html">RequestBody / ResponseBody</title><link href="/spring/requestbody-responsebody" rel="alternate" type="text/html" title="RequestBody / ResponseBody" /><published>2024-08-23T00:00:00+00:00</published><updated>2024-08-23T00:00:00+00:00</updated><id>/spring/requestbody-responsebody</id><content type="html" xml:base="/spring/requestbody-responsebody"><![CDATA[<h3 id="requestbody">RequestBody</h3>
+<ul>
+  <li>HttpRequest body를 도메인 객체에 매핑하여 Java 객체로 자동으로 역직렬화</li>
+  <li>POST, PUT, PATCH 메서드와 함께 사용</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Data</span>
+<span class="nd">@Builder</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SearchRequestDto</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">value</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@RestController</span>
+<span class="nd">@RequiredArgsConstructor</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SearchController</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">SearchService</span> <span class="n">searchService</span><span class="o">;</span>
+    
+    <span class="nd">@PostMapping</span><span class="o">(</span><span class="s">"/getSearch"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">ResponseEntity</span><span class="o">&lt;</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">SearchResponseDto</span><span class="o">&gt;&gt;</span> <span class="nf">getSearch</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="nc">SearchRequestDto</span> <span class="n">searchRequestDto</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">ResponseEntity</span><span class="o">.</span><span class="na">ok</span><span class="o">(</span><span class="n">searchService</span><span class="o">.</span><span class="na">getSearch</span><span class="o">(</span><span class="n">searchRequestDto</span><span class="o">));</span>
+    <span class="o">}</span>   
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Service</span>
+<span class="nd">@RequiredArgsConstructor</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SearchService</span> <span class="o">{</span>
+    
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">SearchRepository</span> <span class="n">searchRepository</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nc">List</span><span class="o">&lt;</span><span class="nc">SearchResponseDto</span><span class="o">&gt;</span> <span class="nf">getSearch</span><span class="o">(</span><span class="nc">SearchRequestDto</span> <span class="n">searchRequestDto</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">SearchResponseDto</span><span class="o">&gt;</span> <span class="n">returnValue</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+        
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Search</span><span class="o">&gt;</span> <span class="n">searchValues</span> <span class="o">=</span> <span class="n">searchRepository</span><span class="o">.</span><span class="na">getSearch</span><span class="o">(</span><span class="n">searchRequestDto</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Search</span> <span class="n">search</span> <span class="o">:</span> <span class="n">searchValues</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">returnValue</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">SearchResponseDto</span><span class="o">(</span><span class="n">search</span><span class="o">));</span>
+        <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">returnValue</span><span class="o">;</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="responsebody">ResponseBody</h3>
+<ul>
+  <li>객체를 JSON으로 직렬화하여 HttpResponse 객체로 다시 전달</li>
+  <li>@RestController를 사용할 때, 해당 어노테이션이 포함되어 있어서, 주로 @Controller와 사용된다.</li>
+</ul>
+
+<h3 id="참고">참고</h3>
+<ul>
+  <li><a href="https://www.baeldung.com/spring-request-response-body">Spring’s RequestBody and ResponseBody Annotations</a></li>
+  <li><a href="https://www.geeksforgeeks.org/difference-between-requestbody-and-responsebody-annotation-in-spring/">Difference Between @RequestBody and @ResponseBody Annotation in Spring</a></li>
+</ul>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="spring" /><summary type="html"><![CDATA[RequestBody HttpRequest body를 도메인 객체에 매핑하여 Java 객체로 자동으로 역직렬화 POST, PUT, PATCH 메서드와 함께 사용]]></summary></entry><entry><title type="html">Controller / RestController</title><link href="/spring/controller-restcontroller" rel="alternate" type="text/html" title="Controller / RestController" /><published>2024-08-21T00:00:00+00:00</published><updated>2024-08-21T00:00:00+00:00</updated><id>/spring/controller-restcontroller</id><content type="html" xml:base="/spring/controller-restcontroller"><![CDATA[<h3 id="controller">Controller</h3>
+<ul>
+  <li>일반적으로 @RequestMapping과 함께 사용</li>
+  <li>뷰를 반환해야 할 때 가장 적합</li>
+  <li>Model 객체와 함께 사용</li>
+</ul>
+
+<h3 id="restcontroller">RestController</h3>
+<ul>
+  <li>Spring 4.0에 도입된 RESTful 웹 서비스를 구축하는 Spring 접근 방식</li>
+  <li>@Controller와 @ResponseBody를 모두 포함하는 축약형 어노테이션</li>
+  <li>모든 메서드가 뷰(HTML, thymeleaf, JSP) 대신 도메인 객체를 반환</li>
+  <li>반환 객체를 자동으로 HttpResponse로 직렬화</li>
+  <li><code class="language-plaintext highlighter-rouge">spring-boot-starter-web</code> 의존성에 Jackson 라이브러리가 존재하기에 자동으로 인스턴스를 JSON으로 변환한다.</li>
+</ul>
+
+<h2 id="참고">참고</h2>
+<ul>
+  <li><a href="https://spring.io/guides/gs/rest-service">Building a RESTful Web Service</a></li>
+  <li><a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/RestController.html">Annotation Interface RestController</a></li>
+  <li><a href="https://www.baeldung.com/spring-controller-vs-restcontroller">The Spring @Controller and @RestController Annotations</a></li>
+</ul>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="spring" /><summary type="html"><![CDATA[Controller 일반적으로 @RequestMapping과 함께 사용 뷰를 반환해야 할 때 가장 적합 Model 객체와 함께 사용]]></summary></entry><entry><title type="html">나는 LINE 개발자입니다</title><link href="/book/I-am-a-LINE-developer" rel="alternate" type="text/html" title="나는 LINE 개발자입니다" /><published>2024-06-10T00:00:00+00:00</published><updated>2024-06-10T00:00:00+00:00</updated><id>/book/I-am-a-LINE-developer</id><content type="html" xml:base="/book/I-am-a-LINE-developer"><![CDATA[<p>개발 공부를 하면서, 개발 서적은 읽어본 적이 없었다.</p>
+
+<p>그래서인지, 갑자기 책을 읽고 싶어졌다.</p>
+
+<p>예전에 인프콘에서 받은 <code class="language-plaintext highlighter-rouge">나는 LINE 개발자입니다</code> 책이 눈에 들어와서 읽어보았다.</p>
+
+<p>책을 읽은 건 정말 오랜만이라 글이 잘 안 읽히기도 했지만, 개발 관련의 글이어서 읽다 보니 조금씩 계속 읽게 되었다.</p>
+
+<p>이 책을 읽기 전엔 LINE은 메신저를 서비스하는 회사라고만 알고 있었다.</p>
+
+<p>하지만, 내 생각보다 많은 서비스를 운영 중이었다. (블록체인, 금융…)</p>
+
+<p>또, 대기업에서는 정교한 프로세스를 통해 개발을 진행한다는 것을 알고는 있었지만, 생각보다 더 세밀하게 
+진행이 된다는 것을 알게 되었다.</p>
+
+<p>물론 책에서 나온 과정들은 단편적이겠지만, 실제로는 더 정교할 것이라고 예상된다.</p>
+
+<p>이러한 과정들이 기본이 되고, 모두가 한뜻으로 같은 목표를 바라보면 앞으로도 계속 성장할 수밖에 없지 않을까? 라는 생각이 든다.</p>
+
+<p>LINE의 개발자들이 어떠한 계기로, 어떤 경험을 거치며 개발을 하게 되었는지 짧게나마 글 초반에 설명 해주는 부분이 재미있었다.</p>
+
+<hr />
+
+<p>가장 마음에 들었던 구문은</p>
+
+<p>p245</p>
+<blockquote>
+  <p>일단 해보면 된다는 것이다.</p>
+</blockquote>
+
+<p>p247</p>
+<blockquote>
+  <p>가끔 내 주변 동료들이 너무 뛰어나서 주눅이 들곤 했다. 하지만 그런 생각이 나만의 문제가 아니라는 점을 2015년 파이콘에서 알게 되었다. 내가 좋아하는 장고 프레임워크를 만든 제이컵 카플란-모스가 키노트에서 “나는 중간정도 되는 개발자” 라고 선언을 한 것이다.</p>
+</blockquote>
+
+<blockquote>
+  <p>세상은 개발자가 뛰어나야만 한다는 편견으로 바라보지만 이런 생각은 도움이 안 되며, 프로그래밍은 누구나 배울 수 있는 스킬로 노력해서 중간만 한다면 충분하기 때문에 스킬 자체가 뛰어나야만 가치 있는 개발자라는 생각을 버려야 한다고 했다.</p>
+</blockquote>
+
+<hr />
+
+<p>아직 난 개발에 있어서 매우 부족하다고 느낀다. 이러한 감정을 떨쳐내기 위해 매일 조금씩이라도 개발에 관해 공부하며 흥미를 잃지 않도록 노력해야겠다는 생각이 든다.</p>
+
+<p>지금은 많이 부족한 개발자이지만, 먼 훗날 뛰어난 개발 실력을 갖추게 되어, 좋은 기업에 가서 이 글을 보며 지금, 이 순간을 회상하고 싶다.</p>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="book" /><summary type="html"><![CDATA[개발 공부를 하면서, 개발 서적은 읽어본 적이 없었다.]]></summary></entry><entry><title type="html">cherry-pick</title><link href="/git/cherry-pick" rel="alternate" type="text/html" title="cherry-pick" /><published>2024-06-04T00:00:00+00:00</published><updated>2024-06-04T00:00:00+00:00</updated><id>/git/cherry-pick</id><content type="html" xml:base="/git/cherry-pick"><![CDATA[<h3 id="cherry-pick"><a href="https://git-scm.com/docs/git-cherry-pick">cherry-pick</a></h3>
+<p>특정 커밋을 선택하여 해당 변경사항을 현재 브랜치로 가져온다.</p>
+
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span><span class="w"> </span>git cherry-pick <span class="o">[</span>커밋해시]
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="예시">예시</h3>
+<h4 id="main">main</h4>
+<p><img src="https://github.com/lmj00/practice-git/assets/54443194/c770ad23-1748-4d18-a621-1ba8638b1208" alt="image" /></p>
+
+<h4 id="dev">dev</h4>
+<p><img src="https://github.com/lmj00/practice-git/assets/54443194/ab150b37-be71-4b0c-bde8-2f12c386f655" alt="image" /></p>
+
+<p>main 브랜치에 add, subtract, multiply 기능이 있고,</p>
+
+<p>dev 브랜치에 divide, sqrt 기능이 있다.</p>
+
+<p>main &lt;- dev로 merge를 하면 divide, sqrt 기능이 합쳐지게 된다.</p>
+
+<p>만약, sqrt 기능은 필요없고 divide 기능이 필요할 때 <code class="language-plaintext highlighter-rouge">cherry-pick</code>을 사용하면 된다.</p>
+
+<h3 id="test">test</h3>
+<ol>
+  <li>
+    <p>특정 커밋을 선택할 브랜치로 이동한다. (dev)
+<img src="https://github.com/lmj00/practice-git/assets/54443194/6c1f4191-b00a-4fd8-b509-b3e3e879f719" alt="image" /></p>
+  </li>
+  <li>
+    <p>현재 divide의 해시는 d6cc</p>
+  </li>
+  <li>
+    <p>해당 기능을 적용할 브랜치로 이동 (main)</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">git cherry-pick d6cc</code></p>
+  </li>
+  <li>
+    <p>push</p>
+  </li>
+</ol>
+
+<p><br /></p>
+
+<p>main 브랜치를 확인해보면 sqrt 기능이 빠지고 divide 기능만 적용되었다.</p>
+
+<p><img src="https://github.com/lmj00/practice-git/assets/54443194/90691c31-c330-476f-ba0b-e1b66ab89309" alt="image" /></p>
+
+<h3 id="options">options</h3>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="git" /><summary type="html"><![CDATA[cherry-pick 특정 커밋을 선택하여 해당 변경사항을 현재 브랜치로 가져온다.]]></summary></entry><entry><title type="html">2024.06 TIL</title><link href="/til/2024-06" rel="alternate" type="text/html" title="2024.06 TIL" /><published>2024-06-03T00:00:00+00:00</published><updated>2024-06-03T00:00:00+00:00</updated><id>/til/2024-06</id><content type="html" xml:base="/til/2024-06"><![CDATA[<h4 id="20240603">2024.06.03</h4>
+<ul>
+  <li><a href="/git/cherry-pick">git cherry-pick</a></li>
+  <li><a href="https://docs.github.com/ko/actions/automating-builds-and-tests/building-and-testing-ruby">workflow ruby build</a></li>
+</ul>
+
+<h4 id="20240604">2024.06.04</h4>
+<ul>
+  <li>isPresent()</li>
+  <li>@RequestBody</li>
+  <li>@ResponseBody</li>
+  <li>@RequiredArgsConstructor</li>
+  <li>@Data</li>
+  <li>git revert</li>
+</ul>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="til" /><summary type="html"><![CDATA[2024.06.03 git cherry-pick workflow ruby build]]></summary></entry><entry><title type="html">OOP</title><link href="/oop/oop" rel="alternate" type="text/html" title="OOP" /><published>2023-10-29T00:00:00+00:00</published><updated>2023-10-29T00:00:00+00:00</updated><id>/oop/oop</id><content type="html" xml:base="/oop/oop"><![CDATA[<h3 id="추상화abstraction"><a href="https://ko.wikipedia.org/wiki/%EC%B6%94%EC%83%81%ED%99%94_(%EC%BB%B4%ED%93%A8%ED%84%B0_%EA%B3%BC%ED%95%99)">추상화(Abstraction)</a></h3>
+<blockquote>
+  <p>복잡한 자료, 모듈, 시스템 등으로부터 핵심적인 개념 또는 기능을 간추려 내는 것을 말한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>변수, 함수, 클래스도 모두 추상화이다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="캡슐화encapsulation"><a href="https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)">캡슐화(Encapsulation)</a></h3>
+<blockquote>
+  <p>캡슐화는 데이터에 대해 동작하는 메커니즘 또는 메서드와 함께 데이터를 하나로 묶는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>캡슐화는 클래스 내부에서 구조화된 데이터 객체의 값 또는 상태를 숨기는 데 사용되며, 숨겨진 구현 세부 사항을 노출하거나 상태 불변성을 위반할 수 있는 방식에 대한 직접 접근을 방지할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>캡슐화한 변수를 외부에서 접근, 수정하려면 클래스 내부에서 해당 메서드<code class="language-plaintext highlighter-rouge">(getter, setter)</code>를 만들어줘야 한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>파이썬은 캡슐화를 지원하지 않지만, 파이썬의 규칙인 <code class="language-plaintext highlighter-rouge">언더바(_)</code>와 <code class="language-plaintext highlighter-rouge">@property</code>로 캡슐화를 한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>파이썬의 캡슐화는 해당 변수나 메서드를 클래스 밖에서 직접 접근하여 쓰지 말라는 규칙일 뿐, 실제로는 아무런 변화가 없다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<h4 id="언더바_">언더바(_)</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Parent</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_count</span>
+
+    <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_count</span> <span class="o">=</span> <span class="n">count</span>
+
+<span class="n">p1</span> <span class="o">=</span> <span class="nc">Parent</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">p1</span><span class="p">.</span><span class="n">_count</span><span class="p">)</span> <span class="c1"># 0
+</span><span class="n">p1</span><span class="p">.</span><span class="nf">setter</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">p1</span><span class="p">.</span><span class="n">_count</span><span class="p">)</span> <span class="c1"># 1
+</span></code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="property"><a href="https://docs.python.org/3/library/functions.html#property">@property</a></h4>
+<blockquote>
+  <p>데코레이터를 사용하여 getter, setter 메서드를 정의하는 캡슐화다.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Parent</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_count</span>
+
+    <span class="nd">@count.setter</span>
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_count</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="n">p1</span> <span class="o">=</span> <span class="nc">Parent</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">p1</span><span class="p">.</span><span class="n">count</span><span class="p">)</span>
+<span class="n">p1</span><span class="p">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">p1</span><span class="p">.</span><span class="n">count</span><span class="p">)</span>
+</code></pre></div></div>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">@property</code>를 통해 동일한 메서드의 이름를 가진 count를 <code class="language-plaintext highlighter-rouge">getter</code>로 바꾸고, @count.setter를 통해 <code class="language-plaintext highlighter-rouge">setter</code>의 역할을 하게끔 만든다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<h4 id="네임-맹글링name-mangling"><a href="https://docs.python.org/3/tutorial/classes.html#private-variables">네임 맹글링(Name Mangling)</a></h4>
+<blockquote>
+  <p>네임 맹글링 규칙은 주로 <a href="https://peps.python.org/pep-0008/#method-names-and-instance-variables">상위 클래스와 하위 클래스의 이름 충돌을 방지</a>하기 위해 설계되었습니다. 캡슐화된 변수에 접근하거나 수정하는 것은 여전히 ​​가능합니다.</p>
+</blockquote>
+
+<blockquote>
+  <p>네임 맹글링을 하게 되면 새로운 이름을 갖게 된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>변수나 메서드 이름을 변형시켜, 외부에서 직접적인 접근을 어렵게 만든다. (캡슐화는 아니다)</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Parent</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">__update</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">get_update</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">__update</span>
+
+
+<span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Parent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">__update</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">get_update</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">__update</span>
+
+
+<span class="n">parent_obj</span> <span class="o">=</span> <span class="nc">Parent</span><span class="p">()</span>
+<span class="n">child_obj</span> <span class="o">=</span> <span class="nc">Child</span><span class="p">()</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">parent_obj</span><span class="p">.</span><span class="nf">get_update</span><span class="p">())</span>  <span class="c1"># 0
+</span><span class="nf">print</span><span class="p">(</span><span class="n">child_obj</span><span class="p">.</span><span class="nf">get_update</span><span class="p">())</span>   <span class="c1"># 1
+</span>
+<span class="nf">print</span><span class="p">(</span><span class="nf">dir</span><span class="p">(</span><span class="n">parent_obj</span><span class="p">))</span> <span class="c1"># '_Parent__update', ...
+</span><span class="nf">print</span><span class="p">(</span><span class="nf">dir</span><span class="p">(</span><span class="n">child_obj</span><span class="p">))</span>  <span class="c1"># _Child__update', '_Parent__update', ...
+</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">parent_obj</span><span class="p">.</span><span class="n">_Parent__update</span><span class="p">)</span> <span class="c1"># 0
+</span><span class="nf">print</span><span class="p">(</span><span class="n">child_obj</span><span class="p">.</span><span class="n">_Child__update</span><span class="p">)</span>   <span class="c1"># 1
+</span><span class="nf">print</span><span class="p">(</span><span class="n">child_obj</span><span class="p">.</span><span class="n">_Parent__update</span><span class="p">)</span>  <span class="c1"># 0
+</span></code></pre></div></div>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">dir</code>로 확인해 보면 객체가 새로운 이름을 가진 것을 알게 된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>마지막 3줄을 보면 새로운 이름을 가진 객체로 변수에 접근할 수 있기에 캡슐화라고는 할 수 없다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="상속inheritance"><a href="https://docs.python.org/3/tutorial/classes.html">상속(Inheritance)</a></h3>
+<blockquote>
+  <p>모든 클래스는 object 클래스를 상속받는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>상속과 함께 사용하는 2가지 내장 함수는 <code class="language-plaintext highlighter-rouge">isinstance()</code>, <code class="language-plaintext highlighter-rouge">issubclass()</code></p>
+</blockquote>
+
+<blockquote>
+  <p>파이썬은 다중 상속을 지원한다.</p>
+</blockquote>
+
+<h4 id="isinstance">isinstance()</h4>
+<blockquote>
+  <p>인스턴스 유형을 확인할 때 사용</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="k">class</span> <span class="nc">A</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">B</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="n">a1</span> <span class="o">=</span> <span class="nc">A</span><span class="p">()</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="nf">isinstance</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">A</span><span class="p">))</span> <span class="c1"># True
+</span><span class="nf">print</span><span class="p">(</span><span class="nf">isinstance</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">B</span><span class="p">))</span> <span class="c1"># False
+</span></code></pre></div></div>
+
+<h4 id="issubclass">issubclass()</h4>
+<blockquote>
+  <p>클래스 상속을 확인할 때 사용</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">B</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="nf">issubclass</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">))</span> <span class="c1"># False
+</span><span class="nf">print</span><span class="p">(</span><span class="nf">issubclass</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">object</span><span class="p">))</span> <span class="c1"># True
+</span></code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="오버라이딩"><a href="https://ko.wikipedia.org/wiki/%EB%A9%94%EC%86%8C%EB%93%9C_%EC%98%A4%EB%B2%84%EB%9D%BC%EC%9D%B4%EB%94%A9">오버라이딩</a></h4>
+<blockquote>
+  <p>객체 지향 프로그래밍에서 서브 클래스 또는 자식 클래스가 자신의 슈퍼 클래스 또는 부모 클래스 중 하나에 의해 이미 제공된 메소드를 특정한 형태로 구현하는 것</p>
+</blockquote>
+
+<blockquote>
+  <p>자바처럼 별도의 어노테이션을 적지 않는다.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Parent</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">'부모'</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Parent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">'자식'</span><span class="p">)</span>
+
+
+<span class="n">c1</span> <span class="o">=</span> <span class="nc">Child</span><span class="p">()</span>
+<span class="n">c1</span><span class="p">.</span><span class="nf">print</span><span class="p">()</span>   <span class="c1"># 자식
+</span></code></pre></div></div>
+<p>상속받은 부모 클래스의 print를, 자식 클래스에서 print로 재정의하여 <code class="language-plaintext highlighter-rouge">자식</code>이 출력된다.</p>
+
+<h4 id="super"><a href="https://docs.python.org/3/library/functions.html#super">super</a></h4>
+<blockquote>
+  <p>자식 클래스에서 부모 클래스의 메서드를 사용하고 싶을 때 쓰는 함수</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Parent</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">'부모'</span>
+
+    <span class="k">def</span> <span class="nf">parent_method</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">'부모 메서드'</span><span class="p">)</span>
+        
+
+
+<span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">Parent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">super</span><span class="p">().</span><span class="nf">__init__</span><span class="p">()</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">'자식'</span>
+    
+    <span class="k">def</span> <span class="nf">child_method</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">super</span><span class="p">().</span><span class="nf">parent_method</span><span class="p">()</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">'자식 메서드'</span><span class="p">)</span>
+
+
+<span class="n">c1</span> <span class="o">=</span> <span class="nc">Child</span><span class="p">()</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">c1</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">c1</span><span class="p">.</span><span class="nf">child_method</span><span class="p">()</span>
+
+<span class="c1"># 출력
+</span><span class="s">'''
+자식
+부모 메서드
+자식 메서드
+'''</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>super 함수는 파이썬 내부에서 현재 인스턴스를 자동으로 참조하기 때문에, super 함수로 부모 클래스의 메서드를 쓸 때, self 파라미터를 쓰지 않아도 된다. <a href="https://stackoverflow.com/questions/57218037/why-do-we-not-need-to-include-self-in-super">참고</a></p>
+</blockquote>
+
+<p><br /></p>
+
+<h4 id="다중-상속"><a href="https://docs.python.org/3/tutorial/classes.html#multiple-inheritance">다중 상속</a></h4>
+<blockquote>
+  <p>파이썬에선 하나의 클래스가 여러 부모 클래스를 상속받는 것도 가능하다.</p>
+</blockquote>
+
+<blockquote>
+  <p>파이썬은 다중 상속을 다룰 때, 다이아몬드 상속과 같은 상황에서 <code class="language-plaintext highlighter-rouge">MRO</code>를 사용한다.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">A</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">B</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"B에서 출력"</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"C에서 출력"</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Child</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="n">c1</span> <span class="o">=</span> <span class="nc">Child</span><span class="p">()</span>
+<span class="n">c1</span><span class="p">.</span><span class="nf">print</span><span class="p">()</span> <span class="c1"># B에서 출력
+</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">Child</span><span class="p">.</span><span class="nf">mro</span><span class="p">())</span> <span class="c1"># [&lt;class '__main__.Child'&gt;, &lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;, &lt;class '__main__.C'&gt;, &lt;class 'object'&gt;]
+</span></code></pre></div></div>
+<blockquote>
+  <p>클래스의 계층 구조를 깊이 우선으로 왼쪽에서 오른쪽으로 찾는다</p>
+</blockquote>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">MRO</code>는 A, B, C 순서로 메서드를 접근하며, Child의 print 메서드가 A에 없으면, B, 그다음 C 순으로 접근하며 print 메서드를 찾고, 없으면 object 클래스에서 찾는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>A 클래스엔 print 메서드가 없으니, 그다음인 B 클래스의 print 메서드로 출력</p>
+</blockquote>
+
+<p><br /></p>
+
+<h4 id="mro"><a href="https://www.python.org/download/releases/2.3/mro/">MRO</a></h4>
+<blockquote>
+  <p>Method Resolution Order</p>
+</blockquote>
+
+<blockquote>
+  <p>자식 클래스가 부모 클래스를 2번 호출하지 않도록 하기 위해 MRO가 동적으로 결정한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>메서드를 호출 시, mro에 나와 있는 순서대로 메서드를 탐색한다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<h4 id="mro-vs-help">mro vs help</h4>
+<blockquote>
+  <p>mro: 다중 상속을 다룰 때 클래스의 메소드 해석 순서를 제공한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>help: 객체나 모듈의 사용법과 관련된 정보를 제공한다. 어떤 부모 클래스를 가지는지 보여준다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="다형성polymorphism"><a href="https://ko.wikipedia.org/wiki/%EB%8B%A4%ED%98%95%EC%84%B1_(%EC%BB%B4%ED%93%A8%ED%84%B0_%EA%B3%BC%ED%95%99)">다형성(Polymorphism)</a></h3>
+<blockquote>
+  <p>프로그래밍 언어의 자료형 체계의 성질을 나타내는 것으로, 프로그램 언어의 각 요소들(상수, 변수, 식, 오브젝트, 함수, 메소드 등)이 다양한 자료형(type)에 속하는 것이 허가되는 성질을 가리킨다. 반댓말은 단형성(monomorphism)으로, 프로그램 언어의 각 요소가 한가지 형태만 가지는 성질을 가리킨다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<h4 id="추상-기본-클래스"><a href="https://docs.python.org/3/glossary.html#term-abstract-base-class">추상 기본 클래스</a></h4>
+<blockquote>
+  <p>Abstract base classes complement duck-typing by providing a way to define interfaces when other techniques like hasattr() would be clumsy or subtly wrong (for example with magic methods).</p>
+</blockquote>
+
+<p>추상 기본 클래스는 <code class="language-plaintext highlighter-rouge">hasattr()</code>과 같은 다른 속성 검사 방법이 예상치 못한 결과를 가져올 경우(예: 매직 메서드), 인터페이스를 정의하는 방법을 제공함으로써 <code class="language-plaintext highlighter-rouge">duck-typing</code>을 보완합니다.</p>
+
+<p><br /></p>
+
+<blockquote>
+  <p>여러 클래스 간의 동일한 코드를 공유할 때 사용</p>
+</blockquote>
+
+<blockquote>
+  <p>일반 메서드와 추상 메서드도 선언 가능하다.</p>
+</blockquote>
+
+<blockquote>
+  <p>상속받은 클래스는 추상 클래스의 추상 메서드를 모두 선언해 줘야 오류가 나지 않는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>파이썬은 기본적으로 추상 클래스를 제공하지 않기 때문에, <a href="https://peps.python.org/pep-3119/#the-abc-module-an-abc-support-framework"><code class="language-plaintext highlighter-rouge">abc(Abstract Base Class)</code></a>모듈을 상속받아 구현한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>파이썬은 다중 상속이 가능하다.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="k">class</span> <span class="nc">Biycle</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">speed</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">speedUp</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">increment</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">applyBrakes</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">decrement</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">speed</span> <span class="o">-=</span> <span class="n">decrement</span>
+
+
+<span class="k">class</span> <span class="nc">RoadBike</span><span class="p">(</span><span class="n">Biycle</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">speedUp</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">increment</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">speed</span> <span class="o">+=</span> <span class="n">increment</span>
+
+
+<span class="k">class</span> <span class="nc">ElectricBike</span><span class="p">(</span><span class="n">Biycle</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">speedUp</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">increment</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">speed</span> <span class="o">+=</span> <span class="n">increment</span> <span class="o">*</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">applyBrakes</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">decrement</span><span class="p">):</span>
+        <span class="nf">super</span><span class="p">().</span><span class="nf">applyBrakes</span><span class="p">(</span><span class="n">decrement</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"전기 자전거 브레이크"</span><span class="p">)</span>
+
+
+<span class="n">r1</span> <span class="o">=</span> <span class="nc">RoadBike</span><span class="p">()</span>
+<span class="n">r1</span><span class="p">.</span><span class="nf">speedUp</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">r1</span><span class="p">.</span><span class="nf">applyBrakes</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">e1</span> <span class="o">=</span> <span class="nc">ElectricBike</span><span class="p">()</span>
+<span class="n">e1</span><span class="p">.</span><span class="nf">speedUp</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">e1</span><span class="p">.</span><span class="nf">applyBrakes</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># 출력
+</span><span class="s">'''
+0
+10
+0
+
+0
+20
+전기 자전거 브레이크
+10
+'''</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>만약 RoadBike 클래스에서 speedUp 메서드를 구현하지 않으면 아래와 같은 오류가 뜬다.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">r1</span> <span class="o">=</span> <span class="nc">RoadBike</span><span class="p">()</span>
+     <span class="o">^^^^^^^^^^</span>
+<span class="nb">TypeError</span><span class="p">:</span> <span class="n">Can</span><span class="s">'t instantiate abstract class RoadBike with abstract method speedUp
+</span></code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="duck-typing"><a href="https://docs.python.org/3/glossary.html#term-duck-typing">duck-typing</a></h4>
+<blockquote>
+  <p>A programming style which does not look at an object’s type to determine if it has the right interface; instead, the method or attribute is simply called or used (“If it looks like a duck and quacks like a duck, it must be a duck.”) By emphasizing interfaces rather than specific types, well-designed code improves its flexibility by allowing polymorphic substitution. Duck-typing avoids tests using type() or isinstance(). (Note, however, that duck-typing can be complemented with abstract base classes.) Instead, it typically employs hasattr() tests or EAFP programming.</p>
+</blockquote>
+
+<p>객체가 올바른 인터페이스가 있는지 확인하기 위해 객체의 타입을 살펴보지 않는 프로그래밍 스타일입니다. 대신에 메서드나 속성을 간단히 호출하거나 사용합니다. (“오리처럼 보이고 오리처럼 꽥꽥거린다면 오리일 것입니다.”). 특정 타입보다는 인터페이스를 강조함으로써 잘 설계된 코드는 다형성 치환을 허용함으로써 유연성을 향상합니다. duck-typing은 type() 또는 isinstance()를 사용하는 테스트를 피한다. (그러나 추상 기본 클래스와 보완될 수 있다.) 대신에, 일반적으로 hasattr() 테스트나 EAFP 프로그래밍을 사용한다.</p>
+
+<p><br /></p>
+
+<h4 id="eafp">EAFP</h4>
+<blockquote>
+  <p>Easier to ask for forgiveness than permission. This common Python coding style assumes the existence of valid keys or attributes and catches exceptions if the assumption proves false. This clean and fast style is characterized by the presence of many try and except statements. The technique contrasts with the LBYL style common to many other languages such as C.</p>
+</blockquote>
+
+<p>허락보다는 용서를 구하기가 더 쉽다. 일반적인 파이썬 코딩 스타일은 유효한 키나 속성이 존재한다고 가정하고 가정이 거짓임이 입증되면 예외를 잡아낸다. 이 깨끗하고 빠른 스타일은 많은 try-except 문이 존재한다는 것이 특징이다. 이 기법은 C와 같은 다른 많은 언어의 공통적인 LBYL 스타일과 대조를 이룬다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">my_list</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="k">except</span> <span class="nb">IndexError</span><span class="p">:</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"인덱스가 유효하지 않습니다."</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="lbyl">LBYL</h4>
+<blockquote>
+  <p>Look before you leap. This coding style explicitly tests for pre-conditions before making calls or lookups. This style contrasts with the EAFP approach and is characterized by the presence of many if statements.</p>
+</blockquote>
+
+<p>도약하기 전에 살펴보라. 이 코딩 스타일은 호출 또는 값을 찾기 전에 사전 조건을 명시적으로 테스트한다. 이 스타일은 EAFP 접근법과 대조되며 많은 if 문이 존재하는 것이 특징이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="nf">len</span><span class="p">(</span><span class="n">my_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">my_list</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"인덱스가 유효하지 않습니다."</span><span class="p">)</span>
+</code></pre></div></div>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="oop" /><summary type="html"><![CDATA[추상화(Abstraction) 복잡한 자료, 모듈, 시스템 등으로부터 핵심적인 개념 또는 기능을 간추려 내는 것을 말한다.]]></summary></entry><entry><title type="html">스프링 입문</title><link href="/spring/spring-basic" rel="alternate" type="text/html" title="스프링 입문" /><published>2023-10-26T00:00:00+00:00</published><updated>2023-10-26T00:00:00+00:00</updated><id>/spring/spring-basic</id><content type="html" xml:base="/spring/spring-basic"><![CDATA[<h3 id="spring">Spring</h3>
+<blockquote>
+  <p>웹 어플리케이션의 첫 진입점이 Controller</p>
+</blockquote>
+
+<blockquote>
+  <p>Spring Boot는 톰캣이라는 웹서버를 내장하고 있다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<p>웹 개발을 할 때 크게 3가지 방법이 있다.</p>
+
+<ul>
+  <li>정적컨텐츠</li>
+  <li>MVC와 템플릿 엔진</li>
+  <li>API</li>
+</ul>
+
+<h3 id="정적컨텐츠">정적컨텐츠</h3>
+<blockquote>
+  <p>서버에서 웹 브라우저에 파일을 그대로 내려줌</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloController</span> <span class="o">{</span>
+
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"hello"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">hello</span><span class="o">(</span><span class="nc">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">model</span><span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">"data"</span><span class="o">,</span> <span class="s">"hello"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="s">"hello"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<ol>
+  <li>웹 브라우저에서 localhost/hello-static.html을 접속한다.</li>
+  <li>내장 톰캣 서버가 요청을 받음</li>
+  <li>스프링으로 넘기기 전에 hello-static과 관련된 컨트롤러가 있는지 확인한다.</li>
+  <li>없으면 resources/static/hello-static.html을 웹 브라우저로 반환한다.</li>
+</ol>
+
+<blockquote>
+  <p>Spring이 model을 하나 만들어서 넘겨준다.</p>
+</blockquote>
+
+<blockquote>
+  <p>model.addAttribute를 통해 key-value 형태로 넘겨준다.</p>
+</blockquote>
+
+<blockquote>
+  <p>return에 적은 곳으로 렌더링</p>
+</blockquote>
+
+<blockquote>
+  <p>resourses/templates 밑에 있는 hello.html을 찾게된다.</p>
+</blockquote>
+
+<h3 id="mvc와-템플릿-엔진">MVC와 템플릿 엔진</h3>
+<blockquote>
+  <p>서버에서 변형하여 HTML을 내려준다.</p>
+</blockquote>
+
+<blockquote>
+  <p>MVC가 등장하기 이전에는 Model1 방식(View에서 모든 것을 처리함)</p>
+</blockquote>
+
+<blockquote>
+  <p>View - 화면에 그리는 데 집중</p>
+</blockquote>
+
+<blockquote>
+  <p>Model, Controller - 비즈니스 로직, 내부 처리에 집중</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloController</span> <span class="o">{</span>
+
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"hello-mvc"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">helloMvc</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="nc">String</span> <span class="n">name</span><span class="o">,</span> <span class="nc">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">model</span><span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+        <span class="k">return</span> <span class="s">"hello-template"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>웹 브라우저에서 localhost/hello-mvc를 접속한다.</li>
+  <li>내장 톰캣 서버가 요청 받음, 톰캣 서버가 hello-mvc라는 것이 왔다고 스프링에게 전달</li>
+  <li>스프링은 hello-mvc로 맵핑된 컨트롤러가 있는 걸 확인, 이 메서드를 호출</li>
+  <li>리턴을 해줄 때 viewResolver가 hello-template으로 반환</li>
+  <li>템플릿 엔진(Thymeleaf)이 렌더링해서 변환한 HTML을 웹 브라우저에 반환</li>
+</ol>
+
+<p>viewResolver - 뷰를 찾아주고 템플릿으로 연결</p>
+
+<h3 id="api">API</h3>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloController</span> <span class="o">{</span>
+
+    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">"hello-api"</span><span class="o">)</span>
+    <span class="nd">@ResponseBody</span>
+    <span class="kd">public</span> <span class="nc">Hello</span> <span class="nf">helloApi</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Hello</span> <span class="n">hello</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Hello</span><span class="o">();</span>
+        <span class="n">hello</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">hello</span><span class="o">;</span>
+    <span class="o">}</span>
+
+
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+        <span class="kd">private</span> <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="o">}</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>웹 브라우저에서 localhost/hello-api를 접속한다.</li>
+  <li>내장 톰캣 서버가 요청을 받음, 톰캣 서버가 hello-api라는 것이 왔다고 스프링에게 전달</li>
+  <li>스프링은 hello-api로 맵핑된 컨트롤러가 있는 걸 확인하는데, ResponseBody이라는 어노테이션이 붙어있는 걸 발견</li>
+  <li>ResponseBody가 있으면 HTTP의 응답에 데이터를 넣어 동작</li>
+  <li>문자열이면 그대로 응답하면 되지만, 객체일 때는 JSON 방식으로 데이터를 만들어서 HTTP 응답에 반환하는 게 기본 정책</li>
+</ol>
+
+<blockquote>
+  <p>스프링에서 ResponseBody의 기본은 JSON 반환</p>
+</blockquote>
+
+<blockquote>
+  <p>객체를 넘기면 HTTP의 메시지 컨버터가 동작한다. 단순 문자열이면 StringConverter이 동작, 객체면 JsonConverter라는게 동작한다. JsonConverter는 객체를 JSON으로 바꾸고, 요청한 웹브라우저나 서버한테 JSON으로 보내준다.</p>
+</blockquote>
+
+<blockquote>
+  <p>HTTP Accept 헤더에 JSON이라고 요청이 오면 JSON으로 받고, 아무것도 안 보내면 다 받을 수 있다.
+아무것도 안 보내면 스프링이 알아서 요청한 형식으로 보낸다.</p>
+</blockquote>
+
+<blockquote>
+  <p>getter setter는 자바 빈 규약 또는 프로퍼티 접근 방식이라고도 한다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="참고">참고</h3>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EC%9E%85%EB%AC%B8-%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8/dashboard">[김영한] 스프링 입문 - 코드로 배우는 스프링 부트, 웹 MVC, DB 접근 기술</a></p>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="spring" /><summary type="html"><![CDATA[Spring 웹 어플리케이션의 첫 진입점이 Controller]]></summary></entry><entry><title type="html">Apache Kafka</title><link href="/kafka/kafka" rel="alternate" type="text/html" title="Apache Kafka" /><published>2023-10-24T00:00:00+00:00</published><updated>2023-10-24T00:00:00+00:00</updated><id>/kafka/kafka</id><content type="html" xml:base="/kafka/kafka"><![CDATA[<h3 id="apache-kafka">Apache Kafka</h3>
+<blockquote>
+  <p>빠르고 확장 가능한 작업을 위해 데이터 피드의 분산 스트리밍, 파이프 라이닝 및 재생을 위한 실시간 스트리밍 데이터를 처리하기 위한 목적으로 설계된 오픈 소스 분산형 게시-구독 메시징 플랫폼입니다.</p>
+</blockquote>
+
+<blockquote>
+  <p>Kafka는 서버 클러스터 내에서 데이터 스트림을 레코드로 유지하는 방식으로 작동하는 브로커 기반 솔루션입니다.</p>
+</blockquote>
+
+<blockquote>
+  <p>Kafka 서버는 여러 데이터 센터에 분산되어 있을 수 있으며 여러 서버 인스턴스에 걸쳐 레코드 스트림(메시지)을 토픽으로 저장하여 데이터 지속성을 제공할 수 있습니다. 토픽은 레코드 또는 메시지를 키, 값 및 타임스탬프로 구성된 일련의 튜플, 변경 불가능한 Python 객체 시퀀스로 저장합니다.</p>
+</blockquote>
+
+<blockquote>
+  <p>레코드는 변경 불가능한 커밋 로그라고 합니다. 변경 불가능하다고 하는 것은 레코드를 추가할 수는 있지만 달리 변경할 수는 없기 때문입니다. 여기에서 로그를 구독(데이터에 액세스)할 수 있으며, 개수 제한 없이 여러 스트리밍 실시간 애플리케이션과 다른 시스템에서 로그에 게시(데이터 추가)할 수도 있습니다.</p>
+</blockquote>
+
+<h3 id="kafka-등장-배경">kafka 등장 배경</h3>
+<blockquote>
+  <p>전통적인 <a href="https://en.wikipedia.org/wiki/Enterprise_messaging_system">엔터프라이즈 메시징 시스템</a>의 대안입니다. 하루에 1조 4천억 건의 메시지를 처리하기 위해 LinkedIn이 개발한 내부 시스템으로 시작했습니다.</p>
+</blockquote>
+
+<blockquote>
+  <p>Apache Kafka와 Google Cloud Pub/Sub 같은 이벤트 스트리밍 시스템이 등장하기 전의 데이터 처리는 일반적으로 원시 데이터를 먼저 저장했다가 나중에 임의의 시간 간격으로 처리하는 주기적인 일괄 작업으로 다뤄져 왔습니다. 예를 들어 통신 회사에서는 하루, 한 주 또는 한 달이 지날 때까지 기다렸다가 수백만 건의 통화 기록을 분석하고 누적 요금을 계산할 수 있습니다.</p>
+</blockquote>
+
+<blockquote>
+  <p>일괄 처리의 한계 중 하나는 실시간이 아니라는 점입니다. 적시에 비즈니스 결정을 내리고 흥미로운 일이 발생할 경우 조치를 취하기 위해 데이터를 실시간으로 분석하고자 하는 조직은 점점 많아지고 있습니다. 앞서 언급한 통신 회사에서는 전반적인 고객 경험을 향상시킬 한 가지 방법으로 고객에게 실시간 요금을 알려주는 것이 도움이 될 수 있습니다. 여기서 이벤트 스트리밍의 필요성이 발생합니다.</p>
+</blockquote>
+
+<h3 id="이벤트-스트리밍">이벤트 스트리밍</h3>
+<blockquote>
+  <p>이벤트 스트리밍은 데이터의 시간적 가치를 포착하는 것은 물론 흥미로운 일이 발생할 때마다 조치를 취하는 푸시 기반 애플리케이션을 만들기 위해 이벤트가 생성되는 대로 이벤트의 무한 스트림을 지속해서 처리하는 프로세스입니다.</p>
+</blockquote>
+
+<p>이벤트 스트리밍의 예</p>
+<ul>
+  <li>고객 대면 웹 애플리케이션에서 생성되는 로그 파일을 지속적으로 분석</li>
+  <li>사용자가 전자상거래 웹사이트를 탐색할 때 고객 행동을 모니터링하고 그에 대응</li>
+  <li>소셜 네트워크에서 생성되는 클릭 스트림 데이터의 변화를 분석하여 고객 감정에 지속해서 영향을 미치는 것</li>
+  <li>사물 인터넷(IoT) 기기에서 생성되는 원격 분석 데이터를 수집하고 그에 대응하는 것</li>
+  <li>데이터 처리를 위한 실시간 스트리밍</li>
+</ul>
+
+<h3 id="kafka의-개념">Kafka의 개념</h3>
+
+<h3 id="참고">참고</h3>
+<ul>
+  <li><a href="https://kafka.apache.org/documentation/#introduction">kafka</a></li>
+  <li><a href="https://www.tibco.com/ko/reference-center/what-is-apache-kafka">Apache Kafka란 무엇인가요?</a></li>
+  <li><a href="https://cloud.google.com/learn/what-is-apache-kafka?hl=ko">Apache Kafka란?</a></li>
+</ul>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="kafka" /><summary type="html"><![CDATA[Apache Kafka 빠르고 확장 가능한 작업을 위해 데이터 피드의 분산 스트리밍, 파이프 라이닝 및 재생을 위한 실시간 스트리밍 데이터를 처리하기 위한 목적으로 설계된 오픈 소스 분산형 게시-구독 메시징 플랫폼입니다.]]></summary></entry><entry><title type="html">Java Interface, Abstract</title><link href="/java/interface-abstract" rel="alternate" type="text/html" title="Java Interface, Abstract" /><published>2023-10-22T00:00:00+00:00</published><updated>2023-10-22T00:00:00+00:00</updated><id>/java/interface-abstract</id><content type="html" xml:base="/java/interface-abstract"><![CDATA[<h3 id="interface"><a href="https://docs.oracle.com/javase/tutorial/java/concepts/interface.html">Interface</a></h3>
+<blockquote>
+  <p>객체가 어떤 동작을 수행하는지만 정의하고, 실제 동작 구현은 인터페이스를 구현하는 클래스에서 이뤄지는 것을 의미한다. -&gt; 해당 클래스가 이러한 기능을 하는 메서드들 가지고 있다는 것을 표현</p>
+</blockquote>
+
+<blockquote>
+  <p>상속은 하나의 클래스만 가능하지만, 인터페이스는 다중 구현이 가능하다.</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Bicycle</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">);</span>
+
+    <span class="kt">void</span> <span class="nf">applyBrakes</span><span class="o">(</span><span class="kt">int</span> <span class="n">decrement</span><span class="o">);</span>
+<span class="o">}</span>
+
+
+<span class="kd">class</span> <span class="nc">RoadBike</span> <span class="kd">implements</span> <span class="nc">Bicycle</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">speed</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">)</span> <span class="o">{</span>
+         <span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span> <span class="o">+</span> <span class="n">increment</span><span class="o">;</span>   
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">applyBrakes</span><span class="o">(</span><span class="kt">int</span> <span class="n">decrement</span><span class="o">)</span> <span class="o">{</span>
+         <span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span> <span class="o">-</span> <span class="n">decrement</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<blockquote>
+  <p>구현 받은 클래스는 인터페이스에 있는 모든 메서드를 구현해야 컴파일 오류가 나지 않는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>외부 클래스가 인터페이스를 구현 받기 때문에 메서드들의 <code class="language-plaintext highlighter-rouge">public abstract</code>으로 선언되어야 한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>기본 선언이 <code class="language-plaintext highlighter-rouge">public abstract</code> 이기 때문에 생략할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>상수만 가질 수 있다. 변수의 기본 선언은 <code class="language-plaintext highlighter-rouge">public static final</code>이기 때문에 생략할 수 있다.</p>
+</blockquote>
+
+<h3 id="abstract"><a href="https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html">Abstract</a></h3>
+<blockquote>
+  <p>일반 메서드와 추상 메서드를 모두 선언할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>상속받은 클래스는 추상 클래스의 추상 메서드를 모두 선언해 줘야 오류가 나지 않는다.</p>
+</blockquote>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">public</code> 이외의 접근 제어자가 선언할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>다중 상속 불가능</p>
+</blockquote>
+
+<p><br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Bicycle</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">speed</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">);</span>
+
+    <span class="kt">void</span> <span class="nf">applyBrakes</span><span class="o">(</span><span class="kt">int</span> <span class="n">decrement</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">speed</span> <span class="o">-=</span> <span class="n">decrement</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="kd">class</span> <span class="nc">RoadBike</span> <span class="kd">extends</span> <span class="nc">Bicycle</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">speed</span> <span class="o">+=</span> <span class="n">increment</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ElectricBike</span> <span class="kd">extends</span> <span class="nc">Bicycle</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">speed</span> <span class="o">+=</span> <span class="n">increment</span> <span class="o">*</span> <span class="mi">2</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="nc">RoadBike</span> <span class="n">roadBike</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RoadBike</span><span class="o">();</span>
+        <span class="n">roadBike</span><span class="o">.</span><span class="na">speed</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+        <span class="n">roadBike</span><span class="o">.</span><span class="na">speedUp</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+        <span class="n">roadBike</span><span class="o">.</span><span class="na">applyBrakes</span><span class="o">(</span><span class="mi">20</span><span class="o">);</span>
+
+        <span class="nc">ElectricBike</span> <span class="n">electricBike</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ElectricBike</span><span class="o">();</span>
+        <span class="n">electricBike</span><span class="o">.</span><span class="na">speed</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span> <span class="c1">// 10</span>
+        <span class="n">electricBike</span><span class="o">.</span><span class="na">speedUp</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span> <span class="c1">// 30</span>
+        <span class="n">electricBike</span><span class="o">.</span><span class="na">applyBrakes</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span> <span class="c1">// 20</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>추상 메서드에 <code class="language-plaintext highlighter-rouge">abstract</code> 제어자를 꼭 붙여줘야 한다.</p>
+</blockquote>
+
+<h3 id="익명-클래스"><a href="https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html">익명 클래스</a></h3>
+<blockquote>
+  <p>클래스를 선언하고 동시에 인스턴스를 생성할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>주로 클래스를 한 번만 사용할 때 사용한다.</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Bicycle</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">speed</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">);</span>
+    
+    <span class="kt">void</span> <span class="nf">applyBrakes</span><span class="o">(</span><span class="kt">int</span> <span class="n">decrement</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">speed</span> <span class="o">-=</span> <span class="n">decrement</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="nc">Bicycle</span> <span class="n">electricBike</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Bicycle</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">speedUp</span><span class="o">(</span><span class="kt">int</span> <span class="n">increment</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">speed</span> <span class="o">+=</span> <span class="n">increment</span> <span class="o">*</span> <span class="mi">2</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+
+        <span class="n">electricBike</span><span class="o">.</span><span class="na">speedUp</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span> <span class="c1">// 20</span>
+        <span class="n">electricBike</span><span class="o">.</span><span class="na">applyBrakes</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span> <span class="c1">// 10</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="java" /><summary type="html"><![CDATA[Interface 객체가 어떤 동작을 수행하는지만 정의하고, 실제 동작 구현은 인터페이스를 구현하는 클래스에서 이뤄지는 것을 의미한다. -&gt; 해당 클래스가 이러한 기능을 하는 메서드들 가지고 있다는 것을 표현]]></summary></entry><entry><title type="html">Java Generic</title><link href="/java/generic" rel="alternate" type="text/html" title="Java Generic" /><published>2023-10-21T00:00:00+00:00</published><updated>2023-10-21T00:00:00+00:00</updated><id>/java/generic</id><content type="html" xml:base="/java/generic"><![CDATA[<h3 id="generic"><a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html">Generic</a></h3>
+<blockquote>
+  <p>컴파일 단계에서 더 많은 버그를 감지할 수 있도록 하여 코드에 안정성을 추가한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>제네릭을 사용하여 인터페이스나 메서드를 정의할 때, 매개 변수에 타입을 지정하여 사용한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>클래스나 변수, 메서드를 재사용할 수 있다.</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">stringList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;();</span>
+</code></pre></div></div>
+<p>꺽쇠 안에 타입을 넣는 것이 제네릭의 기본 형태다.</p>
+
+<h3 id="generic-class"><a href="https://docs.oracle.com/javase/tutorial/java/generics/types.html">Generic Class</a></h3>
+<blockquote>
+  <p>다양한 타입을 가질 수 있는 클래스</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Box</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">Object</span> <span class="n">object</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="nc">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+         <span class="k">this</span><span class="o">.</span><span class="na">object</span> <span class="o">=</span> <span class="n">object</span><span class="o">;</span> 
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span> 
+        <span class="k">return</span> <span class="n">object</span><span class="o">;</span> 
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>컴파일을 할 때, Object의 객체 타입 확인이 불가능해서 오류가 없는 코드라고 보일 수 있지만, 런타임 때 오류가 생길 수 있기 때문에 제네릭 클래스를 사용하는 것이다.</p>
+
+<p><br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Box</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="no">T</span> <span class="n">t</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="no">T</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+         <span class="k">this</span><span class="o">.</span><span class="na">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span> 
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="no">T</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">t</span><span class="o">;</span> 
+    <span class="o">}</span>
+<span class="o">}</span>
+
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Box</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">stringBox</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Box</span><span class="o">&lt;&gt;();</span>
+        <span class="nc">Box</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">integerBox</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Box</span><span class="o">&lt;&gt;();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>위와 같이 타입 매개변수에 타입을 넣어주면 해당 타입으로 객체가 생성된다.</p>
+
+<p>타입 파라미터로 많이 쓰이는 이름은 <code class="language-plaintext highlighter-rouge">T</code>, <code class="language-plaintext highlighter-rouge">E</code></p>
+
+<h3 id="타입-매개변수-명명-규칙">타입 매개변수 명명 규칙</h3>
+<p><code class="language-plaintext highlighter-rouge">E</code> - Element (Collection 프레임워크에서 많이 사용 됨) <br />
+<code class="language-plaintext highlighter-rouge">ArrayList&lt;E&gt;</code>, <code class="language-plaintext highlighter-rouge">HashSet&lt;E&gt;</code>, <code class="language-plaintext highlighter-rouge">LinkedList&lt;E&gt;</code> …</p>
+
+<p><code class="language-plaintext highlighter-rouge">K</code> - Key <br />
+<code class="language-plaintext highlighter-rouge">N</code> - Number <br />
+<code class="language-plaintext highlighter-rouge">T</code> - Type <br />
+<code class="language-plaintext highlighter-rouge">V</code> - Value <br />
+<code class="language-plaintext highlighter-rouge">S,U,V</code> etc. - 2nd, 3rd, 4th types</p>
+
+<h3 id="generic-inheritance"><a href="https://docs.oracle.com/javase/tutorial/java/generics/inheritance.html">Generic Inheritance</a></h3>
+<blockquote>
+  <p>제네릭 클래스에서도 상속의 개념이 존재한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>제한된 타입 매개변수를 사용할 수 있다.</p>
+</blockquote>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Box</span><span class="o">&lt;</span><span class="no">T</span> <span class="kd">extends</span> <span class="nc">Shape</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="no">T</span> <span class="n">t</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">set</span><span class="o">(</span><span class="no">T</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+         <span class="k">this</span><span class="o">.</span><span class="na">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span> 
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="no">T</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">t</span><span class="o">;</span> 
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>매개변수의 타입이 Shape 클래스를 상속받은 클래스여야 한다는 뜻이다.</p>
+
+<h3 id="wildcards"><a href="https://docs.oracle.com/javase/tutorial/java/generics/wildcards.html">Wildcards</a></h3>
+<blockquote>
+  <p>제네릭 코드에서 ?는 알 수 없는 유형을 나타낸다.</p>
+</blockquote>
+
+<blockquote>
+  <p>타입을 정확히 모르거나, 상한 와일드카드, 하한 와일드카드에 사용한다.</p>
+</blockquote>
+
+<h3 id="상한-와일드카드">상한 와일드카드</h3>
+
+<h3 id="하한-와일드카드">하한 와일드카드</h3>]]></content><author><name>lmj00</name><email>e.minjin00@gmail.com</email></author><category term="java" /><summary type="html"><![CDATA[Generic 컴파일 단계에서 더 많은 버그를 감지할 수 있도록 하여 코드에 안정성을 추가한다.]]></summary></entry></feed>

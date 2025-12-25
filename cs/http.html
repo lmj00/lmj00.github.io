@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>HTTP | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="HTTP" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="HTTP(Hypertext Transfer Protocol) 웹에서 모든 데이터 교환의 기초가 되는 클라이언트-서버 프로토콜" />
+<meta property="og:description" content="HTTP(Hypertext Transfer Protocol) 웹에서 모든 데이터 교환의 기초가 되는 클라이언트-서버 프로토콜" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-04-22T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="HTTP" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-04-22T00:00:00+00:00","datePublished":"2023-04-22T00:00:00+00:00","description":"HTTP(Hypertext Transfer Protocol) 웹에서 모든 데이터 교환의 기초가 되는 클라이언트-서버 프로토콜","headline":"HTTP","mainEntityOfPage":{"@type":"WebPage","@id":"/cs/http"},"url":"/cs/http"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">HTTP</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-04-22T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-04-22
+        </span>
+      </time>
+      <br><!-- ~  --><time class="dt-modified" datetime="2023-04-24T00:00:00+00:00" itemprop="dateModified">
+            <span style="float: right;">
+              updated: 2023-04-24
+            </span>
+          </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="httphypertext-transfer-protocol"><a href="https://datatracker.ietf.org/doc/html/rfc2616">HTTP(Hypertext Transfer Protocol)</a></h3>
+<ul>
+  <li>웹에서 모든 데이터 교환의 기초가 되는 클라이언트-서버 프로토콜</li>
+</ul>
+
+<h3 id="http-messages">HTTP Messages</h3>
+<ul>
+  <li>클라이언트에서 서버의 요청과 응답으로 구성</li>
+  <li>메시지는 시작 라인, 0개 이상의 header, 빈 라인(CRLF), message-body 형식으로 받는다.</li>
+  <li>서버는 견고성(<code class="language-plaintext highlighter-rouge">실행 중 오류에 대처하고 잘못된 입력을 대처하는 컴퓨터 시스템의 기능</code>)을 위해 비어 있는 모든 것을 무시해야 한다.</li>
+</ul>
+
+<h3 id="message-headers">Message Headers</h3>
+<ul>
+  <li>헤더 필드는 message-value = field-name “:” [ field-value ]로 구성된다.</li>
+  <li>필드 이름은 대소문자 구분을 하지 않는다.</li>
+  <li>필드 이름이 동일한 경우, [i.e., #(values)]로 정의</li>
+</ul>
+
+<h3 id="message-body">Message Body</h3>
+<ul>
+  <li>데이터를 저장하는 곳이며 선택 사항</li>
+  <li>헤더에 모든 데이터를 저장하는 메시지는 body가 필요하지 않음</li>
+  <li>message-body가 있는 경우, 요청 또는 응답과 관련된 entity-body를 전달하는 데 사용</li>
+  <li>message-body가 허용되는 경우에 대한 규칙은 요청 및 응답에 따라 다르다.</li>
+  <li>요청에 대한 message-body가 있다는 것은, 요청 message-headers에 Content-Length 또는 <br /> Transfer-Encoding 헤더 필드가 포함되어 있다는 신호</li>
+  <li>요청에서 entity-body 전송을 허용하지 않는 경우 message-body는 요청에 포함되어선 안 된다.</li>
+  <li>서버는 모든 요청에 대해 message-body를 읽고 전달해야 한다.</li>
+  <li>request method가 entity-body에 대해 정의된 의미를 포함하지 않는 경우, 요청을 처리할 때 message-body를 무시해야 한다.</li>
+  <li>모든 1xx, 204, 304 응답은 message-body를 포함하면 안 된다. 다른 모든 응답에는 message-body가 포함될 수 있지만 길이가 0일 수도 있다.</li>
+</ul>
+
+<h3 id="content-length">Content-Length</h3>
+<ul>
+  <li>클라이언트에게 보낸 message-body의 바이트 크기</li>
+  <li>GET, DELETE는 길이가 0이어야 한다.</li>
+  <li>POST는 Content-Length가 지정되고 메시지 행의 길이와 일치하지 않으면 메시지는 잘리거나 지정된 길이까지 NULL로 채워진다.</li>
+  <li>컨텐츠가 없는 경우(값이 0인 경우)에도 항상 HTTP 응답에서 리턴</li>
+</ul>
+
+<h3 id="요청응답">요청/응답</h3>
+<blockquote>
+  <ol>
+    <li>클라이언트가 웹에 HTTP 요청을 보낸다.</li>
+    <li>요청에 응답한다.</li>
+    <li>서버는 요청을 처리하기 위해 애플리케이션을 실행 후, 웹에 응답을 반환</li>
+    <li>클라이언트가 응답 수신</li>
+  </ol>
+</blockquote>
+
+<h3 id="요청-정보">요청 정보</h3>
+<ul>
+  <li>request method</li>
+  <li>URI</li>
+  <li>프로토콜 버전</li>
+  <li>요청을 포함하는 MIME과 비슷한 메시지</li>
+</ul>
+
+<h3 id="응답-정보">응답 정보</h3>
+<ul>
+  <li>메시지의 프로토콜 버전</li>
+  <li><a href="https://lmj00.github.io/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C">상태 코드</a></li>
+  <li>서버 정보</li>
+  <li>엔티티를 포함하는 MIME과 같은 메시지</li>
+  <li>메타 정보</li>
+</ul>
+
+  </div><a class="u-url" href="/cs/http" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

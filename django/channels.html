@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Django Channels | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Django Channels" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Channels Django를 사용하여 WebSocket을 처리 하는 ASGI 기반의 프로젝트" />
+<meta property="og:description" content="Channels Django를 사용하여 WebSocket을 처리 하는 ASGI 기반의 프로젝트" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-03-08T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Django Channels" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-03-08T00:00:00+00:00","datePublished":"2023-03-08T00:00:00+00:00","description":"Channels Django를 사용하여 WebSocket을 처리 하는 ASGI 기반의 프로젝트","headline":"Django Channels","mainEntityOfPage":{"@type":"WebPage","@id":"/django/channels"},"url":"/django/channels"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Django Channels</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-03-08T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-03-08
+        </span>
+      </time>
+      <br><!-- ~  --><time class="dt-modified" datetime="2023-07-03T00:00:00+00:00" itemprop="dateModified">
+            <span style="float: right;">
+              updated: 2023-07-03
+            </span>
+          </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="channels"><a href="https://channels.readthedocs.io/en/stable/">Channels</a></h3>
+<blockquote>
+  <p>Django를 사용하여 WebSocket을 처리 하는 ASGI 기반의 프로젝트</p>
+</blockquote>
+
+<blockquote>
+  <p>Websocket 연결이 들어오면, Channels는 routing.py를 참조하여 Consumer를 찾고 연결 이벤트를 처리</p>
+</blockquote>
+
+<h3 id="websocket">WebSocket</h3>
+<blockquote>
+  <p>브라우저와 서버 사이에서 <a href="https://lmj00.github.io/cs/tcp">TCP</a> 연결을 통해 전이중 통신 채널을 제공하는 컴퓨터 통신 프로토콜</p>
+</blockquote>
+
+<h3 id="wsgiweb-server-gateway-interface">WSGI(Web Server Gateway Interface)</h3>
+<blockquote>
+  <p>웹 서버가 Python 웹 응용 프로그램/프레임워크 사이에서 통신/요청을 처리하기 위한 표준</p>
+</blockquote>
+
+<blockquote>
+  <p>동기만 처리한다. long polling HTTP, WebSocket 연결과 같이 오래 지속되는 연결을 허용하지 않음</p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://wsgi.readthedocs.io/en/latest/servers.html">WSGI 지원 서버</a></p>
+</blockquote>
+
+<h3 id="asgiasynchronous-server-gateway-interface">ASGI(Asynchronous Server Gateway Interface)</h3>
+<blockquote>
+  <p>WSGI의 하위 호환성과 비동기 및 동기 앱 모두 처리</p>
+</blockquote>
+
+<blockquote>
+  <p>WSGI는 WebSocket과 같은 복잡한 웹 프로토콜에 적합하지 않음</p>
+</blockquote>
+
+<hr />
+
+<h3 id="consumers">Consumers</h3>
+<blockquote>
+  <p>연결, 메시지 수신, 전송, 작업 처리를 하는 역할</p>
+</blockquote>
+
+<blockquote>
+  <p>요청이나 새 소켓이 생성되면 채널의 라우팅 테이블을 찾아감.</p>
+</blockquote>
+
+<blockquote>
+  <p>작은 app이라고 생각하면 된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>기본적으로 <code class="language-plaintext highlighter-rouge">connect, receive, send, disconnect</code>의 핸들링으로 구성되어 있기 때문에, 메서드가 없는 경우에도 기본 동작을 한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>메서드를 직접 작성한다면, 해당 동작이 실행되고 나서 작성된 코드를 실행한다.</p>
+</blockquote>
+
+<h3 id="scope">Scope</h3>
+<blockquote>
+  <p>consumer와 관련된 세부 정보를 가지고 있음</p>
+</blockquote>
+
+<blockquote>
+  <p>path, headers, session, cookies 등</p>
+</blockquote>
+
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">{'type': 'websocket', 'path': '/ws/sml_trade/', 
+'raw_path': b'/ws/sml_trade/', 'headers': ...}
+</span></code></pre></div></div>
+
+<hr />
+
+<h3 id="routing">Routing</h3>
+<blockquote>
+  <p>클라이언트의 요청을 Consumer로 연결</p>
+</blockquote>
+
+<blockquote>
+  <p>URLRouter를 사용하여 구성</p>
+</blockquote>
+
+<h3 id="urlrouter">URLRouter</h3>
+<blockquote>
+  <p>라우터 클래스 중 하나로, routing.py에 있는 URL 패턴으로 Consumer 클래스에 연결해준다.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">websocket_urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nf">re_path</span><span class="p">(</span><span class="sa">r</span><span class="s">"ws/(?P&lt;sml_trade&gt;\w+)/$"</span><span class="p">,</span> <span class="n">consumers</span><span class="p">.</span><span class="n">smlTradeConsumer</span><span class="p">.</span><span class="nf">as_asgi</span><span class="p">()),</span>
+<span class="p">]</span>
+</code></pre></div></div>
+<blockquote>
+  <p>.as_asgi()는 해당 클래스를 ASGI 애플리케이션으로 변환하는 메서드</p>
+</blockquote>
+
+<blockquote>
+  <p>ASGI로 변환해야 웹 소켓 연결을 처리할 수 있다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="channel-layers">Channel Layers</h3>
+<blockquote>
+  <p>다수의 서버로 확장된 웹 애플리케이션의 각 서버가 독립적으로 동작하고, Channels의 이벤트를 서로 교환하고 처리할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>Channels와 Redis를 사용할 때, <a href="https://pypi.org/project/channels-redis/">channels_redis</a>를 사용하는 것이 공식적으로 지원된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>비동기 처리 지원</p>
+</blockquote>
+
+<blockquote>
+  <p>다양한 통신 프로토콜과 상호작용</p>
+</blockquote>
+
+<h3 id="message-broker">Message Broker</h3>
+<blockquote>
+  <p>분산된 시스템, 응용 프로그램 및 서비스가 서로 통신하고 정보를 교환할 수 있도록 하는 소프트웨어</p>
+</blockquote>
+
+<blockquote>
+  <p>작업을 메시지로 전달, worker가 메시지를 수신하여 처리하도록 함</p>
+</blockquote>
+
+<blockquote>
+  <p>Redis, RabbitMQ, ActiveMQ, Kafka 등</p>
+</blockquote>
+
+<h3 id="message-queue">Message Queue</h3>
+<blockquote>
+  <p>메시지를 저장하고 관리하는 대기열</p>
+</blockquote>
+
+<hr />
+
+<h3 id="내가-이해한-channels의-흐름">내가 이해한 Channels의 흐름</h3>
+<blockquote>
+  <p>1 . 사용자가 웹소켓을 통해 입력 메시지를 전송한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>2 . 연결된 웹소켓의 routing을 찾는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>3 . routing에 해당하는 컨슈머를 찾는다.</p>
+</blockquote>
+
+<blockquote>
+  <p>4 . 해당 컨슈머 동작</p>
+</blockquote>
+
+<blockquote>
+  <p>5 . 컨슈머가 Message Broker에게 메시지 전송</p>
+</blockquote>
+
+<blockquote>
+  <p>6 . Message Broker를 통해 메시지를 작업 큐에 전송</p>
+</blockquote>
+
+<blockquote>
+  <p>7 . Message Broker가 작업 큐에서 메시지를 가져온다.</p>
+</blockquote>
+
+<blockquote>
+  <p>8 . 가져온 메시지를 Message Broker 통해 컨슈머에게 전송</p>
+</blockquote>
+
+<blockquote>
+  <p>9 . 해당 컨슈머 작업 후, 웹소켓으로 입력 메시지 전송</p>
+</blockquote>
+
+  </div><a class="u-url" href="/django/channels" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

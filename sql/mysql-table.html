@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MySQL Table | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MySQL Table" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="컬럼 데이터 타입 숫자형" />
+<meta property="og:description" content="컬럼 데이터 타입 숫자형" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-08-05T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MySQL Table" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-08-05T00:00:00+00:00","datePublished":"2023-08-05T00:00:00+00:00","description":"컬럼 데이터 타입 숫자형","headline":"MySQL Table","mainEntityOfPage":{"@type":"WebPage","@id":"/sql/mysql-table"},"url":"/sql/mysql-table"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MySQL Table</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-08-05T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-08-05
+        </span>
+      </time>
+      <br></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="컬럼-데이터-타입"><a href="https://dev.mysql.com/doc/refman/8.0/en/data-types.html">컬럼 데이터 타입</a></h3>
+<blockquote>
+  <p>숫자형</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Bytes</th>
+      <th>Signed</th>
+      <th>Unsigned</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TINYINT</td>
+      <td>1</td>
+      <td>-128 ~ 127</td>
+      <td>0 ~ 255</td>
+    </tr>
+    <tr>
+      <td>SMALLINT</td>
+      <td>2</td>
+      <td>-32768 ~ 32767</td>
+      <td>0 ~ 65535</td>
+    </tr>
+    <tr>
+      <td>MEDIUMINT</td>
+      <td>3</td>
+      <td>-8388608 ~ 8388607</td>
+      <td>0 ~ 16777215</td>
+    </tr>
+    <tr>
+      <td>INT</td>
+      <td>4</td>
+      <td>-2147483648 ~ 2147483647</td>
+      <td>0 ~ 4294967295</td>
+    </tr>
+    <tr>
+      <td>BIGINT</td>
+      <td>8</td>
+      <td>-9223372036854775808 ~ 9223372036854775807</td>
+      <td>0 ~ 18446744073709551615</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>실수형</p>
+</blockquote>
+
+<ul>
+  <li>고정 소수점
+    <ul>
+      <li>DECIMAL(M, D)</li>
+      <li>M: 총 자릿수, D: 소수점 뒤 자릿수</li>
+      <li>DECIMAL(5, 2) =&gt; -999.99 ~ 999.99</li>
+    </ul>
+  </li>
+  <li>부동 소수점</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Bytes</th>
+      <th>범위</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FLOAT</td>
+      <td>4</td>
+      <td>-3.4028235E+38 ~ -1.17549435E-38, 1.17549435E-38 ~ 3.4028235E+38</td>
+    </tr>
+    <tr>
+      <td>DOUBLE</td>
+      <td>8</td>
+      <td>-1.7976931348623157E+308 ~ -2.2250738585072014E-308, 2.2250738585072014E-308 ~ 1.7976931348623157E+308</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>날짜 및 시간</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>값</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DATE</td>
+      <td>YYYY-MM-DD</td>
+    </tr>
+    <tr>
+      <td>DATETIME</td>
+      <td>YYYY-MM-DD hh:mm:ss</td>
+    </tr>
+    <tr>
+      <td>TIME</td>
+      <td>hh:mm:ss</td>
+    </tr>
+    <tr>
+      <td>TIMESTAMP</td>
+      <td>YYYY-MM-DD hh:mm:ss UTC</td>
+    </tr>
+    <tr>
+      <td>YEAR</td>
+      <td>YYYY</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>문자열</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>길이</th>
+      <th>참고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CHAR</td>
+      <td>0 ~ 255</td>
+      <td>고정 길이</td>
+    </tr>
+    <tr>
+      <td>VARCHAR</td>
+      <td>0 ~ 65,535</td>
+      <td>가변 길이</td>
+    </tr>
+    <tr>
+      <td>TEXT</td>
+      <td>0 ~ 65,535</td>
+      <td>TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="물리-삭제">물리 삭제</h3>
+<blockquote>
+  <p>row를 삭제</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DELETE</span> <span class="k">FROM</span> <span class="n">actor</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="논리-삭제">논리 삭제</h3>
+<blockquote>
+  <p>삭제를 나타내는 컬럼을 생성 후, 삭제가 되었다는 값을 기입</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">UPDATE</span> <span class="n">actor</span> <span class="k">SET</span> <span class="n">is_deleted</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="컬럼-추가">컬럼 추가</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">ADD</span> <span class="nv">`컬럼 이름`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="컬럼-이름-변경">컬럼 이름 변경</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">RENAME</span> <span class="k">COLUMN</span> <span class="nv">`기존 컬럼 이름`</span> <span class="k">TO</span> <span class="nv">`새로운 컬럼 이름`</span><span class="p">;</span> 
+</code></pre></div></div>
+
+<h3 id="컬럼-삭제">컬럼 삭제</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">DROP</span> <span class="k">COLUMN</span> <span class="nv">`삭제할 컬럼 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="컬럼-데이터-타입-변경">컬럼 데이터 타입 변경</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">MODIFY</span> <span class="nv">`컬럼 이름`</span> <span class="nv">`데이터 타입`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>현재 컬럼의 값이 변경할 데이터 타입과 다를 경우, 컬럼의 값을 바꿀 데이터 타입으로 먼저 바꾸고 나서, 컬럼의 데이터 타입을 변경해야 한다.</p>
+</blockquote>
+
+<h3 id="컬럼-속성-변경">컬럼 속성 변경</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">MODIFY</span> <span class="nv">`컬럼 이름`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span><span class="p">;</span>
+</code></pre></div></div>
+<ul>
+  <li>컬럼 속성 변경 시, 원래 데이터 타입도 써줘야 한다.</li>
+  <li>데이터 타입과 컬럼 속성을 동시에 변경할 수도 있다.</li>
+</ul>
+
+<h3 id="컬럼-default-설정">컬럼 DEFAULT 설정</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">MODIFY</span> <span class="nv">`컬럼 이름`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span> <span class="k">DEFAULT</span> <span class="nv">`설정할 값`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="컬럼에-현재-시간-넣기">컬럼에 현재 시간 넣기</h3>
+
+<h4 id="now"><a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_now">NOW()</a></h4>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">employees</span> <span class="p">(</span><span class="n">created_at</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="n">NOW</span><span class="p">());</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="datetime-timestamp-타입의-컬럼에서-사용할-수-있는-속성">DATETIME, TIMESTAMP 타입의 컬럼에서 사용할 수 있는 속성</h4>
+<p><code class="language-plaintext highlighter-rouge">DEFAULT CURRENT_TIMESTAMP</code></p>
+<blockquote>
+  <p>새 row가 추가 될 때, 해당 컬럼의 값을 현재 시각으로 설정</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">my_table</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+    <span class="n">content</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+    <span class="n">created_at</span> <span class="nb">TIMESTAMP</span> <span class="k">DEFAULT</span> <span class="k">CURRENT_TIMESTAMP</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">my_table</span> <span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'test'</span><span class="p">);</span>
+</code></pre></div></div>
+<p><img src="https://github.com/lmj00/lmj00.github.io/assets/54443194/a5518168-8e9e-44c3-a95c-16ee9178e65e" alt="image" /></p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">ON UPDATE CURRENT_TIMESTAMP</code></p>
+<blockquote>
+  <p>해당 컬럼이 업데이트되면, 현재 시각으로 갱신되게 설정</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">my_table</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INT</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">AUTO_INCREMENT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+    <span class="n">content</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+    <span class="n">created_at</span> <span class="nb">TIMESTAMP</span> <span class="k">DEFAULT</span> <span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+    <span class="n">updated_at</span> <span class="nb">TIMESTAMP</span> <span class="k">DEFAULT</span> <span class="k">CURRENT_TIMESTAMP</span> <span class="k">ON</span> <span class="k">UPDATE</span> <span class="k">CURRENT_TIMESTAMP</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">my_table</span> <span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">'test'</span><span class="p">);</span>
+
+<span class="k">UPDATE</span> <span class="n">my_table</span> <span class="k">SET</span> <span class="n">content</span> <span class="o">=</span> <span class="s1">'test2'</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><img src="https://github.com/lmj00/lmj00.github.io/assets/54443194/3490f365-e2d5-411a-b678-23aa913efccc" alt="image" /></p>
+
+<h3 id="컬럼-unique">컬럼 UNIQUE</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">MODIFY</span> <span class="nv">`컬럼`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span> <span class="k">UNIQUE</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="컬럼을-테이블의-첫-번째-위치로-옮기기">컬럼을 테이블의 첫 번째 위치로 옮기기</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">MODIFY</span> <span class="nv">`컬럼`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span> <span class="k">FIRST</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="컬럼-순서-바꾸기">컬럼 순서 바꾸기</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">MODIFY</span> <span class="nv">`컬럼`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span> <span class="k">AFTER</span> <span class="nv">`컬럼`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="컬럼-이름과-컬럼-데이터-타입-속성을-동시에-수정하기">컬럼 이름과 컬럼 데이터 타입, 속성을 동시에 수정하기</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="n">CHANGE</span> <span class="nv">`기존 컬럼`</span> <span class="nv">`바꿀 컬럼`</span> <span class="nv">`데이터 타입`</span> <span class="nv">`속성`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="여러-작업-동시에-수행">여러 작업 동시에 수행</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span>
+    <span class="n">CHANGE</span> <span class="p">...,</span>
+    <span class="k">DROP</span> <span class="k">COLUMN</span> <span class="p">...,</span>
+    <span class="k">ADD</span> <span class="p">...;</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="테이블-constraint">테이블 CONSTRAINT</h3>
+<blockquote>
+  <p>무결성을 유지하고 데이터의 일관성을 보장하기 위해 사용되는 조건</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">ADD</span> <span class="k">CONSTRAINT</span> <span class="nv">`제약 조건 이름`</span> <span class="k">CHECK</span> <span class="nv">`조건`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="제약-조건-삭제">제약 조건 삭제</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">DROP</span> <span class="k">CONSTRAINT</span> <span class="nv">`제약 조건 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="테이블-이름-변경">테이블 이름 변경</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">RENAME</span> <span class="k">TABLE</span> <span class="nv">`현재 테이블 이름`</span> <span class="k">TO</span> <span class="nv">`바꿀 테이블 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="테이블-복사">테이블 복사</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">AS</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="nv">`복사할 테이블 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="테이블-컬럼-데이터-타입-제약-조건-등을-복사">테이블 컬럼, 데이터 타입, 제약 조건 등을 복사</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">LIKE</span> <span class="nv">`복사할 테이블 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="다른-테이블-로우를-복사하기">다른 테이블 로우를 복사하기</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">LIKE</span> <span class="nv">`복사할 테이블 이름`</span><span class="p">;</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="nv">`테이블 이름`</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="nv">`복사할 테이블 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+<blockquote>
+  <p>두 테이블의 컬럼 구조가 같아야 한다.</p>
+</blockquote>
+
+<h3 id="truncate">TRUNCATE</h3>
+<blockquote>
+  <p>테이블 데이터 전체 삭제</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">TRUNCATE</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/sql/mysql-table" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

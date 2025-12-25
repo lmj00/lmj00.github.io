@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>transaction과 lock | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="transaction과 lock" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="transaction 데이터베이스의 내용을 커밋하거나 롤백할 수 있는 원자 단위 작업" />
+<meta property="og:description" content="transaction 데이터베이스의 내용을 커밋하거나 롤백할 수 있는 원자 단위 작업" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-22T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="transaction과 lock" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-05-22T00:00:00+00:00","datePublished":"2023-05-22T00:00:00+00:00","description":"transaction 데이터베이스의 내용을 커밋하거나 롤백할 수 있는 원자 단위 작업","headline":"transaction과 lock","mainEntityOfPage":{"@type":"WebPage","@id":"/sql/transaction-lock"},"url":"/sql/transaction-lock"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">transaction과 lock</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-05-22T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-05-22
+        </span>
+      </time>
+      <br></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="transaction">transaction</h3>
+<blockquote>
+  <p>데이터베이스의 내용을 커밋하거나 롤백할 수 있는 원자 단위 작업</p>
+</blockquote>
+
+<blockquote>
+  <p>여러 개의 데이터베이스 연산이 하나의 트랜잭션으로 묶이면, 여러 사용자가 동시에 접근하여 데이터를 수정해도 일관성과 무결성을 유지할 수 있게 되어 사용한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>데이터베이스에서 일관성을 유지하기 위해 ACID 원칙을 따름</p>
+</blockquote>
+
+<h3 id="acid">ACID</h3>
+<p>원자성(Atomicity)</p>
+<blockquote>
+  <p>모든 작업이 수행되거나 수행되지 않아야 한다.</p>
+</blockquote>
+
+<p>일관성(Consistency)</p>
+<blockquote>
+  <p>데이터는 트랜잭션이 시작될 때와 끝날 때 일관된 상태로 유지해야 한다.</p>
+</blockquote>
+
+<p>격리성(Isolation)</p>
+<blockquote>
+  <p>트랜잭션이 커밋될 때까지 다른 트랜잭션이 간섭하거나 영향을 미치지 않아야 한다.</p>
+</blockquote>
+
+<p>지속성(Durability)</p>
+<blockquote>
+  <p>트랜잭션이 완료된 후, 결과는 영구적으로 저장되어야 한다. <br />
+시스템 오류가 발생하더라도 데이터가 손실되지 않도록 하고, 변경 사항이 유지되어야 한다.</p>
+</blockquote>
+
+<h3 id="무결성">무결성</h3>
+<blockquote>
+  <p>데이터의 유효성을 보장하고 데이터 간의 관계를 지키며, 데이터베이스에 설정된 규칙과 제약 조건을 준수하는 것</p>
+</blockquote>
+
+<p>개체 무결성</p>
+<blockquote>
+
+</blockquote>
+
+<p>참조 무결성</p>
+<blockquote>
+
+</blockquote>
+
+<p>도메인 무결성</p>
+<blockquote>
+
+</blockquote>
+
+<p>범위 무결성</p>
+<blockquote>
+
+</blockquote>
+
+<p>동시성 제어 무결성</p>
+<blockquote>
+
+</blockquote>
+
+<hr />
+
+<h3 id="lock">lock</h3>
+<blockquote>
+  <p>데이터베이스에서 동시에 여러 개의 트랜잭션이 동일한 데이터를 접근하려고 할 때 발생하는 충돌을 방지하기 위해 사용되는 동시성 제어 메커니즘</p>
+</blockquote>
+
+<blockquote>
+  <p>트랜잭션이 데이터를 읽거나 수정할 때 다른 트랜잭션들로부터 데이터에 대한 접근을 제한함으로써 데이터 일관성을 유지</p>
+</blockquote>
+
+<blockquote>
+  <p>데이터베이스 시스템에서 자동으로 관리되며, 트랜잭션이 데이터에 접근할 때 필요한 락을 자동으로 획득하고 해제</p>
+</blockquote>
+
+<h3 id="공유-락shared-lock">공유 락(Shared Lock)</h3>
+<blockquote>
+  <p>공유 락은 여러 트랜잭션이 동시에 데이터를 읽을 수 있지만, 쓰기는 허용하지 않음</p>
+</blockquote>
+
+<h3 id="배타적-락exclusive-lock">배타적 락(Exclusive Lock)</h3>
+<blockquote>
+  <p>하나의 트랜잭션이 데이터를 읽고 수정하는 동안 다른 트랜잭션의 접근을 제한
+Exclusive Lock을 획득한 트랜잭션은 해당 데이터를 독점하여 접근</p>
+</blockquote>
+
+  </div><a class="u-url" href="/sql/transaction-lock" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

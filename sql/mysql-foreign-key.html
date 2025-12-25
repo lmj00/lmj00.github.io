@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MySQL Foreign Key | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MySQL Foreign Key" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Foreign Key 참조 무결성을 지키기 위해 필요" />
+<meta property="og:description" content="Foreign Key 참조 무결성을 지키기 위해 필요" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-08-06T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MySQL Foreign Key" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-08-06T00:00:00+00:00","datePublished":"2023-08-06T00:00:00+00:00","description":"Foreign Key 참조 무결성을 지키기 위해 필요","headline":"MySQL Foreign Key","mainEntityOfPage":{"@type":"WebPage","@id":"/sql/mysql-foreign-key"},"url":"/sql/mysql-foreign-key"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MySQL Foreign Key</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-08-06T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-08-06
+        </span>
+      </time>
+      <br></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="foreign-key">Foreign Key</h3>
+<blockquote>
+  <p>참조 무결성을 지키기 위해 필요</p>
+</blockquote>
+
+<blockquote>
+  <p>개념적으로 존재한다고 해서 참조 무결성이 지켜지는 것이 아니다. Foreign Key를 지정해줘야만 참조 무결성을 지켜준다.</p>
+</blockquote>
+
+<blockquote>
+  <p>테이블에서는 Foreign Key도 제약 조건이다. 제약 조건 이름을 설정하지 않아도 MySQL에서 자동으로 붙여준다.</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span>
+<span class="k">ADD</span> <span class="k">CONSTRAINT</span> <span class="nv">`제약 조건 이름`</span>
+<span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="nv">`(참조하는 컬럼)`</span> <span class="k">REFERENCES</span> <span class="nv">`참조되는 테이블 이름`</span> <span class="nv">`(참조되는 컬럼)`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>예시</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">film_actor</span>
+<span class="k">ADD</span> <span class="k">CONSTRAINT</span> <span class="n">film_constraint</span>
+<span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">film_id</span><span class="p">)</span> <span class="k">REFERENCES</span> <span class="n">film</span> <span class="p">(</span><span class="n">film_id</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="foreign-key-삭제">Foreign Key 삭제</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span> <span class="k">DROP</span> <span class="k">FOREIGN</span> <span class="k">KEY</span> <span class="nv">`FOREIGN KEY 이름`</span>
+</code></pre></div></div>
+
+<h3 id="테이블-스키마-파악하기">테이블 스키마 파악하기</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SHOW</span> <span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nv">`테이블 이름`</span><span class="p">;</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="restrict-정책">RESTRICT 정책</h3>
+<blockquote>
+  <p>자신을 참조하고 있는 자식 테이블의 로우가 하나라도 있으면 부모 테이블의 로우를 삭제, 갱신할 수 없다.</p>
+</blockquote>
+
+<h3 id="cascade-정책">CASCADE 정책</h3>
+<blockquote>
+  <p>부모 테이블 로우가 삭제, 갱신될 때, 참조하던 자식 테이블의 로우도 같이 삭제, 갱신됨</p>
+</blockquote>
+
+<h3 id="set-null-정책">SET NULL 정책</h3>
+<blockquote>
+  <p>부모 테이블의 로우가 삭제, 갱신될 때, 참조하던 자식 테이블의 Foreign key 컬럼의 값을 NULL로 바꿈</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">ON DELETE</code>와 <code class="language-plaintext highlighter-rouge">ON UPDATE</code>에서 서로 다른 정책을 설정할 수 있다.</p>
+
+<hr />
+
+<h3 id="물리적-foreign-key">물리적 Foreign Key</h3>
+<blockquote>
+  <p>실제로 Foreign Key를 설정해서 제약 조건을 구현</p>
+</blockquote>
+
+<h3 id="논리적-foreign-key">논리적 Foreign Key</h3>
+<blockquote>
+  <p>데이터베이스 설계 단계에서 사용되는 개념, 데이터의 의미와 관계를 설명하는데 중점</p>
+</blockquote>
+
+<h3 id="논리적-foreign-key를-사용하는-이유">논리적 Foreign Key를 사용하는 이유</h3>
+<ul>
+  <li>물리적 Foreign Key의 성능 저하
+    <ul>
+      <li>인덱스 관리</li>
+      <li>무결성 검사</li>
+      <li>조인 연산</li>
+      <li>복잡한 관계</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<ul>
+  <li>데이터 일관성 유지</li>
+</ul>
+
+  </div><a class="u-url" href="/sql/mysql-foreign-key" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MySQL Modeling | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MySQL Modeling" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="데이터 모델링 목적 데이터베이스 설계" />
+<meta property="og:description" content="데이터 모델링 목적 데이터베이스 설계" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-08-15T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MySQL Modeling" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-08-15T00:00:00+00:00","datePublished":"2023-08-15T00:00:00+00:00","description":"데이터 모델링 목적 데이터베이스 설계","headline":"MySQL Modeling","mainEntityOfPage":{"@type":"WebPage","@id":"/sql/modeling"},"url":"/sql/modeling"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MySQL Modeling</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-08-15T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-08-15
+        </span>
+      </time>
+      <br><!-- ~  --><time class="dt-modified" datetime="2023-08-17T00:00:00+00:00" itemprop="dateModified">
+            <span style="float: right;">
+              updated: 2023-08-17
+            </span>
+          </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="데이터-모델링-목적">데이터 모델링 목적</h3>
+<blockquote>
+  <p>데이터베이스 설계</p>
+</blockquote>
+
+<blockquote>
+  <p>Entity, Attribute, RelationShip, Constraint 파악</p>
+</blockquote>
+
+<blockquote>
+  <p>논리적 모델링과 물리적 모델링으로 구분</p>
+</blockquote>
+
+<h3 id="데이터-모델">데이터 모델</h3>
+<h4 id="entity개체">Entity(개체)</h4>
+<blockquote>
+  <p>데이터베이스에서 저장 및 관리되는 대상(로우)</p>
+</blockquote>
+
+<blockquote>
+  <p>Entity Type은 엔티티의 집합(테이블)</p>
+</blockquote>
+
+<h4 id="attribute속성">Attribute(속성)</h4>
+<blockquote>
+  <p>Entity가 가지고 있는 내용(테이블의 컬럼)</p>
+</blockquote>
+
+<h4 id="relationship관계">Relationship(관계)</h4>
+<blockquote>
+  <p>Entity들 사이의 연결점</p>
+</blockquote>
+
+<blockquote>
+  <p>일대일, 일대다, 다대다 등 다양한 유형 존재</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">개체, 속성, 관계는 제약 조건이 있다.</code></p>
+
+<h3 id="relational-모델">Relational 모델</h3>
+<blockquote>
+  <p>데이터를 표현하고 관리하는 가장 일반적인 모델</p>
+</blockquote>
+
+<blockquote>
+  <p>Relation은 테이블을 의미하는 수학적 표현</p>
+</blockquote>
+
+<blockquote>
+  <p>fk를 사용하여 테이블 간의 관계를 만듦</p>
+</blockquote>
+
+<h3 id="entity-realtionship-모델erm">Entity-Realtionship 모델(ERM)</h3>
+<blockquote>
+  <p>데이터를 테이블 형태로 표현하지 않음</p>
+</blockquote>
+
+<blockquote>
+  <p>관계의 특징에 따라 모델링 하는 방법이 바뀜</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      +-----------+                    +------------+
+      | student   |                    | course     |
+      +-----------+  Enrolls(수강하다)  +------------+
+      | id        |  &lt;&gt;------------&gt;   | id         | 
+      | no        |                    | student_id |
+      | name      |                    | code       |  
+      +-----------+                    | name       |
+                                       +------------+
+</code></pre></div></div>
+
+<h3 id="데이터-모델-종류">데이터 모델 종류</h3>
+<blockquote>
+  <p>모델의 표현 정도에 따라 3종류로 구별</p>
+</blockquote>
+
+<h4 id="개념-모델">개념 모델</h4>
+<blockquote>
+  <p>entity와 간단한 연결 관계만을 나타냄</p>
+</blockquote>
+
+<blockquote>
+  <p>대략적인 구조를 파악할 때 사용</p>
+</blockquote>
+
+<h4 id="논리-모델">논리 모델</h4>
+<blockquote>
+  <p>entity, Attribute, pk, fk 표시</p>
+</blockquote>
+
+<h4 id="물리-모델">물리 모델</h4>
+<blockquote>
+  <p>데이터베이스를 구축할 수 있을 정도로 자세한 정보가 담긴 모델</p>
+</blockquote>
+
+<blockquote>
+  <p>Attribute에 사용할 데이터 타입, 변수 이름, 인덱스 표시</p>
+</blockquote>
+
+<hr />
+
+<h3 id="논리적-모델링">논리적 모델링</h3>
+
+<h3 id="비즈니스-룰">비즈니스 룰</h3>
+<blockquote>
+  <p>조직의 운영 방침, 정책, 규칙 등을 웹 사이트 설계와 관련하는 것</p>
+</blockquote>
+
+<blockquote>
+  <p>Entity, Attribute, RelationShip 고려하여 데이터베이스의 구조와 동작을 정의하는 역할</p>
+</blockquote>
+
+<blockquote>
+  <p>모델링을 할 때, id, fk는 개발자가 추가해 주는 게 좋다.</p>
+</blockquote>
+
+<h4 id="entity---명사"><span style="color: royalblue">Entity - 명사</span></h4>
+
+<h4 id="relationship---동사"><span style="color: orange">Relationship - 동사</span></h4>
+
+<h4 id="attribute---값으로-표현할-수-있는-명사"><span style="color: yellowgreen">Attribute - 값으로 표현할 수 있는 명사</span></h4>
+<ul>
+  <li>여러 값을 가지면 <span style="color: royalblue">Entity</span>로 사용될 수 있다.</li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="예시-비즈니스-룰">예시 비즈니스 룰</h4>
+<ul>
+  <li>
+    <p><span style="color: royalblue">주문</span>이 <span style="color: orange">완료</span>된 이후에는 <span style="color: orange">취소</span>할 수 없다.</p>
+  </li>
+  <li>
+    <p><span style="color: royalblue">제품</span>의 <span style="color: yellowgreen">재고 수량</span>이 0 이하가 되면 해당 <span style="color: royalblue">제품</span>은 <span style="color: orange">주문</span>할 수 없다.</p>
+  </li>
+  <li>
+    <p><span style="color: royalblue">사용자</span> 계정 <span style="color: yellowgreen">비밀번호</span>는 최소 8자 이상이어야 하며,
+대문자, 소문자, 숫자, 특수문자를 모두 포함해야 한다.</p>
+  </li>
+  <li>
+    <p><span style="color: yellowgreen">할인 코드</span>는 <span style="color: yellowgreen">특정 기간</span>에만 유효하며, 중복 <span style="color: orange">사용</span>할 수 없다.</p>
+  </li>
+  <li>
+    <p>일부 <span style="color: royalblue">상품</span>은 특정 <span style="color: yellowgreen">결제 방법</span>으로만 <span style="color: orange">구매</span>할 수 있다.</p>
+  </li>
+</ul>
+
+<h3 id="cardinality카디널리티">Cardinality(카디널리티)</h3>
+<blockquote>
+  <p>한쪽 엔티티가 다른 엔티티와 얼마나 연결될 수 있는지 나타내는 개념</p>
+</blockquote>
+
+<blockquote>
+  <p>일대일, 일대다, 다대다 관계가 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>관계가 하나도 없어도 되거나, 하나의 관계가 꼭 있어야 하는 것을 최소 카디널리티라고 한다.</p>
+</blockquote>
+
+<h3 id="카디널리티-erm">카디널리티 ERM</h3>
+<blockquote>
+  <p>관계 선 끝에 표시하여 표현</p>
+</blockquote>
+
+<blockquote>
+  <p>최소 연결 되는 숫자는 최대 연결될 수 있는 기호보다 안쪽에 표시</p>
+</blockquote>
+
+<h3 id="일대일-관계-모델링">일대일 관계 모델링</h3>
+<blockquote>
+  <p>필수로 있어야 하는 fk는 참조하는 Entity에 넣어도 된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>최소 카디널리티가 0인 테이블에 fk를 만든다.</p>
+</blockquote>
+
+<h3 id="일대다-관계-모델링">일대다 관계 모델링</h3>
+<blockquote>
+  <p>fk는 항상 “다” 쪽의 Entity에 추가하여 NULL을 방지한다.</p>
+</blockquote>
+
+<h3 id="다대다-관계-모델링">다대다 관계 모델링</h3>
+<blockquote>
+  <p>연결 테이블(Junction Table)을 사용하여 모델링</p>
+</blockquote>
+
+<blockquote>
+  <p>연결 테이블은 관계를 저장하기 위한 테이블</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                      (Junction Table)
++------------+        +-------------+        +-------------+
+|  student   |        | enrollment  |        |   course    |
++------------+        +-------------+        +-------------+
+|  id        | (1, *) | id          | (*, 1) | id          |
+|  name      |        | student_id  |        | course_name |
++------------+        | course_id   |        | instructor  |
+                      +-------------+        +-------------+
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/sql/modeling" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

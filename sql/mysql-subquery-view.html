@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MySQL Subquery, View | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="MySQL Subquery, View" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="서브쿼리 SQL 문 안에 들어가는 SELECT 문" />
+<meta property="og:description" content="서브쿼리 SQL 문 안에 들어가는 SELECT 문" />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-05-15T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MySQL Subquery, View" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-05-15T00:00:00+00:00","datePublished":"2023-05-15T00:00:00+00:00","description":"서브쿼리 SQL 문 안에 들어가는 SELECT 문","headline":"MySQL Subquery, View","mainEntityOfPage":{"@type":"WebPage","@id":"/sql/mysql-subquery-view"},"url":"/sql/mysql-subquery-view"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">MySQL Subquery, View</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-05-15T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-05-15
+        </span>
+      </time>
+      <br><!-- ~  --><time class="dt-modified" datetime="2023-06-18T00:00:00+00:00" itemprop="dateModified">
+            <span style="float: right;">
+              updated: 2023-06-18
+            </span>
+          </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="서브쿼리">서브쿼리</h3>
+<blockquote>
+  <p>SQL 문 안에 들어가는 SELECT 문</p>
+</blockquote>
+
+<blockquote>
+  <p>괄호로 서브 쿼리를 감싸줘야 한다.</p>
+</blockquote>
+
+<h3 id="select-절">SELECT 절</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> 
+<span class="p">...</span>
+<span class="p">(</span><span class="k">SELECT</span> <span class="p">...)</span> 
+<span class="k">FROM</span> <span class="err">테이블</span>
+</code></pre></div></div>
+
+<h3 id="where-절">WHERE 절</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span>
+<span class="p">...</span>
+<span class="k">FROM</span> <span class="err">테이블</span>
+<span class="k">WHERE</span> <span class="err">컬럼</span> <span class="err">명</span> <span class="p">[</span><span class="n">Equi</span> <span class="err">또는</span> <span class="n">Non</span><span class="o">-</span><span class="n">Equi</span> <span class="err">조인</span><span class="p">]</span> <span class="p">(</span><span class="k">SELECT</span> <span class="p">...)</span>
+</code></pre></div></div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">amount</span>
+<span class="k">FROM</span> <span class="n">payment</span> 
+<span class="k">WHERE</span> <span class="n">amount</span> <span class="o">=</span> <span class="p">(</span><span class="k">SELECT</span> <span class="k">MAX</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">payment</span><span class="p">)</span>
+</code></pre></div></div>
+<p><img src="https://github.com/lmj00/lmj00.github.io/assets/54443194/314a88cf-0401-4f7b-86d5-e4608d0c2b96" alt="image" /></p>
+
+<p><br /></p>
+
+<blockquote>
+  <p>여러 로우의 값을 리턴하는 서브 쿼리로도 사용가능하다.</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">payment_id</span> <span class="k">FROM</span> <span class="n">payment</span>
+<span class="k">WHERE</span> <span class="n">payment_id</span> <span class="k">IN</span>
+<span class="p">(</span>
+<span class="k">SELECT</span> <span class="n">customer_id</span> <span class="k">FROM</span> <span class="n">payment</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">customer_id</span> <span class="k">HAVING</span> <span class="k">AVG</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span>
+<span class="p">)</span>
+</code></pre></div></div>
+<p><img src="https://github.com/lmj00/lmj00.github.io/assets/54443194/b519316a-23aa-4f3e-bae0-4afeb8e8cf48" alt="image" /></p>
+
+<p><br /></p>
+
+<blockquote>
+  <p>서브 쿼리 결과</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">customer_id</span><span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">payment</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">customer_id</span> 
+<span class="k">HAVING</span> <span class="k">AVG</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span>
+</code></pre></div></div>
+<p><img src="https://github.com/lmj00/lmj00.github.io/assets/54443194/8399bd04-e4d9-4c7b-8750-1546ad0e52dc" alt="image" /></p>
+
+<h3 id="from-절">FROM 절</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="p">...</span> <span class="k">FROM</span> <span class="p">(</span><span class="k">SELECT</span> <span class="p">...)</span> <span class="k">AS</span> <span class="err">별칭</span>
+</code></pre></div></div>
+<blockquote>
+  <p>서브쿼리로 탄생한 테이블을 derived 테이블이라고 한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>derived 테이블에 alias를 꼭 붙여줘야 한다.</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">derived</code> - 파생된</p>
+
+<hr />
+
+<h3 id="서브쿼리에서-사용하는-연산자">서브쿼리에서 사용하는 연산자</h3>
+
+<h3 id="any-some">ANY, SOME</h3>
+<blockquote>
+  <p>조건 중 하나라도 만족하면 TRUE</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">WHERE</span> <span class="err">컬럼</span> <span class="err">명</span> <span class="p">[</span><span class="n">Equi</span> <span class="err">또는</span> <span class="n">Non</span><span class="o">-</span><span class="n">Equi</span> <span class="err">조인</span><span class="p">]</span> <span class="k">ANY</span><span class="p">(</span><span class="err">서브</span> <span class="err">쿼리</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="all">ALL</h3>
+<blockquote>
+  <p>모든 조건을 만족해야 TRUE</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">WHERE</span> <span class="err">컬럼</span> <span class="err">명</span> <span class="p">[</span><span class="n">Equi</span> <span class="err">또는</span> <span class="n">Non</span><span class="o">-</span><span class="n">Equi</span> <span class="err">조인</span><span class="p">]</span> <span class="k">ALL</span><span class="p">(</span><span class="err">서브</span> <span class="err">쿼리</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="비상관-서브쿼리">비상관 서브쿼리</h3>
+<blockquote>
+  <p>서브쿼리 단독으로도 실행할 수 있는 독립적인 쿼리</p>
+</blockquote>
+
+<h3 id="상관-서브쿼리">상관 서브쿼리</h3>
+<blockquote>
+  <p>외부 쿼리와 상관관계가 있는 서브쿼리, 단독으로 실행하지 못하는 쿼리</p>
+</blockquote>
+
+<blockquote>
+  <p>조인으로도 같은 결과를 얻을 수 있다. 직관적인 것을 사용하면 된다.</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">payment</span>
+<span class="k">WHERE</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">customer</span> <span class="k">WHERE</span> <span class="n">customer_id</span> <span class="o">=</span> <span class="n">payment</span><span class="p">.</span><span class="n">customer_id</span><span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">(SELECT * FROM customer WHERE customer_id = payment.customer_id)</code>에서 필요한 payment<br /> 테이블이 outer query에 적혀있으므로 단독으로 실행하지 못한다.</p>
+</blockquote>
+
+<h3 id="exists-not-exists">EXISTS, NOT EXISTS</h3>
+<blockquote>
+  <p>상관 서브쿼리에서 자주 사용하는 키워드</p>
+</blockquote>
+
+<blockquote>
+  <p>존재하면, 존재하지 않으면</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">WHERE</span> <span class="k">EXISTS</span> <span class="p">(</span><span class="err">서브쿼리</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="뷰">뷰</h3>
+<blockquote>
+  <p>조인, 서브쿼리 등의 작업을 해서 만든 결과의 가상 테이블</p>
+</blockquote>
+
+<blockquote>
+  <p>서브쿼리 중첩을 해결할 수 있다.</p>
+</blockquote>
+
+<blockquote>
+  <p>필요한 컬럼이나 특정 로우들을 제외하고 테이블을 만들수 있기 때문에 데이터 보안을 제공한다.</p>
+</blockquote>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="err">뷰</span> <span class="err">이름</span> <span class="k">AS</span> <span class="k">SELECT</span> <span class="p">...</span> 
+</code></pre></div></div>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">VIEW</span> <span class="n">film_v</span> <span class="k">AS</span>
+<span class="k">SELECT</span> <span class="n">film_id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">release_year</span> <span class="k">FROM</span> <span class="n">film</span>
+</code></pre></div></div>
+<p><img src="https://github.com/lmj00/lmj00.github.io/assets/54443194/df851f4d-eed7-4113-9369-467c4fc8d9ec" alt="image" /></p>
+
+<h3 id="데이터베이스-파악">데이터베이스 파악</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SHOW</span> <span class="n">DATABASES</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="테이블의-컬럼-구조">테이블의 컬럼 구조</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DESCRIBE</span> <span class="err">테이블명</span>
+</code></pre></div></div>
+
+<h3 id="테이블-뷰-파악">테이블, 뷰 파악</h3>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SHOW</span> <span class="k">FULL</span> <span class="n">TABLES</span> <span class="k">IN</span> <span class="n">DB</span><span class="err">명</span>
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/sql/mysql-subquery-view" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

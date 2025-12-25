@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Django Testing | 공부</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Django Testing" />
+<meta name="author" content="lmj00" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Testing 단위테스트는 Python 표준 라이브러리에 내장된 모듈인 unittest, Django 애플리케이션의 테스트는 Client를 사용한다." />
+<meta property="og:description" content="Testing 단위테스트는 Python 표준 라이브러리에 내장된 모듈인 unittest, Django 애플리케이션의 테스트는 Client를 사용한다." />
+<meta property="og:site_name" content="공부" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-07-09T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Django Testing" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"lmj00"},"dateModified":"2023-07-09T00:00:00+00:00","datePublished":"2023-07-09T00:00:00+00:00","description":"Testing 단위테스트는 Python 표준 라이브러리에 내장된 모듈인 unittest, Django 애플리케이션의 테스트는 Client를 사용한다.","headline":"Django Testing","mainEntityOfPage":{"@type":"WebPage","@id":"/django/testing"},"url":"/django/testing"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="공부" />
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">공부</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <a class="page-link" href="/category/">category</a>
+          <a class="page-link custom-link" onclick="random()">random</a>
+        </div>
+      </nav></div>
+</header>
+
+<script>
+  function random() {
+      const arr = [
+        
+          "/RabbitMQ",
+        
+          "/cs/SSL-TLS",
+        
+          "/Cursor-ai",
+        
+          "/spring/requestbody-responsebody",
+        
+          "/spring/controller-restcontroller",
+        
+          "/book/I-am-a-LINE-developer",
+        
+          "/git/cherry-pick",
+        
+          "/til/2024-06",
+        
+          "/oop/oop",
+        
+          "/spring/spring-basic",
+        
+          "/kafka/kafka",
+        
+          "/java/interface-abstract",
+        
+          "/java/generic",
+        
+          "/java/inheritance",
+        
+          "/java/java",
+        
+          "/python/celery",
+        
+          "/sql/normalization",
+        
+          "/python/type-hint",
+        
+          "/sql/modeling",
+        
+          "/sql/mysql-foreign-key",
+        
+          "/sql/mysql-table",
+        
+          "/django/testing",
+        
+          "/python/unittest",
+        
+          "/sql/transaction-lock",
+        
+          "/sql/mysql-subquery-view",
+        
+          "/sql/mysql-join",
+        
+          "/sql/mysql-grouping",
+        
+          "/sql/mysql-analysis",
+        
+          "/sql/mysql-basic",
+        
+          "/cs/tcp",
+        
+          "/cs/http",
+        
+          "/python/asyncio",
+        
+          "/drf/request-response",
+        
+          "/drf/class-based-view-put-patch-delete",
+        
+          "/drf/class-based-view-get-post",
+        
+          "/drf/serializer-relations",
+        
+          "/django/channels",
+        
+          "/drf/modelserializer",
+        
+          "/drf/put-patch-delete",
+        
+          "/django/connection-refused",
+        
+          "/drf/get-post",
+        
+          "/drf/install",
+        
+          "/drf/Django-REST-Framework",
+        
+          "/django/template-extends",
+        
+          "/django/HttpRequest",
+        
+          "/django/get_or_create",
+        
+          "/django/relationships-CRUD",
+        
+          "/django/lookups",
+        
+          "/django/manager",
+        
+          "/django/inline-model-admin",
+        
+          "/django/model-meta",
+        
+          "/django/contenttypes",
+        
+          "/django/OneToOne",
+        
+          "/django/ManyToMany",
+        
+          "/django/data-migration",
+        
+          "/django/migration-fake",
+        
+          "/django/mixin",
+        
+          "/django/render-redirect-reverse",
+        
+          "/spring/thymeleaf-pagination",
+        
+          "/django/humanize",
+        
+          "/blog/push-error",
+        
+          "/git/host-error",
+        
+          "/django/Ajax",
+        
+          "/django/migration-error",
+        
+          "/git/stash",
+        
+          "/git/rebase",
+        
+          "/git/all-graph",
+        
+          "/git/revert",
+        
+          "/git/reflog",
+        
+          "/git/fetch",
+        
+          "/git/blame",
+        
+          "/git/merge-types",
+        
+          "/git/head-branch",
+        
+          "/git/remote-repository",
+        
+          "/git/branch-merge-conflict",
+        
+          "/git/tag",
+        
+          "/git/reset",
+        
+          "/git/head",
+        
+          "/git/branch",
+        
+          "/git/diff",
+        
+          "/git/commit-guidelines",
+        
+          "/django/one-to-many-relationship",
+        
+          "/django/Media-File",
+        
+          "/django/ImageField",
+        
+          "/django/Field",
+        
+          "/django/signup-shovelting",
+        
+          "/django/non-field-error",
+        
+          "/django/message-email-overriding",
+        
+          "/django/widget-tweaks",
+        
+          "/django/password-manage",
+        
+          "/django/certify-email",
+        
+          "/django/signup-validation",
+        
+          "/django/session",
+        
+          "/django/nickname",
+        
+          "/django/email-login",
+        
+          "/django/allauth-user-access",
+        
+          "/django/allauth-setup",
+        
+          "/django/User",
+        
+          "/django/User-Admin",
+        
+          "/django/View-in-detail",
+        
+          "/django/DetailView",
+        
+          "/django/ListView",
+        
+          "/django/CreateView",
+        
+          "/django/Generic-Views",
+        
+          "/django/Class-Based-Views",
+        
+          "/django/seeding",
+        
+          "/django/pagination",
+        
+          "/django/404Error",
+        
+          "/django/validator",
+        
+          "/django/CSRF",
+        
+          "/django/pythonanywhere",
+        
+          "/django/Distribute_ready",
+        
+          "/django/Distribute",
+        
+          "/django/admin",
+        
+          "/django/QuerySet",
+        
+          "/django/Model(Update,-Delete)",
+        
+          "/django/Model(Read)",
+        
+          "/django/Model(Create)",
+        
+          "/django/migration",
+        
+          "/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C",
+        
+          "/django/%EC%95%B1-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/Django-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B5%AC%EC%A1%B0",
+        
+          "/django/%EC%95%B1-%EC%83%9D%EC%84%B1",
+        
+          "/django/run-project",
+        
+          "/django/environments",
+        
+          "/%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%82%AC%EC%9D%B4%EC%96%B8%EC%8A%A4",
+        
+          "/Spring",
+        
+          "/git/git",
+        
+      ];
+    
+    const random = Math.floor(Math.random() * arr.length);
+
+    location.href = arr[random];
+  };
+</script><ul id="ul-search">
+      <div id="search-demo-container">
+        <input type="search" id="search-input" placeholder="search...">
+        <ul id="results-container"></ul>
+      </div>
+    </ul>
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Django Testing</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2023-07-09T00:00:00+00:00" itemprop="datePublished">
+        <span style="float: right;">
+          created: 2023-07-09
+        </span>
+      </time>
+      <br></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h3 id="testing">Testing</h3>
+<blockquote>
+  <p>단위테스트는 Python 표준 라이브러리에 내장된 모듈인 <code class="language-plaintext highlighter-rouge">unittest</code>, Django 애플리케이션의 테스트는 <code class="language-plaintext highlighter-rouge">Client</code>를 사용한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>Django에서 테스트 데이터베이스가 생성되고, 통과 여부 상관없이 모든 테스트가 실행되면 테스트 데이터베이스가 삭제된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>테스트 코드에서는 각각의 테스트 메서드는 독립적으로 실행되고, 테스트 메서드가 실행될 때마다 새로운 데이터베이스가 생성된다.</p>
+</blockquote>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">test --keepdb</code>의 옵션을 사용하면, 데이터베이스가 삭제되는 것을 방지할 수 있다. 데이터베이스가 존재하지 않으면 생성된다.</p>
+</blockquote>
+
+<blockquote>
+  <p>테스트 데이터베이스 이름은 test_로 생성된다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<p>테스트 케이스에 문제가 없으면 아래와 같은 결과가 뜬다.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Found 1 <span class="nb">test</span><span class="o">(</span>s<span class="o">)</span><span class="nb">.</span>
+Creating <span class="nb">test </span>database <span class="k">for </span><span class="nb">alias</span> <span class="s1">'default'</span>...
+System check identified no issues <span class="o">(</span>0 silenced<span class="o">)</span><span class="nb">.</span>
+<span class="nb">.</span>
+<span class="nt">----------------------------------------------------------------------</span>
+Ran 1 <span class="nb">test </span><span class="k">in </span>0.033s
+
+OK
+Destroying <span class="nb">test </span>database <span class="k">for </span><span class="nb">alias</span> <span class="s1">'default'</span>...
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="unittest">unittest</h3>
+<blockquote>
+  <p>클래스 기반 접근 방식을 사용하여 테스트 정의</p>
+</blockquote>
+
+<blockquote>
+  <p>상속받는 클래스는 <code class="language-plaintext highlighter-rouge">from django.test import TestCase</code>인데, 기존 <a href="https://lmj00.github.io/python/unittest">unittest</a>의 기능을 포함하면서 Django와 같이 쓸 수 있는 클래스다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="client">Client</h3>
+<blockquote>
+  <p>HTTP 요청을 하고, 요청에 대한 응답을 검증하는 기능을 제공</p>
+</blockquote>
+
+<blockquote>
+  <p>View를 테스트하고, Django 기반 애플리케이션과 상호 작용 가능</p>
+</blockquote>
+
+<h3 id="making-requests"><a href="https://docs.djangoproject.com/en/4.2/topics/testing/tools/#making-requests">Making requests</a></h3>
+
+<h5 id="get">get</h5>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">follow</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">c</span> <span class="o">=</span> <span class="nc">Client</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">c</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s">'/'</span><span class="p">)</span>
+
+<span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h5 id="post">post</h5>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">post</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="n">MULTIPART_CONTENT</span><span class="p">,</span> <span class="n">follow</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">secure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> 
+<span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">c</span> <span class="o">=</span> <span class="nc">Client</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">c</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="nf">reverse</span><span class="p">(</span><span class="s">'order-ask'</span><span class="p">),</span> <span class="n">data</span><span class="o">=</span><span class="n">json_data</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s">'application/json'</span><span class="p">)</span>
+
+<span class="n">self</span><span class="p">.</span><span class="nf">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">status_code</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="testing-responses">Testing responses</h3>
+<blockquote>
+  <p>get()과 post() 메서드는 모두 response 객체로 반환한다.</p>
+</blockquote>
+
+<blockquote>
+  <p>Django view에서 반환하는 HttpResponse 객체와는 다르다.</p>
+</blockquote>
+
+<h3 id="response-속성">response 속성</h3>
+<p>많이 쓸 거 같을 것만 정리했다.</p>
+
+<h5 id="content">content</h5>
+<blockquote>
+  <p>서버에서 반환된 응답</p>
+</blockquote>
+
+<blockquote>
+  <p>byte 형식으로 제공되기 때문에 파일 다운로드, 이미지 응답 처리 등 바이너리 데이터를 다룰 때 유용</p>
+</blockquote>
+
+<h5 id="context">context</h5>
+<blockquote>
+  <p>렌더링하는 뷰에서 context 변수를 전달할 때 사용</p>
+</blockquote>
+
+<h5 id="exc_info">exc_info</h5>
+<blockquote>
+  <p>응답이 예외를 발생시켰을 때, 예외 대한 정보를 제공</p>
+</blockquote>
+
+<h5 id="json">json</h5>
+<blockquote>
+  <p>content 속성에서 응답이 JSON일 경우, JSON 형식으로 직렬화하는 것을 편리하게 구성</p>
+</blockquote>
+
+<h5 id="request">request</h5>
+<blockquote>
+  <p>테스트 요청에 대한 객체</p>
+</blockquote>
+
+<div class="language-terminal highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">{'PATH_INFO': '/sml_trade/order/bid', 'REQUEST_METHOD': 'POST', 'SERVER_PORT': '80', 
+'wsgi.url_scheme': 'http', 'CONTENT_LENGTH': '101', 'CONTENT_TYPE': 'application/json', 
+</span><span class="gp">'wsgi.input': &lt;django.test.client.FakePayload object at 0x7fbc449ee350&gt;</span>, 
+<span class="go">'QUERY_STRING': ''}
+</span></code></pre></div></div>
+
+<h5 id="status_code">status_code</h5>
+<blockquote>
+  <p><a href="https://lmj00.github.io/django/%EC%83%81%ED%83%9C%EC%BD%94%EB%93%9C">상태 코드</a></p>
+</blockquote>
+
+<hr />
+
+<h3 id="테스트-케이스-클래스">테스트 케이스 클래스</h3>
+<blockquote>
+  <p>파이썬의 <code class="language-plaintext highlighter-rouge">uniitest.TestCase</code>를 상속받아 Django에서는 4개의 테스트 케이스 클래스가 존재한다.</p>
+</blockquote>
+
+<h3 id="simpletestcase">SimpleTestCase</h3>
+<blockquote>
+  <p>파이썬의 <code class="language-plaintext highlighter-rouge">uniitest.TestCase</code>를 상속받아 빠른 테스트 케이스 작성을 위해 사용</p>
+</blockquote>
+
+<blockquote>
+  <p>데이터베이스를 사용하지 않을 때 사용, 데이터베이스 쿼리를 허용하지 않음</p>
+</blockquote>
+
+<blockquote>
+  <p>Django와 같이 사용할 수 있는 테스트 케이스 제공</p>
+</blockquote>
+
+<h3 id="transactiontestcase">TransactionTestCase</h3>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">SimpleTestCase</code>를 상속받아 데이터베이스 트랜잭션 동작을 테스트할 때 사용</p>
+</blockquote>
+
+<blockquote>
+  <p>데이터베이스 <code class="language-plaintext highlighter-rouge">fixtures</code>를 사용하여 초기 데이터를 설정 가능</p>
+</blockquote>
+
+<blockquote>
+  <p>특정 메서드를 스킵하여 테스트 할 수 있음</p>
+</blockquote>
+
+<h3 id="testcase">TestCase</h3>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">TransactionTestCase</code>를 상속받음</p>
+</blockquote>
+
+<blockquote>
+  <p>Django에서 테스트를 작성하는 데 사용하는 가장 일반적인 클래스</p>
+</blockquote>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">setUpTestData()</code>를 사용하여 초기 데이터를 설정</p>
+</blockquote>
+
+<h3 id="liveservertestcase">LiveServerTestCase</h3>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">TransactionTestCase</code>를 상속받아 실제 서버 환경에서 테스트하는 클래스</p>
+</blockquote>
+
+<hr />
+
+<h3 id="setupclass-vs-setuptestdata">setUpclass vs setUpTestData</h3>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">setUpClass</code>는 클래스에 해당하는 전체 초기화 작업을 수행</p>
+</blockquote>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">setUpTestData</code>는 테스트 데이터를 설정하기 위해 사용</p>
+</blockquote>
+
+  </div><a class="u-url" href="/django/testing" hidden></a>
+</article>
+
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/simple-jekyll-search@latest/dest/simple-jekyll-search.min.js"></script>
+
+    <script>
+      var sjs = SimpleJekyllSearch({
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('results-container'),
+        json: '/search.json'
+      }) 
+    </script><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <!-- <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+           -->
+        </p>
+        <ul class="contact-list">
+          <li class="p-name">lmj00</li>
+          <li><a class="u-email" href="mailto:e.minjin00@gmail.com">e.minjin00@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p></p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/lmj00" title="lmj00"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -13,33 +13,17 @@ on:
 
 permissions:
   contents: write   # 새 글 커밋/푸시
-  pages: write      # Pages 배포
-  id-token: write
-
-# build-jekyll과 같은 그룹 → 동시 배포 충돌/취소 방지
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  pages: write      # 네이티브 Pages 빌드 요청
 
 jobs:
-  # 생성 → 커밋 → 빌드 → 배포를 한 잡에서 처리한다.
-  # (자동 커밋은 GITHUB_TOKEN이라 다른 워크플로우를 못 깨우므로 직접 배포)
-  generate-and-deploy:
+  generate:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.2"
-          bundler-cache: true
 
       - name: Install d2 (다이어그램 렌더러)
         run: curl -fsSL https://d2lang.com/install.sh | sh -s --
@@ -73,22 +57,13 @@ jobs:
             echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # 새 글이 있을 때만 빌드·배포
-      - id: pages
+      # 소스가 "Deploy from a branch(master)"인 네이티브 Pages 빌드는
+      # 봇(GITHUB_TOKEN) 커밋으로는 자동 트리거되지 않을 수 있으므로,
+      # 새 글이 생겼을 때 명시적으로 빌드를 요청한다.
+      - name: Request Pages build
         if: steps.commit.outputs.committed == 'true'
-        uses: actions/configure-pages@v5
-
-      - name: Build with Jekyll
-        if: steps.commit.outputs.committed == 'true'
-        env:
-          JEKYLL_ENV: production
-        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
-
-      - name: Upload artifact
-        if: steps.commit.outputs.committed == 'true'
-        uses: actions/upload-pages-artifact@v3
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        if: steps.commit.outputs.committed == 'true'
-        uses: actions/deploy-pages@v4
+        run: |
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds"

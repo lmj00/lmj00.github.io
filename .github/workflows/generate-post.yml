@@ -1,4 +1,4 @@
-name: Generate daily study post
+name: Generate AI study post
 
 on:
   schedule:
@@ -12,11 +12,23 @@ on:
         default: ""
 
 permissions:
-  contents: write
+  contents: write   # 새 글 커밋/푸시
+  pages: write      # Pages 배포
+  id-token: write
+
+# build-jekyll과 같은 그룹 → 동시 배포 충돌/취소 방지
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  generate:
+  # 생성 → 커밋 → 빌드 → 배포를 한 잡에서 처리한다.
+  # (자동 커밋은 GITHUB_TOKEN이라 다른 워크플로우를 못 깨우므로 직접 배포)
+  generate-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,12 +36,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
-        working-directory: generator
-        run: pip install -r requirements.txt
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
 
       - name: Install d2 (다이어그램 렌더러)
         run: curl -fsSL https://d2lang.com/install.sh | sh -s --
+
+      - name: Install python deps
+        working-directory: generator
+        run: pip install -r requirements.txt
 
       - name: Generate post
         working-directory: generator
@@ -39,14 +56,39 @@ jobs:
         run: python main.py
 
       - name: Commit new post
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add _posts/ai-notes/ generator/state/topics_done.json
           git add assets/diagrams/ 2>/dev/null || true   # 다이어그램 없는 날 대비
           if git diff --staged --quiet; then
-            echo "새 글 없음 — 커밋 생략"
+            echo "새 글 없음 — 커밋/배포 생략"
+            echo "committed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "ai-notes: 자동 생성 글 추가 (AI)"
+            NEW=$(ls -t _posts/ai-notes/*.md | head -1)
+            TITLE=$(grep -m1 '^title:' "$NEW" | sed -E 's/^title:[[:space:]]*"?//; s/"?[[:space:]]*$//')
+            git commit -m "ai-notes: ${TITLE:-자동 생성 글}"
             git push
+            echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # 새 글이 있을 때만 빌드·배포
+      - id: pages
+        if: steps.commit.outputs.committed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Build with Jekyll
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+
+      - name: Upload artifact
+        if: steps.commit.outputs.committed == 'true'
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.commit.outputs.committed == 'true'
+        uses: actions/deploy-pages@v4

@@ -1,3 +1,4 @@
 [
-  "postgres-explicit-locking"
+  "postgres-explicit-locking",
+  "postgres-mvcc"
 ]

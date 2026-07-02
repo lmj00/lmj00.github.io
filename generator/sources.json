@@ -1,0 +1,116 @@
+{
+  "_comment": "생성기 설정 파일. 주제는 두 곳에서 나온다: (1) catalogs = 공식문서에서 자동 발굴(대부분), (2) topics = 손으로 보충한 소수. 생성기는 각 주제의 공식문서를 fetch해 그 내용만 근거로 글을 쓴다. 미생성 주제가 없으면 그날은 건너뛴다(억지 생성 금지).",
+
+  "user_agent": "lmj00-blog-generator/1.0 (+https://lmj00.github.io; contact: e.minjin00@gmail.com)",
+
+  "_system_prompt_note": "시스템 프롬프트 파일. 지시는 영어, 출력은 한국어. (A/B 테스트 결과 프롬프트 언어는 한국어 출력 품질에 영향 없음)",
+  "system_prompt": "system.md",
+
+  "max_chars_per_source": 16000,
+
+  "model_selection": "auto",
+  "_model_note": "auto = 실행 시 OpenRouter에서 현재 무료모델을 실시간 조회해 fallback 체인을 자동 구성한다(목록이 바뀌어도 자동 대응). model_prefer 순서대로 우선 배치하고, model_exclude 패턴(소형·비전·특수 모델)은 뺀다. 실시간 조회 실패 시 model_seed를 사용.",
+  "_prefer_note": "한국어가 깨끗한 모델 우선. Nemotron은 한국어가 불안정해 일부러 뺐다(빠진 모델은 자동으로 후순위 fallback이 됨).",
+  "model_prefer": [
+    "qwen3-next", "qwen3", "llama-3.3-70b", "gpt-oss-120b",
+    "hermes-3", "gemma-4", "llama-3.3"
+  ],
+  "model_exclude": [
+    "content-safety", "-vl", "omni", "coder", "code",
+    "1.2b", "-3b-", "-2b-", "nano", "mini", "thinking", "guard"
+  ],
+  "model_seed": [
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "qwen/qwen3-next-80b-a3b-instruct:free"
+  ],
+
+  "_sources_format": "각 source는 문자열(fetch=cite 동일) 또는 {\"fetch\": 가져올URL, \"cite\": 글에 표기할URL}. SPA(JS렌더링) 문서는 raw 마크다운을 fetch하고 사람이 보는 페이지를 cite한다.",
+
+  "_catalogs_note": "주제 자동 발굴. 각 공식문서 GitHub 레포의 마크다운 페이지를 통째로 열거해 주제 풀을 만든다. 손으로 topic을 안 적어도 됨. include_prefixes/exclude_globs로 좋은 페이지만 거른다.",
+  "_redis_note": "Redis 문서는 CC BY-NC-SA 4.0(비상업+동일조건)이라 저작권 회색지대가 있어 카탈로그에서 제외함. 블로그가 확실히 비상업이고 Redis 출처 글에 CC 표기를 할 준비가 되면 다시 추가할 수 있다.",
+  "catalogs": [
+    {
+      "id": "rabbitmq",
+      "repo": "rabbitmq/rabbitmq-website",
+      "ref": "main",
+      "tags": ["rabbitmq"],
+      "include_prefixes": ["docs/"],
+      "exclude_globs": ["*/_*", "*man/*"],
+      "web_base": "https://www.rabbitmq.com/",
+      "strip_prefix": "",
+      "drop_index": false,
+      "trailing_slash": false
+    },
+    {
+      "id": "kafka",
+      "repo": "apache/kafka",
+      "ref": "trunk",
+      "tags": ["kafka"],
+      "include_prefixes": ["docs/design/", "docs/implementation/", "docs/operations/"],
+      "exclude_globs": ["*/_index.md"],
+      "cite_fixed": "https://kafka.apache.org/documentation/"
+    },
+
+    {
+      "id": "linux-syscalls",
+      "type": "man_index",
+      "section": 2,
+      "index_url": "https://man7.org/linux/man-pages/dir_section_2.html",
+      "base": "https://man7.org/linux/man-pages/",
+      "tags": ["cs", "os", "syscall"],
+      "exclude_globs": ["*unimplemented*", "*syscalls.2*", "*_syscall*"]
+    },
+    {
+      "id": "linux-concepts",
+      "type": "man_index",
+      "section": 7,
+      "index_url": "https://man7.org/linux/man-pages/dir_section_7.html",
+      "base": "https://man7.org/linux/man-pages/",
+      "tags": ["cs", "os"],
+      "_note": "section 7은 개념 위주지만 charset/도구 노이즈가 있어 제외 패턴으로 거른다.",
+      "exclude_globs": [
+        "*charset*", "*iso_8859*", "*koi8*", "*ascii*", "*armscii*", "*cp1251*",
+        "*babeltrace*", "*systemd*", "*.lttng*", "*-8.7.html", "*latin*"
+      ]
+    },
+    {
+      "id": "rfc-standards",
+      "type": "rfc_index",
+      "index_url": "https://www.rfc-editor.org/rfc-index.txt",
+      "statuses": ["INTERNET STANDARD"],
+      "tags": ["cs", "network", "rfc"]
+    }
+  ],
+
+  "_topics_note": "여기는 카탈로그(자동발굴)로 안 잡히는 것만 보충하는 소수의 curated 항목. 대부분의 주제는 위 catalogs에서 자동으로 나온다. PostgreSQL은 마크다운 트리가 아니라 카탈로그가 없어 여기서 보충하고, WebSocket은 RFC가 'Proposed Standard'라 INTERNET STANDARD 자동필터에 안 잡혀 보충한다.",
+  "topics": [
+    {
+      "id": "postgres-explicit-locking",
+      "title_hint": "PostgreSQL 명시적 락과 직렬화 실패: 비관/낙관 제어",
+      "category": "ai-notes",
+      "tags": ["postgresql", "lock", "transaction", "mvcc"],
+      "sources": [
+        "https://www.postgresql.org/docs/current/explicit-locking.html"
+      ]
+    },
+    {
+      "id": "postgres-mvcc",
+      "title_hint": "PostgreSQL MVCC: 동시성 제어는 어떻게 동작하나",
+      "category": "ai-notes",
+      "tags": ["postgresql", "mvcc", "transaction", "concurrency"],
+      "sources": [
+        "https://www.postgresql.org/docs/current/mvcc-intro.html"
+      ]
+    },
+    {
+      "id": "cs-websocket-protocol",
+      "title_hint": "WebSocket 프로토콜: 핸드셰이크와 프레이밍 (RFC 6455)",
+      "category": "ai-notes",
+      "tags": ["cs", "network", "websocket"],
+      "sources": [
+        { "fetch": "https://www.rfc-editor.org/rfc/rfc6455.txt",
+          "cite": "https://www.rfc-editor.org/rfc/rfc6455" }
+      ]
+    }
+  ]
+}

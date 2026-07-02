@@ -64,3 +64,10 @@ paginate: 8
 paginate_path: "/page:num/"
 
 permalink: /:categories/:title
+
+# 생성기는 사이트 빌드 대상에서 제외 (LLM 스크립트는 Jekyll이 렌더링하지 않음)
+exclude:
+  - generator/
+  - Gemfile
+  - Gemfile.lock
+  - vendor/

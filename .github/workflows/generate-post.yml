@@ -1,0 +1,52 @@
+name: Generate daily study post
+
+on:
+  schedule:
+    # KST 06:00 = UTC 21:00 (전날). 출근 전에 새 글이 준비되도록.
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+    inputs:
+      topic_id:
+        description: "특정 주제 강제 생성(sources.json의 id). 비우면 다음 미생성 주제 자동 선택."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        working-directory: generator
+        run: pip install -r requirements.txt
+
+      - name: Install d2 (다이어그램 렌더러)
+        run: curl -fsSL https://d2lang.com/install.sh | sh -s --
+
+      - name: Generate post
+        working-directory: generator
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FORCE_TOPIC_ID: ${{ github.event.inputs.topic_id }}
+        run: python main.py
+
+      - name: Commit new post
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _posts/ai-notes/ generator/state/topics_done.json
+          git add assets/diagrams/ 2>/dev/null || true   # 다이어그램 없는 날 대비
+          if git diff --staged --quiet; then
+            echo "새 글 없음 — 커밋 생략"
+          else
+            git commit -m "ai-notes: 자동 생성 글 추가 (AI)"
+            git push
+          fi

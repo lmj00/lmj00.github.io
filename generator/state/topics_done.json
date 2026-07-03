@@ -2,5 +2,6 @@
   "postgres-explicit-locking",
   "postgres-mvcc",
   "cs-websocket-protocol",
-  "linux-concepts::man7/gitglossary.7.html"
+  "linux-concepts::man7/gitglossary.7.html",
+  "linux-syscalls::man2/umask.2.html"
 ]

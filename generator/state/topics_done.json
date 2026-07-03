@@ -4,5 +4,6 @@
   "cs-websocket-protocol",
   "linux-concepts::man7/gitglossary.7.html",
   "linux-syscalls::man2/umask.2.html",
-  "linux-syscalls::man2/clock_adjtime.2.html"
+  "linux-syscalls::man2/clock_adjtime.2.html",
+  "linux-concepts::man7/mount_namespaces.7.html"
 ]

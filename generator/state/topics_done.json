@@ -1,4 +1,5 @@
 [
   "postgres-explicit-locking",
-  "postgres-mvcc"
+  "postgres-mvcc",
+  "cs-websocket-protocol"
 ]

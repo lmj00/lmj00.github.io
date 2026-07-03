@@ -1,6 +1,5 @@
 [
-  "postgres-explicit-locking",
-  "postgres-mvcc",
-  "cs-websocket-protocol",
-  "postgresql::https://www.postgresql.org/docs/current/pgprewarm.html"
+  "postgresql::https://www.postgresql.org/docs/current/explicit-locking.html",
+  "postgresql::https://www.postgresql.org/docs/current/mvcc-intro.html",
+  "cs-websocket-protocol"
 ]

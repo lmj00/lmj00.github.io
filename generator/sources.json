@@ -89,13 +89,18 @@
       "sitemap": "https://www.postgresql.org/sitemap.xml",
       "include": "/docs/current/",
       "_note": "SQL 명령어/함수/카탈로그 등 레퍼런스 페이지는 제외하고 개념 위주만.",
+      "_exclude_note": "레퍼런스(sql/함수/카탈로그)·부록 contrib 모듈·절차언어 등 곁가지 제외. 개념 챕터만 남긴다.",
       "exclude_globs": [
         "*/sql-*", "*/functions-*", "*/catalog-*", "*/contrib-*", "*/app-*",
         "*/release-*", "*/ecpg-*", "*/libpq-*", "*/protocol-*", "*/errcodes*",
-        "*/view-*", "*/infoschema-*", "*/index-*", "*/datatype-*", "*/pgtestfsync*",
-        "*/pgbench*", "*/pgcrypto*", "*/pl*", "*/spi-*", "*/bki-*", "*/xfunc-*",
-        "*/tutorial-*", "*/typeconv-*", "*/xoper*", "*/xindex*", "*/xtypes*",
-        "*/dblink*", "*/module-*", "*/uuid-*", "*/sepgsql*", "*/adminpack*"
+        "*/view-*", "*/infoschema-*", "*/index-*", "*/datatype-*", "*/pl*",
+        "*/spi-*", "*/bki-*", "*/xfunc-*", "*/tutorial-*", "*/typeconv-*",
+        "*/xoper*", "*/xindex*", "*/xtypes*", "*/module-*", "*/sepgsql*",
+        "*/pg*", "*/dblink*", "*/uuid-*", "*/adminpack*", "*/fuzzystrmatch*",
+        "*/hstore*", "*/citext*", "*/cube*", "*/ltree*", "*/tablefunc*",
+        "*/unaccent*", "*/bloom*", "*/amcheck*", "*/isn*", "*/earthdistance*",
+        "*/tcn*", "*/tsm-*", "*/passwordcheck*", "*/basebackup*", "*/seg*",
+        "*/pageinspect*", "*/oldsnapshot*", "*/dict-*", "*/auth-*", "*/tsm*"
       ],
       "tags": ["postgresql", "db"],
       "_license": "PostgreSQL License (permissive, 문서 포함)"

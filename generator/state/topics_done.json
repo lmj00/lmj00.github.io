@@ -1,5 +1,6 @@
 [
   "postgres-explicit-locking",
   "postgres-mvcc",
-  "cs-websocket-protocol"
+  "cs-websocket-protocol",
+  "linux-concepts::man7/gitglossary.7.html"
 ]

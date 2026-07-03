@@ -14,6 +14,9 @@ ASSETS_DIR = HERE.parent / "assets" / "diagrams"
 
 _D2_BLOCK = re.compile(r"```d2\s*\n(.*?)```", re.DOTALL)
 
+# 다이어그램 스타일. main에서 sources.json 설정으로 덮어씀.
+D2_FLAGS = ["--theme=3", "--sketch", "--pad=40"]
+
 
 def _render_one_d2(src: str, slug: str, idx: int) -> str | None:
     """d2 소스 하나를 SVG로 렌더링. 성공 시 이미지 마크다운, 실패 시 None(제거)."""
@@ -26,7 +29,7 @@ def _render_one_d2(src: str, slug: str, idx: int) -> str | None:
                                          encoding="utf-8") as tf:
             tf.write(src)
             tmp = tf.name
-        r = subprocess.run(["d2", "--pad", "20", tmp, str(svg_path)],
+        r = subprocess.run(["d2", *D2_FLAGS, tmp, str(svg_path)],
                            capture_output=True, text=True, timeout=60)
         if r.returncode != 0:
             print(f"  [d2] 블록 {idx} 렌더 실패 → 제거: {r.stderr.strip()[:120]}")

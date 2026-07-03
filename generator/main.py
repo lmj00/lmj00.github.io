@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -53,6 +54,49 @@ def normalize_sources(sources: list) -> list[dict]:
     return out
 
 
+def pick_balanced(undone: list[dict], cfg: dict) -> dict:
+    """분야(group) 가중치로 먼저 분야를 고르고, 그 안에서 랜덤 선택.
+
+    catalog 개수 불균형과 무관하게 분야별로 골고루 나오게 한다.
+    groups/group_weights 설정이 없으면 그냥 전체 랜덤.
+    """
+    groups = cfg.get("groups")
+    weights = cfg.get("group_weights")
+    if not groups or not weights:
+        return random.choice(undone)
+
+    # catalog id -> group 이름
+    id2group = {}
+    for gname, cat_ids in groups.items():
+        for cid in cat_ids:
+            id2group[cid] = gname
+
+    # 미생성 후보를 분야별로 묶기
+    buckets: dict[str, list] = {}
+    for c in undone:
+        cat_id = c["id"].split("::")[0]
+        g = id2group.get(cat_id, "기타")
+        buckets.setdefault(g, []).append(c)
+
+    # 후보가 있는 분야만 대상으로 가중 선택
+    avail = [(g, weights.get(g, 1)) for g in buckets]
+    chosen = random.choices([g for g, _ in avail], weights=[w for _, w in avail])[0]
+    print(f"  분야 선택: {chosen} ({len(buckets[chosen])}개 중)")
+    return random.choice(buckets[chosen])
+
+
+def extract_title(body: str, fallback: str) -> tuple[str, str]:
+    """LLM 출력 첫 줄의 '제목: ...' 을 추출하고, 그 줄은 본문에서 제거."""
+    stripped = body.lstrip()
+    first, _, rest = stripped.partition("\n")
+    m = re.match(r"^\s*(?:#+\s*)?제목\s*[:：]\s*(.+)$", first.strip())
+    if m:
+        title = m.group(1).strip().strip('"').strip("'").strip("#").strip()
+        if title:
+            return title, rest.lstrip("\n")
+    return fallback, body
+
+
 def build_sources_block(fetched: list[dict]) -> tuple[str, list[str]]:
     blocks = []
     cite_urls = []
@@ -70,6 +114,13 @@ def main() -> int:
     cfg = load_config()
     ua = cfg["user_agent"]
     max_chars = cfg.get("max_chars_per_source", 16000)
+
+    # 다이어그램(D2) 스타일 적용
+    d2_flags = [f"--theme={cfg.get('d2_theme', 3)}"]
+    if cfg.get("d2_sketch", True):
+        d2_flags.append("--sketch")
+    d2_flags.append("--pad=40")
+    post_writer.D2_FLAGS = d2_flags
 
     # 무료모델 fallback 체인: auto면 OpenRouter에서 실시간 조회
     if cfg.get("model_selection") == "auto":
@@ -93,7 +144,7 @@ def main() -> int:
         undone = [c for c in pool if c["id"] not in done]
         print(f"  전체 후보 {len(pool)}개 / 미생성 {len(undone)}개")
         if undone:
-            topic = random.choice(undone)
+            topic = pick_balanced(undone, cfg)
 
     if topic is None:
         print("생성할 새 주제가 없습니다(모두 소진 또는 잘못된 FORCE_TOPIC_ID). 종료.")
@@ -113,21 +164,14 @@ def main() -> int:
         print("사용 가능한 출처가 없습니다(robots 차단/오류). 이 주제는 건너뜁니다.")
         return 0
 
-    # 카탈로그 주제는 제목이 없으니 fetch한 본문에서 추출.
-    title = topic.get("title_hint")
-    if not title:
+    # 프롬프트에 줄 임시 제목(맥락용). 최종 제목은 LLM이 생성한다.
+    hint = topic.get("title_hint")
+    if not hint:
         first_text = next((f["text"] for f in fetched if f["ok"]), "")
-        derived = catalog.derive_title(first_text, norm_sources[0]["fetch"])
-        tags = topic.get("tags", [])
-        prefix = tags[0].capitalize() if tags else ""
-        # 제목이 제품명을 안 담고 있으면 태그를 앞에 붙여 맥락 부여
-        if prefix and prefix.lower() not in derived.lower():
-            title = f"{prefix}: {derived}"
-        else:
-            title = derived
+        hint = catalog.derive_title(first_text, norm_sources[0]["fetch"])
 
     user_prompt = load_prompt("user_template.md").format(
-        title_hint=title,
+        title_hint=hint,
         tags=", ".join(topic.get("tags", [])),
         sources_block=sources_block,
     )
@@ -139,7 +183,10 @@ def main() -> int:
     except llm.LLMError as e:
         print(f"[실패] {e}", file=sys.stderr)
         return 1
-    print(f"  성공 모델: {model_used}  (본문 {len(body)}자)")
+
+    # LLM 출력 첫 줄의 '제목:' 을 최종 제목으로 사용(없으면 hint 폴백)
+    title, body = extract_title(body, hint)
+    print(f"  성공 모델: {model_used}  (제목: {title} / 본문 {len(body)}자)")
 
     path = post_writer.write_post(
         title=title,

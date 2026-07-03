@@ -11,6 +11,25 @@ _JP_KANA = re.compile(r"[぀-ヿ]")
 _CJK = re.compile(r"[一-鿿]")
 
 
+MIN_BODY_CHARS = 900  # 이보다 짧으면 얕거나 끊긴 글로 보고 다음 모델 시도
+
+
+def _looks_truncated(text: str) -> bool:
+    """중간에 끊긴 출력 감지."""
+    tail = text.rstrip()
+    if not tail:
+        return True
+    last = tail.split("\n")[-1].strip()
+    # 1) 표 구분선(| :--- |)이나 미완성 표 헤더로 끝남 → 데이터 행이 안 온 것
+    if re.search(r"\|\s*:?-{2,}", last):
+        return True
+    # 2) 서술 문장이 끝맺음 없이 뚝 끊김 (표/코드/헤딩/목록 줄은 제외)
+    if last and not last.startswith(("#", "|", "-", "*", ">", "`", "!")):
+        if not last.endswith((".", "다", "요", "!", "?", ":", ")", "]", "`", "”", "\"")):
+            return True
+    return False
+
+
 def output_is_clean_korean(text: str) -> tuple[bool, str]:
     """생성 결과가 외국어 누출 없는 한국어인지 검증."""
     if _JP_KANA.search(text):
@@ -130,6 +149,16 @@ def generate(system_prompt: str, user_prompt: str, model_fallback: list[str]) ->
         if not clean:
             errors.append(f"{model}: 품질 게이트 탈락({reason})")
             print(f"  [스킵] {model} — {reason}, 다음 모델로")
+            continue
+        # 너무 짧으면 내용이 얕거나 중간에 끊긴 것 → 다음 모델로
+        if len(content) < MIN_BODY_CHARS:
+            errors.append(f"{model}: 본문 과소({len(content)}자)")
+            print(f"  [스킵] {model} — 본문 {len(content)}자로 너무 짧음, 다음 모델로")
+            continue
+        # 마크다운 표가 중간에 끊긴 흔적(헤더 구분선 뒤 내용 없음) 감지
+        if _looks_truncated(content):
+            errors.append(f"{model}: 잘린 출력 의심")
+            print(f"  [스킵] {model} — 출력이 중간에 끊긴 듯, 다음 모델로")
             continue
         return content, model
 

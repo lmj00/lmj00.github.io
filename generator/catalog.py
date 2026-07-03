@@ -126,10 +126,53 @@ def candidates_from_rfc_index(cat: dict) -> list[dict]:
     return out
 
 
+def _sitemap_locs(url: str, ua: str, depth: int = 0) -> list[str]:
+    """sitemap.xml의 <loc> URL들을 수집. 사이트맵 인덱스면 한 단계 따라 들어감."""
+    resp = requests.get(url, headers={"User-Agent": ua}, timeout=60)
+    resp.raise_for_status()
+    text = resp.text
+    locs = re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text)
+    is_index = "<sitemapindex" in text
+    if is_index and depth < 1:
+        out = []
+        for sub in locs:
+            try:
+                out.extend(_sitemap_locs(sub, ua, depth + 1))
+            except requests.RequestException:
+                continue
+        return out
+    return locs
+
+
+def candidates_from_sitemap(cat: dict) -> list[dict]:
+    """사이트의 sitemap.xml에서 페이지를 자동 열거. (사이트 주소 + 경로필터만 필요)"""
+    ua = cat.get("user_agent", "Mozilla/5.0 (compatible; lmj00-blog-generator)")
+    locs = _sitemap_locs(cat["sitemap"], ua)
+    includes = cat.get("include_prefixes") or ([cat["include"]] if cat.get("include") else [""])
+    excludes = cat.get("exclude_globs", [])
+    out, seen = [], set()
+    for u in locs:
+        u = u.strip()
+        if u in seen:
+            continue
+        if not any(inc in u for inc in includes):
+            continue
+        if any(fnmatch.fnmatch(u, g) for g in excludes):
+            continue
+        seen.add(u)
+        out.append({
+            "id": f"{cat['id']}::{u}",
+            "fetch": u, "cite": u,
+            "tags": cat.get("tags", []), "title_hint": None,
+        })
+    return out
+
+
 _DISPATCH = {
     "github_tree": candidates_from_catalog,
     "man_index": candidates_from_man_index,
     "rfc_index": candidates_from_rfc_index,
+    "sitemap": candidates_from_sitemap,
 }
 
 

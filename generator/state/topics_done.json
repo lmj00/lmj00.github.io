@@ -1,5 +1,6 @@
 [
   "postgresql::https://www.postgresql.org/docs/current/explicit-locking.html",
   "postgresql::https://www.postgresql.org/docs/current/mvcc-intro.html",
-  "cs-websocket-protocol"
+  "cs-websocket-protocol",
+  "rabbitmq::docs/manpages.md"
 ]

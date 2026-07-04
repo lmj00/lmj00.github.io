@@ -4,3 +4,50 @@
   1. Head over to https://realfavicongenerator.net/ to add your own favicons.
   2. Customize default _includes/custom-head.html in your source directory and insert the given code snippet.
 {% endcomment %}
+
+<style>
+  /* 본문 이미지 반응형 */
+  .post-content img { max-width: 100%; height: auto; }
+
+  /* 다이어그램(SVG): 넓어도 줄이지 않고, 넘치면 가로 스크롤(글자 가독성 유지).
+     클릭하면 원본 SVG를 새 탭에서 열어 무한 확대 가능(벡터라 안 깨짐). */
+  .post-content .diagram-wrap {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .post-content .diagram-wrap img {
+    display: block;
+    margin: 0 auto;            /* 폭이 남으면 가운데, 넘치면 스크롤 */
+    max-height: 640px;
+    width: auto;
+    max-width: none;           /* 강제 축소 금지 → 넓은 그림도 원래 크기 */
+    cursor: zoom-in;
+  }
+  /* 가로 스크롤이 생기는 넓은 다이어그램에 살짝 힌트 */
+  .post-content .diagram-wrap::-webkit-scrollbar { height: 8px; }
+  .post-content .diagram-wrap::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.2); border-radius: 4px;
+  }
+</style>
+
+<script>
+  /* 모든 다이어그램 이미지를 (가로 스크롤 컨테이너 + 원본 링크)로 감싼다.
+     기존 글/새 글 모두 자동 적용 — 재생성 불필요. */
+  document.addEventListener("DOMContentLoaded", function () {
+    var imgs = document.querySelectorAll('.post-content img[src*="/assets/diagrams/"]');
+    imgs.forEach(function (img) {
+      if (img.closest(".diagram-wrap")) return;
+      var wrap = document.createElement("div");
+      wrap.className = "diagram-wrap";
+      var a = document.createElement("a");
+      a.href = img.getAttribute("src");
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.title = "클릭하면 원본 크기로 확대";
+      img.parentNode.insertBefore(wrap, img);
+      a.appendChild(img);
+      wrap.appendChild(a);
+    });
+  });
+</script>

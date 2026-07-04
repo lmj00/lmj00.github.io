@@ -46,6 +46,12 @@ def _render_one_d2(src: str, slug: str, idx: int) -> str | None:
             os.unlink(tmp)
 
 
+def _is_table_sep(line: str) -> bool:
+    """표 구분선인지 (| : - — – 공백 으로만 이뤄지고 대시와 파이프 포함)."""
+    s = line.strip()
+    return bool(s) and set(s) <= set("|:-—– \t") and "|" in s and any(c in s for c in "-—–")
+
+
 def normalize_markdown(body: str) -> str:
     """LLM 출력의 흔한 마크다운 실수 교정. (코드블록 안은 건드리지 않음)"""
     out = []
@@ -58,6 +64,9 @@ def normalize_markdown(body: str) -> str:
         if not in_fence:
             # '###개요' → '### 개요' (헤딩 # 뒤 공백 누락 교정)
             line = re.sub(r"^(#{1,6})([^#\s])", r"\1 \2", line)
+            # 표 구분선의 em/en 대시(——)를 하이픈(---)으로 교정 → 표가 깨지지 않게
+            if _is_table_sep(line):
+                line = re.sub(r"[—–\-]+", "---", line)
         out.append(line)
     return "\n".join(out)
 

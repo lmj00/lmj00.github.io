@@ -97,6 +97,15 @@ def extract_title(body: str, fallback: str) -> tuple[str, str]:
     return fallback, body
 
 
+def _remove_post(path: Path) -> None:
+    """재시도 위해 방금 쓴 글 파일 + 그 글의 다이어그램 SVG 제거."""
+    path.unlink(missing_ok=True)
+    diagrams = HERE.parent / "assets" / "diagrams"
+    if diagrams.exists():
+        for svg in diagrams.glob(f"{path.stem}-*.svg"):
+            svg.unlink(missing_ok=True)
+
+
 def build_sources_block(fetched: list[dict]) -> tuple[str, list[str]]:
     blocks = []
     cite_urls = []
@@ -178,23 +187,36 @@ def main() -> int:
     system_prompt = load_prompt(cfg.get("system_prompt", "system.md"))
 
     print("LLM 생성 중(fallback 체인)...")
-    try:
-        body, model_used = llm.generate(system_prompt, user_prompt, models)
-    except llm.LLMError as e:
-        print(f"[실패] {e}", file=sys.stderr)
-        return 1
+    # 다이어그램 소프트 재시도: 없으면 몇 번 더 생성 시도(다이어그램 나올 기회를 줌).
+    # 단, 시각적 주제(프로토콜·아키텍처·흐름 등)에서만 재시도 → 낭비 방지.
+    # 단순 주제는 재시도 0(첫 결과 수용).
+    retry_tags = set(cfg.get("diagram_retry_tags", []))
+    topic_tags = set(topic.get("tags", []))
+    diagram_worthy = bool(retry_tags & topic_tags)
+    diagram_retries = cfg.get("diagram_retries", 2) if diagram_worthy else 0
+    if not diagram_worthy:
+        print("  (다이어그램 비대상 주제 — 재시도 없이 1회 생성)")
+    path = None
+    for attempt in range(diagram_retries + 1):
+        try:
+            body, model_used = llm.generate(system_prompt, user_prompt, models)
+        except llm.LLMError as e:
+            print(f"[실패] {e}", file=sys.stderr)
+            return 1
+        title, body = extract_title(body, hint)
+        p = post_writer.write_post(
+            title=title, body=body, model=model_used,
+            tags=topic.get("tags", []), source_urls=ok_urls,
+        )
+        has_diagram = "assets/diagrams" in p.read_text(encoding="utf-8")
+        if has_diagram or attempt == diagram_retries:
+            mark = "O" if has_diagram else "X(수용)"
+            print(f"  성공 모델: {model_used}  (제목: {title} / {len(body)}자 / 다이어그램 {mark})")
+            path = p
+            break
+        print(f"  다이어그램 없음(시도 {attempt + 1}/{diagram_retries + 1}) → 재생성")
+        _remove_post(p)
 
-    # LLM 출력 첫 줄의 '제목:' 을 최종 제목으로 사용(없으면 hint 폴백)
-    title, body = extract_title(body, hint)
-    print(f"  성공 모델: {model_used}  (제목: {title} / 본문 {len(body)}자)")
-
-    path = post_writer.write_post(
-        title=title,
-        body=body,
-        model=model_used,
-        tags=topic.get("tags", []),
-        source_urls=ok_urls,
-    )
     dedup.mark_done(topic["id"])
     print(f"작성 완료: {path.relative_to(HERE.parent)}")
     return 0

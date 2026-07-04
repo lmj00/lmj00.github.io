@@ -8,6 +8,11 @@
 
   "max_chars_per_source": 16000,
 
+  "_diagram_note": "다이어그램 소프트 재시도 횟수. 다이어그램 없으면 이만큼 더 생성 시도(나올 기회 제공), 그래도 없으면 수용(억지 X).",
+  "diagram_retries": 2,
+  "_diagram_retry_tags_note": "이 태그가 있는 시각적 주제(프로토콜·흐름·아키텍처 등)에서만 재시도 → 단순 주제는 재시도 안 함(요금 낭비 방지).",
+  "diagram_retry_tags": ["network","protocol","websocket","tcp","http","http2","dns","tls","architecture","container","kubernetes","infra","messaging","kafka","rabbitmq","quorum","streams","distributed","replication","ha","lock","concurrency","mvcc","transaction"],
+
   "_d2_note": "다이어그램 스타일. d2_theme = 테마번호(3=Flagship, 4=Cool Classics, 5=Berry Blue, 104=Everglade Green 등 https://d2lang.com/tour/themes). d2_sketch = 손그림 스타일.",
   "d2_theme": 3,
   "d2_sketch": true,
@@ -21,8 +26,12 @@
   },
   "group_weights": { "메시징": 25, "DB": 25, "네트워크": 20, "인프라": 30 },
 
-  "model_selection": "auto",
-  "_model_note": "auto = 실행 시 OpenRouter에서 현재 무료모델을 실시간 조회해 fallback 체인을 자동 구성한다(목록이 바뀌어도 자동 대응). model_prefer 순서대로 우선 배치하고, model_exclude 패턴(소형·비전·특수 모델)은 뺀다. 실시간 조회 실패 시 model_seed를 사용.",
+  "model_selection": "manual",
+  "_model_note": "manual = model_fallback 목록을 순서대로 사용(유료 모델). DeepSeek v3.2 우선(제일 풍부) + Qwen3-235B 백업. 둘 다 다이어그램 잘 넣고 한국어 깨끗(만일의 한자는 품질 게이트가 방어). auto로 바꾸면 무료모델만 사용.",
+  "model_fallback": [
+    "deepseek/deepseek-v3.2",
+    "qwen/qwen3-235b-a22b-2507"
+  ],
   "_prefer_note": "큰/성능 좋은 모델 우선. 작은·약한 모델은 model_exclude로 아예 제외해 품질 유지. 큰 모델이 rate limit이면 llm.py가 잠깐 기다렸다 재시도(작은 걸로 안 떨어짐).",
   "model_prefer": [
     "qwen3-next", "gpt-oss-120b", "llama-3.3-70b", "hermes-3",
@@ -49,7 +58,12 @@
       "ref": "main",
       "tags": ["rabbitmq"],
       "include_prefixes": ["docs/"],
-      "exclude_globs": ["*/_*", "*man/*"],
+      "_exclude_note": "메타/색인·설치·다운로드 등 개념 아닌 페이지 제외.",
+      "exclude_globs": [
+        "*/_*", "*man/*", "*manpages*", "*which-erlang*", "*download*",
+        "*install*", "*changelog*", "*build*", "*/index*", "*upgrade*",
+        "*versions*", "*support*", "*licensing*"
+      ],
       "web_base": "https://www.rabbitmq.com/",
       "strip_prefix": "",
       "drop_index": false,

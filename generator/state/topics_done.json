@@ -3,5 +3,6 @@
   "postgresql::https://www.postgresql.org/docs/current/mvcc-intro.html",
   "cs-websocket-protocol",
   "rabbitmq::docs/manpages.md",
-  "rabbitmq::docs/install-kubernetes-diy.md"
+  "rabbitmq::docs/install-kubernetes-diy.md",
+  "rfc-standards::rfc1661"
 ]

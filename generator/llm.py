@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import time
 import re
 import requests
 
@@ -115,51 +116,62 @@ def generate(system_prompt: str, user_prompt: str, model_fallback: list[str]) ->
         "X-Title": "lmj00-blog-generator",
     }
 
-    errors = []
-    for model in model_fallback:
-        payload = {
-            "model": model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            "temperature": 0.4,
-        }
-        try:
-            # (연결 타임아웃, 읽기 타임아웃)
-            # 연결은 빨리 실패시키되, 느린 무료모델의 생성은 넉넉히 기다린다.
-            resp = requests.post(OPENROUTER_URL, headers=headers, json=payload,
-                                 timeout=(10, 300))
-        except requests.RequestException as e:
-            errors.append(f"{model}: request_error {e}")
-            continue
-        if resp.status_code != 200:
-            errors.append(f"{model}: http_{resp.status_code} {resp.text[:200]}")
-            continue
-        try:
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"].strip()
-        except (KeyError, ValueError, IndexError) as e:
-            errors.append(f"{model}: parse_error {e}")
-            continue
-        if not content:
-            errors.append(f"{model}: empty_content")
-            continue
-        clean, reason = output_is_clean_korean(content)
-        if not clean:
-            errors.append(f"{model}: 품질 게이트 탈락({reason})")
-            print(f"  [스킵] {model} — {reason}, 다음 모델로")
-            continue
-        # 너무 짧으면 내용이 얕거나 중간에 끊긴 것 → 다음 모델로
-        if len(content) < MIN_BODY_CHARS:
-            errors.append(f"{model}: 본문 과소({len(content)}자)")
-            print(f"  [스킵] {model} — 본문 {len(content)}자로 너무 짧음, 다음 모델로")
-            continue
-        # 마크다운 표가 중간에 끊긴 흔적(헤더 구분선 뒤 내용 없음) 감지
-        if _looks_truncated(content):
-            errors.append(f"{model}: 잘린 출력 의심")
-            print(f"  [스킵] {model} — 출력이 중간에 끊긴 듯, 다음 모델로")
-            continue
-        return content, model
+    # 큰 모델이 rate limit이면 작은 걸로 안 떨어지고, 잠깐 기다렸다 체인을 재시도한다.
+    max_rounds = 4
+    wait_seconds = 25
+    all_errors = []
+    for rnd in range(max_rounds):
+        errors = []
+        for model in model_fallback:
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                "temperature": 0.4,
+            }
+            try:
+                # (연결 타임아웃, 읽기 타임아웃)
+                resp = requests.post(OPENROUTER_URL, headers=headers, json=payload,
+                                     timeout=(10, 300))
+            except requests.RequestException as e:
+                errors.append(f"{model}: request_error {e}")
+                continue
+            if resp.status_code != 200:
+                errors.append(f"{model}: http_{resp.status_code} {resp.text[:120]}")
+                continue
+            try:
+                data = resp.json()
+                content = data["choices"][0]["message"]["content"].strip()
+            except (KeyError, ValueError, IndexError) as e:
+                errors.append(f"{model}: parse_error {e}")
+                continue
+            if not content:
+                errors.append(f"{model}: empty_content")
+                continue
+            clean, reason = output_is_clean_korean(content)
+            if not clean:
+                errors.append(f"{model}: 품질 게이트 탈락({reason})")
+                print(f"  [스킵] {model} — {reason}, 다음 모델로")
+                continue
+            if len(content) < MIN_BODY_CHARS:
+                errors.append(f"{model}: 본문 과소({len(content)}자)")
+                print(f"  [스킵] {model} — 본문 {len(content)}자로 너무 짧음, 다음 모델로")
+                continue
+            if _looks_truncated(content):
+                errors.append(f"{model}: 잘린 출력 의심")
+                print(f"  [스킵] {model} — 출력이 중간에 끊긴 듯, 다음 모델로")
+                continue
+            return content, model
 
-    raise LLMError("모든 무료모델 실패:\n" + "\n".join(errors))
+        # 체인 한 바퀴 실패. rate limit이 많으면 기다렸다 재시도(작은 모델로 안 떨어짐).
+        all_errors = errors
+        rate_limited = sum(1 for e in errors if "http_429" in e)
+        if rnd < max_rounds - 1 and rate_limited >= max(1, len(model_fallback) // 2):
+            print(f"  대부분 rate limit — {wait_seconds}초 대기 후 재시도 (round {rnd + 2}/{max_rounds})")
+            time.sleep(wait_seconds)
+            continue
+        break
+
+    raise LLMError("모든 무료모델 실패:\n" + "\n".join(all_errors))

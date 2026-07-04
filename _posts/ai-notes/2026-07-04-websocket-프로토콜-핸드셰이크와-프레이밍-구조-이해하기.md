@@ -3,7 +3,7 @@ title: "WebSocket 프로토콜: 핸드셰이크와 프레이밍 구조 이해하
 layout: post
 categories: ai-notes
 type: study-note
-date: 2026-07-04
+date: 2026-07-04 11:00:00 +0900
 tags: [cs, network, websocket]
 generated_by: "openrouter:nvidia/nemotron-3-ultra-550b-a55b:free"
 generated_at: 2026-07-04

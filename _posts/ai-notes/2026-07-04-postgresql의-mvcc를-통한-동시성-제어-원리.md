@@ -3,7 +3,7 @@ title: "PostgreSQL의 MVCC를 통한 동시성 제어 원리"
 layout: post
 categories: ai-notes
 type: study-note
-date: 2026-07-04
+date: 2026-07-04 09:00:00 +0900
 tags: [postgresql, mvcc]
 generated_by: "openrouter:google/gemma-4-31b-it:free"
 generated_at: 2026-07-04

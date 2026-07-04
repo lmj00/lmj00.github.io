@@ -81,20 +81,22 @@ def _slugify(text: str) -> str:
     return text[:60] or "post"
 
 
-def _frontmatter(title: str, date: dt.date, model: str, tags: list[str],
+def _frontmatter(title: str, when: dt.datetime, model: str, tags: list[str],
                  source_urls: list[str]) -> str:
     tag_str = ", ".join(tags)
     src_yaml = "\n".join(f"  - {u}" for u in source_urls)
+    # 같은 날 여러 글도 순서가 유지되도록 시간+타임존까지 기록
+    date_full = when.strftime("%Y-%m-%d %H:%M:%S %z")
     return (
         "---\n"
         f'title: "{title}"\n'
         "layout: post\n"
         "categories: ai-notes\n"
         "type: study-note\n"
-        f"date: {date.isoformat()}\n"
+        f"date: {date_full}\n"
         f"tags: [{tag_str}]\n"
         f'generated_by: "openrouter:{model}"\n'
-        f"generated_at: {date.isoformat()}\n"
+        f"generated_at: {when.date().isoformat()}\n"
         "sources:\n"
         f"{src_yaml}\n"
         "---\n"
@@ -113,20 +115,22 @@ def _footer(model: str, source_urls: list[str]) -> str:
 
 
 def write_post(title: str, body: str, model: str, tags: list[str],
-               source_urls: list[str], date: dt.date | None = None) -> Path:
-    date = date or dt.date.today()
+               source_urls: list[str], when: dt.datetime | None = None) -> Path:
+    # KST 기준 현재 시각(시간 포함) — 같은 날 여러 글의 순서 보존
+    when = when or dt.datetime.now(tz=dt.timezone(dt.timedelta(hours=9)))
+    date_str = when.date().isoformat()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     slug = _slugify(title)
-    filename = f"{date.isoformat()}-{slug}.md"
+    filename = f"{date_str}-{slug}.md"
     path = OUT_DIR / filename
 
     # 마크다운 실수 교정 후, ```d2 블록을 SVG로 렌더링해 이미지로 치환
     body = normalize_markdown(body)
-    body = render_d2_blocks(body, f"{date.isoformat()}-{slug}")
+    body = render_d2_blocks(body, f"{date_str}-{slug}")
 
     top_badge = "> 🤖 이 글은 공식문서를 근거로 **AI가 자동 생성**한 학습 노트입니다.\n\n"
     content = (
-        _frontmatter(title, date, model, tags, source_urls)
+        _frontmatter(title, when, model, tags, source_urls)
         + "\n"
         + top_badge
         + body.strip()

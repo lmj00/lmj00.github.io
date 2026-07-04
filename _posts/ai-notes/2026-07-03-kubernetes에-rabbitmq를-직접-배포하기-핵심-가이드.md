@@ -3,7 +3,7 @@ title: "Kubernetes에 RabbitMQ를 직접 배포하기: 핵심 가이드"
 layout: post
 categories: ai-notes
 type: study-note
-date: 2026-07-03
+date: 2026-07-03 09:00:00 +0900
 tags: [rabbitmq]
 generated_by: "openrouter:openai/gpt-oss-20b:free"
 generated_at: 2026-07-03

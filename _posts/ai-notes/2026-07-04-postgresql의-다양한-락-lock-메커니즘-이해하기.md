@@ -3,7 +3,7 @@ title: "PostgreSQL의 다양한 락(Lock) 메커니즘 이해하기"
 layout: post
 categories: ai-notes
 type: study-note
-date: 2026-07-04
+date: 2026-07-04 10:00:00 +0900
 tags: [postgresql, lock]
 generated_by: "openrouter:google/gemma-4-26b-a4b-it:free"
 generated_at: 2026-07-04

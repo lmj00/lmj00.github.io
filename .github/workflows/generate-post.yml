@@ -12,8 +12,12 @@ on:
         default: ""
 
 permissions:
-  contents: write   # 새 글 커밋/푸시
-  pages: write      # 네이티브 Pages 빌드 요청
+  contents: write   # 새 글 커밋/푸시 (push가 Pages 네이티브 빌드를 자동 트리거)
+
+# 동시 실행 방지 (cron+수동 겹쳐서 배포 충돌 안 나게)
+concurrency:
+  group: "generate-post"
+  cancel-in-progress: false
 
 jobs:
   generate:
@@ -56,14 +60,5 @@ jobs:
             git push
             echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
-
-      # 소스가 "Deploy from a branch(master)"인 네이티브 Pages 빌드는
-      # 봇(GITHUB_TOKEN) 커밋으로는 자동 트리거되지 않을 수 있으므로,
-      # 새 글이 생겼을 때 명시적으로 빌드를 요청한다.
-      - name: Request Pages build
-        if: steps.commit.outputs.committed == 'true'
-        run: |
-          curl -sS -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages/builds"
+          # push가 master의 Pages 네이티브 빌드를 자동으로 트리거하므로
+          # 별도 배포 요청은 하지 않는다(중복 요청 시 동시 배포 충돌).

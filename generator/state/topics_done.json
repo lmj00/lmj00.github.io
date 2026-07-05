@@ -5,5 +5,6 @@
   "rabbitmq::docs/manpages.md",
   "rabbitmq::docs/install-kubernetes-diy.md",
   "rfc-standards::rfc1661",
-  "postgresql::https://www.postgresql.org/docs/current/datetime-config-files.html"
+  "postgresql::https://www.postgresql.org/docs/current/datetime-config-files.html",
+  "kubernetes::https://kubernetes.io/docs/concepts/containers/container-environment/"
 ]

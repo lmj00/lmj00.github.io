@@ -53,6 +53,11 @@ minima:
 # Build settings
 theme: minima
 
+# minima 2.5.1 내부 SCSS의 옛 '/' 나눗셈 deprecation 경고 침묵
+# (테마 코드 문제라 우리가 고칠 수 없음 → 의존성 경고만 숨김)
+sass:
+  quiet_deps: true
+
 plugins:
  - jekyll-feed
  - jekyll-seo-tag

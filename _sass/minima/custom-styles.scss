@@ -1,2 +1,175 @@
-// Placeholder to allow defining custom styles that override everything else.
-// (Use `_sass/minima/custom-variables.scss` to override variable defaults)
+// 미학 방향: "미니멀 그레이스케일 스터디 저널"
+// 색 거의 없음(그레이스케일) / mono 크롬 + Pretendard 본문 / 카드 + staggered 모션.
+// (base·layout 뒤에 로드 → 최종 오버라이드)
+
+:root {
+  --bg:          #0c0e12;
+  --surface:     #14171d;
+  --border:      #262b34;
+  --hair:        #3a414d;
+  --text:        #d6dae0;
+  --muted:       #8b93a1;
+  --bright:      #e8ebf0;
+  --accent:      #79b8ff;   // 하늘색 파랑
+  --accent-lt:   #a5cdff;
+  --accent-soft: rgba(121, 184, 255, .10);
+  --accent-line: rgba(121, 184, 255, .30);
+  --soft:        rgba(255, 255, 255, .05);
+}
+
+// ── 배경 분위기: 은은한 상단 파란 광 + 미세 그리드 ────────
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1000px 420px at 50% -140px, rgba(121, 184, 255, .06), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, .013) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .013) 1px, transparent 1px);
+  background-size: auto, 46px 46px, 46px 46px;
+  background-attachment: fixed;
+}
+
+// ── 헤더: sticky + 블러(무채색) ───────────────────────────
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: rgba(12, 14, 18, .72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+// ── 사이트 타이틀: 깔끔하게(터미널 $ 제거) ────────────────
+.site-title {
+  font-weight: 700;
+  letter-spacing: -.01em;
+  &,
+  &:visited { color: var(--bright); }
+}
+
+// ── 네비게이션: mono ──────────────────────────────────────
+.site-nav .page-link {
+  font-family: $code-font-family;
+  font-size: .85rem;
+  color: var(--muted);
+  &:hover { color: var(--accent); }
+}
+
+// ── 메타(날짜 등): mono, muted ────────────────────────────
+.post-meta {
+  font-family: $code-font-family;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+// ── 카테고리 태그 = mono 회색 아웃라인 pill ───────────────
+#category-tag {
+  display: inline-block;
+  font-family: $code-font-family;
+  font-size: .72rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  padding: .1em .55em;
+  border-radius: 6px;
+  text-decoration: none;
+  vertical-align: middle;
+  &:hover { color: var(--accent-lt); background: rgba(121, 184, 255, .18); }
+}
+
+// ── 홈 글 목록: 카드화 + hover 리프트(무채색) ─────────────
+.post-list {
+  margin-left: 0;
+  list-style: none;
+  > li {
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .012);
+    transition: border-color .16s ease, transform .16s ease, background .16s ease;
+    &:hover {
+      border-color: var(--accent-line);
+      transform: translateY(-2px);
+      background: rgba(121, 184, 255, .04);
+    }
+  }
+  h3 { margin: .35rem 0 0; }
+  .post-link { font-weight: 600; color: var(--text); }
+  .post-link:hover { color: var(--accent); }
+}
+
+// ── 헤딩: h2 은은한 회색 좌측 바 ──────────────────────────
+.post-content {
+  h2 {
+    margin-top: 2.6rem;
+    padding-left: .75rem;
+    border-left: 3px solid var(--accent);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  h3 { margin-top: 1.9rem; font-weight: 600; line-height: 1.4; }
+  p  { margin-bottom: 1.15rem; }
+}
+
+// ── 링크: 밝은 회색 + hover 밑줄(색 아님) ─────────────────
+.post-content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+  transition: border-color .15s ease, color .15s ease;
+  &:hover { color: var(--accent-lt); border-bottom-color: var(--accent); }
+}
+.post-link:hover { border-bottom: none; }
+
+// ── 코드블록 ──────────────────────────────────────────────
+pre {
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow-x: auto;
+  line-height: 1.6;
+  background: var(--surface);
+}
+.post-content :not(pre) > code {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: .12em .42em;
+  border-radius: 5px;
+  font-size: .88em;
+}
+
+// ── 인용구(AI 배지·한 줄 요약) ────────────────────────────
+.post-content blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  color: #a7aebb;
+  font-style: normal;
+  padding: .7rem 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+// ── 표 ────────────────────────────────────────────────────
+.post-content table {
+  th, td { border-color: var(--border); }
+  th { background: var(--surface); font-family: $code-font-family; font-size: .92em; }
+}
+
+// ── 모션: 로드 시 목록 staggered 페이드인 ─────────────────
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.post-list > li { animation: reveal .5s ease both; }
+@for $i from 1 through 8 {
+  .post-list > li:nth-child(#{$i}) { animation-delay: #{$i * 0.05}s; }
+}
+.recent-ul { animation: reveal .5s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .post-list > li,
+  .recent-ul { animation: none; }
+}
+
+// (검색창 스타일은 _layout.scss 의 search 섹션에 통합)

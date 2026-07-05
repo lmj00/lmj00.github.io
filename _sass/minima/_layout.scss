@@ -31,7 +31,7 @@
 .site-nav {
   position: absolute;
   top: 9px;
-  right: $spacing-unit / 2;
+  right: calc($spacing-unit / 2);
   background-color: $background-color;
   border: 1px solid $border-color-01;
   border-radius: 5px;
@@ -128,7 +128,7 @@
 
 .footer-heading {
   @include relative-font-size(1.125);
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: calc($spacing-unit / 2);
 }
 
 .feed-subscribe .svg-icon {
@@ -148,7 +148,7 @@
 }
 
 .footer-col {
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: calc($spacing-unit / 2);
 }
 
 .footer-col-1,
@@ -181,16 +181,16 @@
 
   .footer-col {
     width: calc(100% - (#{$spacing-unit} / 2));
-    padding: 0 ($spacing-unit / 2);
+    padding: 0 calc($spacing-unit / 2);
 
     &:first-child {
-      padding-right: $spacing-unit / 2;
+      padding-right: calc($spacing-unit / 2);
       padding-left: 0;
     }
 
     &:last-child {
       padding-right: 0;
-      padding-left: $spacing-unit / 2;
+      padding-left: calc($spacing-unit / 2);
     }
   }
 }
@@ -296,7 +296,7 @@
     &:last-of-type { margin-right: 0 }
     a {
       display: block;
-      padding: $spacing-unit / 4;
+      padding: calc($spacing-unit / 4);
       border: 1px solid $border-color-01;
       &:hover { border-color: $border-color-02 }
     }
@@ -319,7 +319,7 @@
     }
     div {
       display: block;
-      padding: $spacing-unit / 4;
+      padding: calc($spacing-unit / 4);
       border: 1px solid transparent;
 
       &.pager-edge {
@@ -370,35 +370,106 @@
 
 
 /**
- * search
+ * search — 커맨드 팔레트 스타일
+ * 모노폰트 입력 + '/' 키 배지 + 포커스 글로우 + 커맨드식 결과 드롭다운.
  */
- #search-demo-container {
-  max-width: 40em;
-  padding: 1em;
-  margin: 1em auto;
-  border: 1px solid #404040;
+#ul-search {
+  list-style: none;
+  max-width: 560px;
+  margin: 1.7rem auto 0.5rem;
+  padding: 0 1rem;
+}
+
+#search-demo-container {
+  position: relative;
+  display: block;
 }
 
 #search-input {
-  background: #212121;
-  color: #BBBBBB;
-  border: none;
-
-  display: inline-block;
-  padding: 1em;
-  width: 100%;
-  font-size: 0.8em;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
+  display: block;
   box-sizing: border-box;
-} 
-
-#search-input:focus {
-  outline: 1px solid #404040 
+  width: 100%;
+  padding: 0.8rem 3rem 0.8rem 2.75rem;   // 왼쪽 아이콘 · 오른쪽 '/' 배지 자리
+  font-family: $code-font-family;         // 모노 = 커맨드 입력 느낌
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+  color: $text-color;
+  // 아이콘 + 미세 그라디언트(깊이감) 2겹 배경
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238b93a1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M15 15l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 1rem center / 1.05rem,
+    linear-gradient(180deg, #171b22, #10131a);
+  border: 1px solid #2b313b;
+  border-radius: 10px;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03), 0 1px 2px rgba(0, 0, 0, .3);
+  transition: border-color .16s ease, box-shadow .16s ease;
 }
 
-#ul-search {
+#search-input::placeholder { color: #8b93a1; }
+
+#search-input:focus {
+  border-color: $brand-color;
+  box-shadow: 0 0 0 3px rgba(121, 184, 255, .18), inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+// '/' 키보드 힌트 배지 — 입력창 내부 우측에 절대배치(포커스하면 사라짐)
+#search-key {
+  position: absolute;
+  top: 50%;
+  right: 0.7rem;
+  transform: translateY(-50%);
   margin: 0;
+  font-family: $code-font-family;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #8b93a1;
+  background: #1c212a;
+  border: 1px solid #2b313b;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.02rem 0.44rem;
+  pointer-events: none;
+  transition: opacity .16s ease;
+}
+#search-input:focus ~ #search-key { opacity: 0; }
+
+// 결과 = 커맨드 팔레트식 드롭다운
+#results-container {
+  list-style: none;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  margin: .5rem 0 0;
+  padding: 0;
+  z-index: 30;
+
+  &:not(:empty) {
+    background: #12151b;
+    border: 1px solid #2b313b;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+  }
+
+  li { margin: 0; }
+  li:last-child a { border-bottom: none; }
+
+  a {
+    display: block;
+    padding: .62rem 1rem;
+    font-size: 0.9rem;
+    color: $text-color;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid #1b1f27;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+
+    &:hover {
+      background: rgba(121, 184, 255, .1);
+      border-left-color: $brand-color;
+      color: $brand-color-light;
+    }
+  }
 }
 
 

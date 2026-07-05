@@ -1,1 +1,26 @@
-// Placeholder to allow overriding predefined variables smoothly.
+// 예정된 변수들을 매끄럽게 덮어쓰기 위한 훅.
+// 미학 방향: 딥 슬레이트 다크 + 하늘색 파랑 액센트 / mono 크롬 + Pretendard 본문.
+// (base/layout 보다 먼저 로드되므로 !default 없이 재할당하면 반영됨)
+
+// ── 타이포그래피 ──────────────────────────────────────────
+$base-font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+$code-font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+$base-font-size:   17px;
+$small-font-size:  14px;
+$base-line-height: 1.78;
+$content-width:    760px;
+
+// ── 색: 하늘색 파랑 액센트 ────────────────────────────────
+$brand-color:           #79b8ff;
+$brand-color-light:     #a5cdff;
+$brand-color-dark:      #4f8fd6;
+
+$site-title-color:      #e8ebf0;
+
+$text-color:            #d6dae0;
+$background-color:      #0c0e12;
+$code-background-color: #14171d;
+
+$link-base-color:       #79b8ff;    // 링크 = 하늘색 파랑
+$link-visited-color:    #79b8ff;
+$link-hover-color:      #a5cdff;

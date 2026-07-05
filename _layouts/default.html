@@ -7,12 +7,13 @@
 
     {%- include header.html -%}
 
-    <ul id="ul-search">
+    <div id="ul-search">
       <div id="search-demo-container">
-        <input type="search" id="search-input" placeholder="search...">
+        <input type="search" id="search-input" placeholder="글 검색..." aria-label="글 검색" autocomplete="off" spellcheck="false">
+        <kbd id="search-key">/</kbd>
         <ul id="results-container"></ul>
       </div>
-    </ul>
+    </div>
 
     <main class="page-content" aria-label="Content">
         <div class="wrapper">
@@ -27,7 +28,23 @@
         searchInput: document.getElementById('search-input'),
         resultsContainer: document.getElementById('results-container'),
         json: '/search.json'
-      }) 
+      })
+    </script>
+
+    <script>
+      // "/" 를 누르면 어디서든 검색창으로 포커스, Esc 로 빠져나감 (커맨드 팔레트 UX)
+      document.addEventListener('keydown', function (e) {
+        var a = document.activeElement;
+        var typing = a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable);
+        var box = document.getElementById('search-input');
+        if (!box) return;
+        if (e.key === '/' && !typing) {
+          e.preventDefault();
+          box.focus();
+        } else if (e.key === 'Escape' && a === box) {
+          box.blur();
+        }
+      });
     </script>
 
     {%- include footer.html -%}

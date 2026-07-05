@@ -18,6 +18,7 @@ import llm
 import dedup
 import post_writer
 import catalog
+import difficulty
 
 HERE = Path(__file__).resolve().parent
 
@@ -54,16 +55,29 @@ def normalize_sources(sources: list) -> list[dict]:
     return out
 
 
-def pick_balanced(undone: list[dict], cfg: dict) -> dict:
-    """분야(group) 가중치로 먼저 분야를 고르고, 그 안에서 랜덤 선택.
+def _pick_lowest_level(bucket: list[dict], cfg: dict) -> dict:
+    """후보 묶음에서 난이도 레벨이 가장 낮은(기초) 주제 선택. 동레벨이면 랜덤.
 
-    catalog 개수 불균형과 무관하게 분야별로 골고루 나오게 한다.
-    groups/group_weights 설정이 없으면 그냥 전체 랜덤.
+    캐시에 없는 주제만 이 시점에 채점(lazy)되고, 이후엔 캐시만 읽는다.
+    """
+    levels = difficulty.score(bucket, cfg)
+    min_lvl = min(levels[t["id"]] for t in bucket)
+    finalists = [t for t in bucket if levels[t["id"]] == min_lvl]
+    print(f"  난이도 레벨 {min_lvl}(기초 우선) 후보 {len(finalists)}개 중 선택")
+    return random.choice(finalists)
+
+
+def pick_balanced(undone: list[dict], cfg: dict) -> dict:
+    """분야(group) 가중치로 먼저 분야를 고르고, 그 안에서 난이도 최저(기초)부터 선택.
+
+    catalog 개수 불균형과 무관하게 분야별로 골고루 나오게 하되,
+    각 분야 '안'에서는 기초→심화 순서가 되도록 레벨 낮은 주제를 먼저 뽑는다.
+    groups/group_weights 설정이 없으면 전체에서 레벨 최저 선택.
     """
     groups = cfg.get("groups")
     weights = cfg.get("group_weights")
     if not groups or not weights:
-        return random.choice(undone)
+        return _pick_lowest_level(undone, cfg)
 
     # catalog id -> group 이름
     id2group = {}
@@ -82,7 +96,7 @@ def pick_balanced(undone: list[dict], cfg: dict) -> dict:
     avail = [(g, weights.get(g, 1)) for g in buckets]
     chosen = random.choices([g for g, _ in avail], weights=[w for _, w in avail])[0]
     print(f"  분야 선택: {chosen} ({len(buckets[chosen])}개 중)")
-    return random.choice(buckets[chosen])
+    return _pick_lowest_level(buckets[chosen], cfg)
 
 
 def extract_title(body: str, fallback: str) -> tuple[str, str]:

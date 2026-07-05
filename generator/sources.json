@@ -47,6 +47,12 @@
     "qwen/qwen3-next-80b-a3b-instruct:free"
   ],
 
+  "_difficulty_note": "주제 난이도 레벨링(1~5). 분야 안에서 '레벨 낮은(기초)' 주제부터 생성해 학습 순서(기초→심화)를 만든다. 새 주제만 1회 채점 후 state/difficulty.json에 캐시(이후 호출 0). 채점은 쉬운 작업이라 비중국·저가 모델로 충분(연 몇 원). 실패 시 키워드 휴리스틱 폴백.",
+  "difficulty_model_fallback": [
+    "meta-llama/llama-3.3-70b-instruct",
+    "openai/gpt-oss-120b"
+  ],
+
   "_sources_format": "각 source는 문자열(fetch=cite 동일) 또는 {\"fetch\": 가져올URL, \"cite\": 글에 표기할URL}. SPA(JS렌더링) 문서는 raw 마크다운을 fetch하고 사람이 보는 페이지를 cite한다.",
 
   "_catalogs_note": "주제 자동 발굴. 각 공식문서 GitHub 레포의 마크다운 페이지를 통째로 열거해 주제 풀을 만든다. 손으로 topic을 안 적어도 됨. include_prefixes/exclude_globs로 좋은 페이지만 거른다.",

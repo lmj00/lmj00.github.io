@@ -7,5 +7,6 @@
   "rfc-standards::rfc1661",
   "postgresql::https://www.postgresql.org/docs/current/datetime-config-files.html",
   "kubernetes::https://kubernetes.io/docs/concepts/containers/container-environment/",
-  "kafka::docs/operations/java-version.md"
+  "kafka::docs/operations/java-version.md",
+  "rabbitmq::docs/stream.md"
 ]

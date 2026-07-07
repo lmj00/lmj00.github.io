@@ -8,5 +8,6 @@
   "postgresql::https://www.postgresql.org/docs/current/datetime-config-files.html",
   "kubernetes::https://kubernetes.io/docs/concepts/containers/container-environment/",
   "kafka::docs/operations/java-version.md",
-  "rabbitmq::docs/stream.md"
+  "rabbitmq::docs/stream.md",
+  "postgresql::https://www.postgresql.org/docs/current/sourcerepo.html"
 ]

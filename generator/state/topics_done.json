@@ -9,5 +9,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/containers/container-environment/",
   "kafka::docs/operations/java-version.md",
   "rabbitmq::docs/stream.md",
-  "postgresql::https://www.postgresql.org/docs/current/sourcerepo.html"
+  "postgresql::https://www.postgresql.org/docs/current/sourcerepo.html",
+  "postgresql::https://www.postgresql.org/docs/current/install-binaries.html"
 ]

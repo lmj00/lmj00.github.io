@@ -11,5 +11,6 @@
   "rabbitmq::docs/stream.md",
   "postgresql::https://www.postgresql.org/docs/current/sourcerepo.html",
   "postgresql::https://www.postgresql.org/docs/current/install-binaries.html",
-  "kubernetes::https://kubernetes.io/docs/concepts/containers/images/"
+  "kubernetes::https://kubernetes.io/docs/concepts/containers/images/",
+  "rabbitmq::docs/platforms.md"
 ]

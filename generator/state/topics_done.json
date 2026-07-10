@@ -14,5 +14,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/containers/images/",
   "rabbitmq::docs/platforms.md",
   "rfc-standards::rfc1122",
-  "rfc-standards::rfc5234"
+  "rfc-standards::rfc5234",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/kubectl/"
 ]

@@ -16,5 +16,6 @@
   "rfc-standards::rfc1122",
   "rfc-standards::rfc5234",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/kubectl/",
-  "rabbitmq::docs/oauth2.md"
+  "rabbitmq::docs/oauth2.md",
+  "rfc-standards::rfc20"
 ]

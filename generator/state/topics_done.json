@@ -17,5 +17,6 @@
   "rfc-standards::rfc5234",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/kubectl/",
   "rabbitmq::docs/oauth2.md",
-  "rfc-standards::rfc20"
+  "rfc-standards::rfc20",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/storage-version/"
 ]

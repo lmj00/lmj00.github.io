@@ -18,5 +18,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/overview/kubectl/",
   "rabbitmq::docs/oauth2.md",
   "rfc-standards::rfc20",
-  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/storage-version/"
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/storage-version/",
+  "rabbitmq::docs/semantics.md"
 ]

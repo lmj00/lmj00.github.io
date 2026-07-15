@@ -19,5 +19,6 @@
   "rabbitmq::docs/oauth2.md",
   "rfc-standards::rfc20",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/storage-version/",
-  "rabbitmq::docs/semantics.md"
+  "rabbitmq::docs/semantics.md",
+  "prometheus::https://prometheus.io/docs/introduction/"
 ]

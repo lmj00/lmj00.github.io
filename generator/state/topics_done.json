@@ -21,5 +21,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/storage-version/",
   "rabbitmq::docs/semantics.md",
   "prometheus::https://prometheus.io/docs/introduction/",
-  "rabbitmq::docs/definitions.md"
+  "rabbitmq::docs/definitions.md",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/kubernetes-api/"
 ]

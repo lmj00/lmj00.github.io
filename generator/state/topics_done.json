@@ -22,5 +22,6 @@
   "rabbitmq::docs/semantics.md",
   "prometheus::https://prometheus.io/docs/introduction/",
   "rabbitmq::docs/definitions.md",
-  "kubernetes::https://kubernetes.io/docs/concepts/overview/kubernetes-api/"
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/kubernetes-api/",
+  "postgresql::https://www.postgresql.org/docs/current/database-roles.html"
 ]

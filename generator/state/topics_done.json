@@ -26,5 +26,6 @@
   "postgresql::https://www.postgresql.org/docs/current/database-roles.html",
   "kubernetes::https://kubernetes.io/docs/concepts/architecture/",
   "kubernetes::https://kubernetes.io/docs/concepts/windows/",
-  "kubernetes::https://kubernetes.io/docs/concepts/configuration/"
+  "kubernetes::https://kubernetes.io/docs/concepts/configuration/",
+  "postgresql::https://www.postgresql.org/docs/current/ddl-schemas.html"
 ]

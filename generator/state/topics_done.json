@@ -29,5 +29,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/configuration/",
   "postgresql::https://www.postgresql.org/docs/current/ddl-schemas.html",
   "prometheus::https://prometheus.io/docs/introduction/glossary/",
-  "postgresql::https://www.postgresql.org/docs/current/locale.html"
+  "postgresql::https://www.postgresql.org/docs/current/locale.html",
+  "postgresql::https://www.postgresql.org/docs/current/features-sql-standard.html"
 ]

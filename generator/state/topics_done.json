@@ -32,5 +32,6 @@
   "postgresql::https://www.postgresql.org/docs/current/locale.html",
   "postgresql::https://www.postgresql.org/docs/current/features-sql-standard.html",
   "postgresql::https://www.postgresql.org/docs/current/reference.html",
-  "postgresql::https://www.postgresql.org/docs/current/docguide-toolsets.html"
+  "postgresql::https://www.postgresql.org/docs/current/docguide-toolsets.html",
+  "rfc-standards::rfc9112"
 ]

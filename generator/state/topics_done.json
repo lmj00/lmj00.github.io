@@ -34,5 +34,6 @@
   "postgresql::https://www.postgresql.org/docs/current/reference.html",
   "postgresql::https://www.postgresql.org/docs/current/docguide-toolsets.html",
   "rfc-standards::rfc9112",
-  "prometheus::https://prometheus.io/docs/concepts/"
+  "prometheus::https://prometheus.io/docs/concepts/",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/"
 ]

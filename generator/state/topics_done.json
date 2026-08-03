@@ -36,5 +36,6 @@
   "rfc-standards::rfc9112",
   "prometheus::https://prometheus.io/docs/concepts/",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/",
-  "postgresql::https://www.postgresql.org/docs/current/index.html"
+  "postgresql::https://www.postgresql.org/docs/current/index.html",
+  "rfc-standards::rfc8259"
 ]

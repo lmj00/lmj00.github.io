@@ -40,5 +40,6 @@
   "rfc-standards::rfc8259",
   "postgresql::https://www.postgresql.org/docs/current/queries-overview.html",
   "kafka::docs/design/design.md",
-  "postgresql::https://www.postgresql.org/docs/current/docguide.html"
+  "postgresql::https://www.postgresql.org/docs/current/docguide.html",
+  "rfc-standards::rfc8200"
 ]

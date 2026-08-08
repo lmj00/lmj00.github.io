@@ -41,5 +41,6 @@
   "postgresql::https://www.postgresql.org/docs/current/queries-overview.html",
   "kafka::docs/design/design.md",
   "postgresql::https://www.postgresql.org/docs/current/docguide.html",
-  "rfc-standards::rfc8200"
+  "rfc-standards::rfc8200",
+  "postgresql::https://www.postgresql.org/docs/current/error-message-reporting.html"
 ]

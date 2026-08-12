@@ -45,5 +45,6 @@
   "postgresql::https://www.postgresql.org/docs/current/error-message-reporting.html",
   "postgresql::https://www.postgresql.org/docs/current/features.html",
   "rfc-standards::rfc791",
-  "kubernetes::https://kubernetes.io/docs/concepts/overview/components/"
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/components/",
+  "postgresql::https://www.postgresql.org/docs/current/reference-server.html"
 ]

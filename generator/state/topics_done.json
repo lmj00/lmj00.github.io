@@ -49,5 +49,6 @@
   "postgresql::https://www.postgresql.org/docs/current/reference-server.html",
   "postgresql::https://www.postgresql.org/docs/current/runtime.html",
   "postgresql::https://www.postgresql.org/docs/current/transactions.html",
-  "postgresql::https://www.postgresql.org/docs/current/install-meson.html"
+  "postgresql::https://www.postgresql.org/docs/current/install-meson.html",
+  "rfc-standards::rfc3629"
 ]

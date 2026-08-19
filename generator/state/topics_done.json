@@ -52,5 +52,6 @@
   "postgresql::https://www.postgresql.org/docs/current/install-meson.html",
   "rfc-standards::rfc3629",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/",
-  "rabbitmq::docs/cli.md"
+  "rabbitmq::docs/cli.md",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/"
 ]

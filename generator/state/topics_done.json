@@ -53,5 +53,6 @@
   "rfc-standards::rfc3629",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/",
   "rabbitmq::docs/cli.md",
-  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/"
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/",
+  "postgresql::https://www.postgresql.org/docs/current/collation.html"
 ]

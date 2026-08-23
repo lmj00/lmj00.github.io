@@ -56,5 +56,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/",
   "postgresql::https://www.postgresql.org/docs/current/collation.html",
   "kubernetes::https://kubernetes.io/docs/concepts/architecture/nodes/",
-  "rabbitmq::docs/uri-query-parameters.md"
+  "rabbitmq::docs/uri-query-parameters.md",
+  "kubernetes::https://kubernetes.io/docs/concepts/security/"
 ]

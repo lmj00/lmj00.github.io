@@ -57,5 +57,6 @@
   "postgresql::https://www.postgresql.org/docs/current/collation.html",
   "kubernetes::https://kubernetes.io/docs/concepts/architecture/nodes/",
   "rabbitmq::docs/uri-query-parameters.md",
-  "kubernetes::https://kubernetes.io/docs/concepts/security/"
+  "kubernetes::https://kubernetes.io/docs/concepts/security/",
+  "rfc-standards::rfc9915"
 ]

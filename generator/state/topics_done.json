@@ -59,5 +59,6 @@
   "rabbitmq::docs/uri-query-parameters.md",
   "kubernetes::https://kubernetes.io/docs/concepts/security/",
   "rfc-standards::rfc9915",
-  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/names/"
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/names/",
+  "rabbitmq::docs/parameters.md"
 ]

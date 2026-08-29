@@ -61,5 +61,6 @@
   "rfc-standards::rfc9915",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/names/",
   "rabbitmq::docs/parameters.md",
-  "prometheus::https://prometheus.io/docs/introduction/comparison/"
+  "prometheus::https://prometheus.io/docs/introduction/comparison/",
+  "rabbitmq::docs/manage-rabbitmq.md"
 ]

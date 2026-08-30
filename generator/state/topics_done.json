@@ -63,5 +63,6 @@
   "rabbitmq::docs/parameters.md",
   "prometheus::https://prometheus.io/docs/introduction/comparison/",
   "rabbitmq::docs/manage-rabbitmq.md",
-  "rfc-standards::rfc768"
+  "rfc-standards::rfc768",
+  "rfc-standards::rfc864"
 ]

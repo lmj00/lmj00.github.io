@@ -64,5 +64,6 @@
   "prometheus::https://prometheus.io/docs/introduction/comparison/",
   "rabbitmq::docs/manage-rabbitmq.md",
   "rfc-standards::rfc768",
-  "rfc-standards::rfc864"
+  "rfc-standards::rfc864",
+  "postgresql::https://www.postgresql.org/docs/current/install-getsource.html"
 ]

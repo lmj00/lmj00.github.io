@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -123,12 +124,19 @@ def _remove_post(path: Path) -> None:
 def build_sources_block(fetched: list[dict]) -> tuple[str, list[str]]:
     blocks = []
     cite_urls = []
-    for f in fetched:
+    for index, f in enumerate(fetched, 1):
         if not f["ok"]:
             print(f"  - 스킵 {f['fetch']} ({f['reason']})")
             continue
         cite_urls.append(f["cite"])
-        blocks.append(f"### 출처: {f['cite']}\n{f['text']}")
+        # 원문에 XML 모양의 코드가 있어도 문서 경계를 깨지 않도록 CDATA로 감싼다.
+        content = f["text"].replace("]]>", "]]]]><![CDATA[>")
+        blocks.append(
+            f'<document index="{index}">\n'
+            f'  <source_url>{html.escape(f["cite"], quote=True)}</source_url>\n'
+            f'  <document_content><![CDATA[\n{content}\n]]></document_content>\n'
+            f'</document>'
+        )
     return "\n\n".join(blocks), cite_urls
 
 
@@ -194,8 +202,8 @@ def main() -> int:
         hint = catalog.derive_title(first_text, norm_sources[0]["fetch"])
 
     user_prompt = load_prompt("user_template.md").format(
-        title_hint=hint,
-        tags=", ".join(topic.get("tags", [])),
+        title_hint=html.escape(hint, quote=True),
+        tags=html.escape(", ".join(topic.get("tags", [])), quote=True),
         sources_block=sources_block,
     )
     system_prompt = load_prompt(cfg.get("system_prompt", "system.md"))

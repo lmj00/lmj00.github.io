@@ -10,6 +10,10 @@ import requests
 _JP_KANA = re.compile(r"[぀-ヿ]")
 # 한자(CJK 표의문자) — 현대 한국어 기술 글엔 거의 없음
 _CJK = re.compile(r"[一-鿿]")
+_TITLE_LINE = re.compile(r"^제목\s*[:：]\s*\S(?:.*\S)?$", re.MULTILINE)
+_SUMMARY_LINE = re.compile(r"^>\s*한 줄 요약\s*[:：]\s*\S+", re.MULTILINE)
+_OVERVIEW_HEADING = re.compile(r"^###\s+개요\s*$", re.MULTILINE)
+_WRAP_UP_HEADING = re.compile(r"^###\s+정리\s*$", re.MULTILINE)
 
 
 MIN_BODY_CHARS = 900  # 이보다 짧으면 얕거나 끊긴 글로 보고 다음 모델 시도
@@ -38,6 +42,31 @@ def output_is_clean_korean(text: str) -> tuple[bool, str]:
     cjk = _CJK.findall(text)
     if len(cjk) > 5:
         return False, f"한자 과다({len(cjk)}자)"
+    return True, "ok"
+
+
+def output_has_required_structure(text: str) -> tuple[bool, str]:
+    """프롬프트의 최소 출력 계약을 지켰는지 검증."""
+    stripped = text.lstrip()
+    first_line = stripped.partition("\n")[0].strip()
+    if not _TITLE_LINE.fullmatch(first_line):
+        return False, "첫 줄 제목 누락"
+
+    required = [
+        ("한 줄 요약", _SUMMARY_LINE),
+        ("개요", _OVERVIEW_HEADING),
+        ("정리", _WRAP_UP_HEADING),
+    ]
+    positions = [0]
+    for name, pattern in required:
+        matches = list(pattern.finditer(stripped))
+        if not matches:
+            return False, f"{name} 누락"
+        if len(matches) > 1:
+            return False, f"{name} 중복"
+        positions.append(matches[0].start())
+    if positions != sorted(positions) or len(set(positions)) != len(positions):
+        return False, "필수 섹션 순서 오류"
     return True, "ok"
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -155,6 +184,11 @@ def generate(system_prompt: str, user_prompt: str, model_fallback: list[str]) ->
                 errors.append(f"{model}: 품질 게이트 탈락({reason})")
                 print(f"  [스킵] {model} — {reason}, 다음 모델로")
                 continue
+            structured, reason = output_has_required_structure(content)
+            if not structured:
+                errors.append(f"{model}: 출력 계약 탈락({reason})")
+                print(f"  [스킵] {model} — {reason}, 다음 모델로")
+                continue
             if len(content) < MIN_BODY_CHARS:
                 errors.append(f"{model}: 본문 과소({len(content)}자)")
                 print(f"  [스킵] {model} — 본문 {len(content)}자로 너무 짧음, 다음 모델로")
@@ -174,4 +208,4 @@ def generate(system_prompt: str, user_prompt: str, model_fallback: list[str]) ->
             continue
         break
 
-    raise LLMError("모든 무료모델 실패:\n" + "\n".join(all_errors))
+    raise LLMError("모든 모델 실패:\n" + "\n".join(all_errors))

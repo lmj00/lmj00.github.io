@@ -1,13 +1,11 @@
-아래는 이번 글의 주제와, 그 주제와 1:1로 연결된 **공식문서 발췌**다. 이 발췌 내용만을 근거로 글을 써라.
-
-## 주제
-{title_hint}
-
-## 태그
-{tags}
-
-## 공식문서 발췌 (이 내용만 근거로 사용)
+<prompt_input>
+<source_documents>
 {sources_block}
+</source_documents>
 
----
-위 발췌만 근거로, 시스템 지시의 규칙과 형식에 맞춰 한국어 학습 노트를 작성하라. 발췌에 없는 내용은 쓰지 마라. 첫 줄은 `### 개요` 로 시작한다.
+<writing_request>
+  <topic>{title_hint}</topic>
+  <suggested_tags>{tags}</suggested_tags>
+  <task>Using only the evidence in the source documents above, write the Korean technical study note defined by the system prompt. Use the topic as guidance rather than as an additional factual source.</task>
+</writing_request>
+</prompt_input>

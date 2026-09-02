@@ -51,4 +51,4 @@ FORCE_TOPIC_ID=cs-websocket-protocol python main.py   # 특정 주제 강제
 `model_selection: auto`면 실행 시 OpenRouter에서 현재 무료모델을 실시간 조회해 fallback 체인을 자동 구성한다(목록이 바뀌어도 자동 대응). 선호·제외는 `model_prefer` / `model_exclude`로 조정.
 
 ## 프롬프트
-`prompts/system.md`가 글쓰기 규칙(저작권·톤·가독성·D2 다이어그램). 지시문은 영어지만 **출력은 한국어**로 강제한다.
+`prompts/system.md`가 글쓰기 규칙(근거 제한·톤·가독성·D2 다이어그램·출력 계약)을 XML 태그로 구분한다. `prompts/user_template.md`는 공식문서 원문을 `<document>` 단위로 격리하며, 긴 원문을 먼저 배치하고 작성 요청을 마지막에 둔다. 지시문은 영어지만 **출력은 한국어**로 강제한다.

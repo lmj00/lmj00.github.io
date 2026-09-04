@@ -68,5 +68,6 @@
   "postgresql::https://www.postgresql.org/docs/current/install-getsource.html",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/",
   "rfc-standards::rfc866",
-  "kubernetes::https://kubernetes.io/docs/concepts/storage/volumes/"
+  "kubernetes::https://kubernetes.io/docs/concepts/storage/volumes/",
+  "kubernetes::https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/"
 ]

@@ -5,6 +5,8 @@
 """
 from __future__ import annotations
 
+import datetime as dt
+import difflib
 import html
 import json
 import os
@@ -140,6 +142,105 @@ def build_sources_block(fetched: list[dict]) -> tuple[str, list[str]]:
     return "\n\n".join(blocks), cite_urls
 
 
+def source_quality(fetched: list[dict], min_total_chars: int,
+                   min_substantive_chars: int) -> tuple[bool, str]:
+    """출처가 설명형 글을 뒷받침할 만큼 충분한지 보수적으로 판정한다.
+
+    전체 길이뿐 아니라 긴 문장·문단의 양도 본다. 링크 제목과 메뉴만 긴
+    색인 페이지가 단순 길이 기준을 통과하는 일을 줄이기 위해서다.
+    """
+    texts = [str(item.get("text", "")).strip()
+             for item in fetched if item.get("ok")]
+    total_chars = sum(len(text) for text in texts)
+    substantive_chars = sum(
+        len(line)
+        for text in texts
+        for raw_line in text.splitlines()
+        if len(line := raw_line.strip()) >= 50
+    )
+    if total_chars < min_total_chars:
+        return False, f"전체 근거 {total_chars}자 < {min_total_chars}자"
+    if substantive_chars < min_substantive_chars:
+        return False, (
+            f"설명형 근거 {substantive_chars}자 < "
+            f"{min_substantive_chars}자(색인·목차형 문서 가능성)"
+        )
+    return True, (
+        f"전체 근거 {total_chars}자 / 설명형 근거 {substantive_chars}자"
+    )
+
+
+def _as_cdata(text: str) -> str:
+    """CDATA 종료 문자열이 들어 있는 텍스트도 안전하게 XML 안에 넣는다."""
+    return text.replace("]]>", "]]]]><![CDATA[>")
+
+
+def _article_text(title: str, body: str) -> str:
+    return f"제목: {title}\n\n{body.strip()}"
+
+
+def _print_review(report: dict, reviewer_model: str) -> None:
+    scores = report["scores"]
+    score_text = ", ".join(f"{key}={value}" for key, value in scores.items())
+    print(f"  검수 모델: {reviewer_model} / 판정: {report['verdict']} / {score_text}")
+    for issue in report["issues"]:
+        print(
+            f"  [{issue['severity']}] {issue['category']}: "
+            f"{issue['description']} → {issue['suggestion']}"
+        )
+
+
+def _independent_review_models(models: list[str], writer_model: str) -> list[str]:
+    """가능하면 방금 글을 쓴 모델을 검수 후보에서 제외한다."""
+    independent = [model for model in models if model != writer_model]
+    return independent or models
+
+
+def _save_review_artifacts(topic_id: str, sources_block: str, draft: str,
+                           report: dict, final: str,
+                           final_report: dict | None = None,
+                           review_history: list[dict] | None = None) -> None:
+    """로컬 비교 요청 시 동일 초안의 검수 전·후 자료를 저장한다."""
+    configured = os.environ.get("REVIEW_ARTIFACT_DIR")
+    if not configured:
+        return
+    root = Path(configured)
+    if not root.is_absolute():
+        root = HERE / root
+    safe_id = re.sub(r"[^0-9A-Za-z가-힣._-]+", "-", topic_id).strip("-")[:120]
+    timestamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    run_dir = root / f"{timestamp}-{safe_id or 'review'}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "source-documents.xml").write_text(
+        f"<source_documents>\n{sources_block}\n</source_documents>\n",
+        encoding="utf-8",
+    )
+    (run_dir / "before.md").write_text(draft + "\n", encoding="utf-8")
+    (run_dir / "review.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    if final_report is not None:
+        (run_dir / "final-review.json").write_text(
+            json.dumps(final_report, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    if review_history and len(review_history) > 1:
+        (run_dir / "review-history.json").write_text(
+            json.dumps(review_history, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    (run_dir / "after.md").write_text(final + "\n", encoding="utf-8")
+    diff = difflib.unified_diff(
+        draft.splitlines(keepends=True),
+        final.splitlines(keepends=True),
+        fromfile="before.md",
+        tofile="after.md",
+    )
+    (run_dir / "changes.diff").write_text("".join(diff), encoding="utf-8")
+    print(f"  검수 비교 자료: {run_dir}")
+
+
 def main() -> int:
     load_dotenv()
     cfg = load_config()
@@ -195,6 +296,18 @@ def main() -> int:
         print("사용 가능한 출처가 없습니다(robots 차단/오류). 이 주제는 건너뜁니다.")
         return 0
 
+    enough, source_reason = source_quality(
+        fetched,
+        cfg.get("min_total_source_chars", 0),
+        cfg.get("min_substantive_source_chars", 0),
+    )
+    if not enough:
+        print(f"출처 품질 부족({source_reason}) — 억지로 글을 만들지 않습니다.")
+        # 다음 자동 실행에서 같은 얕은 문서만 반복 선택하지 않도록 처리 완료로 기록한다.
+        dedup.mark_done(topic["id"])
+        return 0
+    print(f"  출처 품질: {source_reason}")
+
     # 프롬프트에 줄 임시 제목(맥락용). 최종 제목은 LLM이 생성한다.
     hint = topic.get("title_hint")
     if not hint:
@@ -209,19 +322,19 @@ def main() -> int:
     system_prompt = load_prompt(cfg.get("system_prompt", "system.md"))
 
     print("LLM 생성 중(fallback 체인)...")
-    # 다이어그램 소프트 재시도: 없으면 몇 번 더 생성 시도(다이어그램 나올 기회를 줌).
-    # 단, 시각적 주제(프로토콜·아키텍처·흐름 등)에서만 재시도 → 낭비 방지.
-    # 단순 주제는 재시도 0(첫 결과 수용).
+    # 다이어그램은 선택 사항이다. 재시도를 켠 경우에만 대상 태그를 적용한다.
     retry_tags = set(cfg.get("diagram_retry_tags", []))
     topic_tags = set(topic.get("tags", []))
     diagram_worthy = bool(retry_tags & topic_tags)
-    diagram_retries = cfg.get("diagram_retries", 2) if diagram_worthy else 0
-    if not diagram_worthy:
-        print("  (다이어그램 비대상 주제 — 재시도 없이 1회 생성)")
+    diagram_retries = cfg.get("diagram_retries", 0) if diagram_worthy else 0
+    if diagram_retries == 0:
+        print("  (다이어그램은 선택 사항 — 재시도 없이 1회 생성)")
     path = None
     for attempt in range(diagram_retries + 1):
         try:
-            body, model_used = llm.generate(system_prompt, user_prompt, models)
+            body, model_used = llm.generate(
+                system_prompt, user_prompt, models, purpose="초안 생성"
+            )
         except llm.LLMError as e:
             print(f"[실패] {e}", file=sys.stderr)
             return 1
@@ -238,6 +351,154 @@ def main() -> int:
             break
         print(f"  다이어그램 없음(시도 {attempt + 1}/{diagram_retries + 1}) → 재생성")
         _remove_post(p)
+
+    if path is None:
+        print("[실패] 생성 결과 파일을 찾을 수 없습니다.", file=sys.stderr)
+        return 1
+
+    if cfg.get("review_enabled", False):
+        draft_article = _article_text(title, body)
+        review_prompt = load_prompt(
+            cfg.get("review_user_prompt", "review_template.md")
+        ).format(
+            sources_block=sources_block,
+            draft_article=_as_cdata(draft_article),
+        )
+        review_system = load_prompt(
+            cfg.get("review_system_prompt", "reviewer.md")
+        )
+        print("독립 품질 검수 중...")
+        try:
+            review_report, reviewer_model = llm.review(
+                review_system,
+                review_prompt,
+                _independent_review_models(
+                    cfg.get("review_model_fallback", []), model_used
+                ),
+                max_tokens=cfg.get("review_max_tokens", 4000),
+                reasoning_tokens=cfg.get("review_reasoning_tokens", 1200),
+            )
+        except llm.LLMError as e:
+            _remove_post(path)
+            print(f"[실패] {e}", file=sys.stderr)
+            return 1
+        review_report["reviewer_model"] = reviewer_model
+        _print_review(review_report, reviewer_model)
+        review_history = [review_report]
+        final_review_report = None
+
+        if review_report["verdict"] == "revise":
+            current_article = draft_article
+            current_report = review_report
+            max_revision_rounds = max(
+                1, int(cfg.get("review_max_revision_rounds", 2))
+            )
+
+            for revision_round in range(1, max_revision_rounds + 1):
+                feedback = json.dumps(
+                    current_report, ensure_ascii=False, indent=2
+                )
+                revision_prompt = load_prompt(
+                    cfg.get("revision_user_prompt", "revision_template.md")
+                ).format(
+                    sources_block=sources_block,
+                    draft_article=_as_cdata(current_article),
+                    review_report=_as_cdata(feedback),
+                )
+                print(
+                    f"검수 의견을 반영해 수정본 생성 중... "
+                    f"({revision_round}/{max_revision_rounds})"
+                )
+                try:
+                    revised, revision_model = llm.generate(
+                        system_prompt,
+                        revision_prompt,
+                        models,
+                        purpose=f"수정본 생성 {revision_round}차",
+                    )
+                except llm.LLMError as e:
+                    _remove_post(path)
+                    print(f"[실패] {e}", file=sys.stderr)
+                    return 1
+                revised_title, revised_body = extract_title(revised, title)
+                revised_article = _article_text(revised_title, revised_body)
+
+                if not cfg.get("review_recheck_revised", True):
+                    break
+
+                final_review_prompt = load_prompt(
+                    cfg.get("review_user_prompt", "review_template.md")
+                ).format(
+                    sources_block=sources_block,
+                    draft_article=_as_cdata(revised_article),
+                )
+                print(
+                    f"수정본 최종 검수 중... "
+                    f"({revision_round}/{max_revision_rounds})"
+                )
+                try:
+                    final_review_report, final_reviewer_model = llm.review(
+                        review_system,
+                        final_review_prompt,
+                        _independent_review_models(
+                            cfg.get("review_model_fallback", []), revision_model
+                        ),
+                        max_tokens=cfg.get("review_max_tokens", 4000),
+                        reasoning_tokens=cfg.get("review_reasoning_tokens", 1200),
+                    )
+                except llm.LLMError as e:
+                    _remove_post(path)
+                    print(
+                        f"[실패] 수정본을 검수하지 못했습니다: {e}",
+                        file=sys.stderr,
+                    )
+                    return 1
+                final_review_report["reviewer_model"] = final_reviewer_model
+                review_history.append(final_review_report)
+                _print_review(final_review_report, final_reviewer_model)
+                if final_review_report["verdict"] == "pass":
+                    break
+
+                current_article = revised_article
+                current_report = final_review_report
+                if revision_round == max_revision_rounds:
+                    _save_review_artifacts(
+                        topic["id"], sources_block, draft_article,
+                        review_report, revised_article, final_review_report,
+                        review_history,
+                    )
+                    _remove_post(path)
+                    print(
+                        "[실패] 허용된 수정 횟수 안에 품질 기준을 통과하지 "
+                        "못해 발행하지 않습니다.",
+                        file=sys.stderr,
+                    )
+                    return 1
+
+            _remove_post(path)
+            path = post_writer.write_post(
+                title=revised_title,
+                body=revised_body,
+                model=revision_model,
+                tags=topic.get("tags", []),
+                source_urls=ok_urls,
+            )
+            title, body, model_used = (
+                revised_title, revised_body, revision_model
+            )
+            print(
+                f"  수정 완료: {title} / {len(body)}자 / 모델 {model_used}"
+            )
+
+        _save_review_artifacts(
+            topic["id"],
+            sources_block,
+            draft_article,
+            review_report,
+            _article_text(title, body),
+            final_review_report,
+            review_history,
+        )
 
     dedup.mark_done(topic["id"])
     print(f"작성 완료: {path.relative_to(HERE.parent)}")

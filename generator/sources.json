@@ -8,9 +8,13 @@
 
   "max_chars_per_source": 16000,
 
-  "_diagram_note": "다이어그램 소프트 재시도 횟수. 다이어그램 없으면 이만큼 더 생성 시도(나올 기회 제공), 그래도 없으면 수용(억지 X).",
-  "diagram_retries": 2,
-  "_diagram_retry_tags_note": "이 태그가 있는 시각적 주제(프로토콜·흐름·아키텍처 등)에서만 재시도 → 단순 주제는 재시도 안 함(요금 낭비 방지).",
+  "_source_quality_note": "가져온 공식문서가 설명형 글을 뒷받침할 만큼 충분한지 확인한다. 전체 글자 수와 50자 이상 문장·문단의 글자 수를 함께 검사해 색인·목차형 페이지를 거른다.",
+  "min_total_source_chars": 2000,
+  "min_substantive_source_chars": 1200,
+
+  "_diagram_note": "다이어그램은 글 생성 모델과 검수 모델이 필요성을 판단한다. 그림만 얻기 위한 재생성은 내용 품질과 비용을 악화시킬 수 있어 기본값은 0이다.",
+  "diagram_retries": 0,
+  "_diagram_retry_tags_note": "diagram_retries를 1 이상으로 바꿀 때만 적용되는 대상 태그 목록이다. 기본 설정에서는 사용하지 않는다.",
   "diagram_retry_tags": ["network","protocol","websocket","tcp","http","http2","dns","tls","architecture","container","kubernetes","infra","messaging","kafka","rabbitmq","quorum","streams","distributed","replication","ha","lock","concurrency","mvcc","transaction"],
 
   "_d2_note": "다이어그램 스타일. d2_theme = 테마번호(3=Flagship, 4=Cool Classics, 5=Berry Blue, 104=Everglade Green 등 https://d2lang.com/tour/themes). d2_sketch = 손그림 스타일.",
@@ -30,6 +34,19 @@
   "_model_note": "manual = model_fallback 목록을 순서대로 사용(유료 모델). DeepSeek V4 Flash 0731을 기본으로 쓰고 Qwen3.8 Flash와 GPT-5.6 Luna를 장애·품질 게이트 실패 시 백업으로 사용한다. auto로 바꾸면 무료모델만 사용.",
   "model_fallback": [
     "deepseek/deepseek-v4-flash-0731",
+    "qwen/qwen3.8-flash",
+    "openai/gpt-5.6-luna"
+  ],
+  "_review_note": "최종 초안을 Qwen3.8 Flash가 공식문서 근거·내용 구성·가독성 관점에서 검수한다. 문제가 있을 때만 글 생성 모델이 수정본을 만들고 수정본도 재검수하며, 검수 실패 시 글을 발행하지 않는다.",
+  "review_enabled": true,
+  "review_system_prompt": "reviewer.md",
+  "review_user_prompt": "review_template.md",
+  "revision_user_prompt": "revision_template.md",
+  "review_max_tokens": 4000,
+  "review_reasoning_tokens": 1200,
+  "review_recheck_revised": true,
+  "review_max_revision_rounds": 2,
+  "review_model_fallback": [
     "qwen/qwen3.8-flash",
     "openai/gpt-5.6-luna"
   ],

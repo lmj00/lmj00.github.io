@@ -54,9 +54,13 @@ jobs:
             echo "새 글 없음 — 커밋/배포 생략"
             echo "committed=false" >> "$GITHUB_OUTPUT"
           else
-            NEW=$(ls -t _posts/ai-notes/*.md | head -1)
-            TITLE=$(grep -m1 '^title:' "$NEW" | sed -E 's/^title:[[:space:]]*"?//; s/"?[[:space:]]*$//')
-            git commit -m "ai-notes: ${TITLE:-자동 생성 글}"
+            NEW=$(git diff --cached --name-only --diff-filter=AM -- _posts/ai-notes/ | tail -1)
+            if [ -n "$NEW" ]; then
+              TITLE=$(grep -m1 '^title:' "$NEW" | sed -E 's/^title:[[:space:]]*"?//; s/"?[[:space:]]*$//')
+              git commit -m "ai-notes: ${TITLE:-자동 생성 글}"
+            else
+              git commit -m "chore: 출처가 부족한 자동 생성 주제 건너뜀"
+            fi
             git push
             echo "committed=true" >> "$GITHUB_OUTPUT"
           fi

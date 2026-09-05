@@ -69,5 +69,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/overview/",
   "rfc-standards::rfc866",
   "kubernetes::https://kubernetes.io/docs/concepts/storage/volumes/",
-  "kubernetes::https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/"
+  "kubernetes::https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/",
+  "kubernetes::https://kubernetes.io/docs/concepts/services-networking/service/"
 ]

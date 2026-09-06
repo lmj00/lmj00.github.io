@@ -6,25 +6,40 @@
 - **공식문서-only**: 주제는 실제 공식문서 URL에 1:1로 묶이고, 생성기는 **fetch한 내용만 근거**로 글을 쓴다(환각·표절 차단).
 - **저작권 안전**: 복붙/통째번역 금지, 출처 1:1 표기, 1인칭 가짜경험 금지 — 시스템 프롬프트(`prompts/`)에 규칙으로 강제. 소스도 허용적 라이선스만 사용(Apache/PostgreSQL/RFC/man). CC-NC 등 회색지대(Redis·Spring)는 제외.
 - **robots 준수**: fetch 전 `robots.txt`를 자동 확인하고 차단 시 스킵.
-- **품질 게이트**: 생성 결과에 일본어/한자가 섞이면 버리고 다음 모델로 재시도.
+- **품질 게이트**: 얕은 출처와 잘못된 출력 구조를 먼저 차단하고, 생성 후에는 독립 모델이 근거·구성·가독성을 검수한다.
 - **투명성**: 상단 "AI 생성" 배지 + 하단에 생성 모델명·출처 자동 기재.
 - **중복 방지**: 이미 쓴 주제(`state/topics_done.json`)와 겹치면 건너뛴다. 미생성 주제가 없으면 생성하지 않는다.
 
 ## 구조
 ```
 generator/
-  sources.json          # 설정 전체: 프롬프트/모델/catalogs/topics/필터
+  main.py               # CLI 조립 지점(설정 + 현재 구현체 연결)
+  pipeline.py           # 생성 유스케이스 실행 순서
+  contracts.py          # Article 데이터와 Protocol 교체 계약
+  quality.py            # 출처·본문·검수 JSON의 순수 검증 규칙
+  review_pipeline.py    # 독립 검수 → 수정 → 재검수
+  source_context.py     # 공식문서를 XML 프롬프트 컨텍스트로 변환
+  topics.py             # 분야 균형·난이도 기반 주제 선택 정책
+  llm.py                # OpenRouter 모델 어댑터와 fallback
+  publishing.py         # Jekyll Publisher 어댑터
+  sources.json          # 프롬프트/모델/catalogs/topics/품질 설정
   prompts/
     system.md           #   시스템 프롬프트(지시는 영어, 출력은 한국어)
     user_template.md
+    reviewer.md         #   독립 검수 기준
+    review_template.md
+    revision_template.md
   catalog.py            # 주제 자동 발굴(GitHub 트리 / man 인덱스 / RFC 인덱스)
   fetcher.py            # robots 체크 + fetch + 본문 추출
-  llm.py                # OpenRouter 무료모델 실시간 조회 + fallback + 품질 게이트
   dedup.py              # 중복 방지
   post_writer.py        # 마크다운 교정 + D2→SVG 렌더 + frontmatter/배지/출처 → .md
-  main.py               # 오케스트레이터
   state/topics_done.json
 ```
+
+`pipeline.py`는 구체적인 OpenRouter·Jekyll·웹 수집 모듈을 직접 알지 않고
+`LanguageModelGateway`, `Publisher`, `TopicRepository`, `SourceGateway` Protocol에
+의존한다. 다른 모델 제공자, HTML 출력, 주제 저장소, 문서 수집 방식을 추가할 때
+같은 계약을 구현해 `main.py`의 조립 코드만 바꾸면 된다.
 
 ## 로컬 실행
 ```bash

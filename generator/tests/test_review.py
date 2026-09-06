@@ -14,10 +14,27 @@ sys.path.insert(0, str(GENERATOR_DIR))
 
 import llm  # noqa: E402
 import main  # noqa: E402
+import pipeline as generator_pipeline  # noqa: E402
+import publishing  # noqa: E402
+import quality  # noqa: E402
+import review_pipeline  # noqa: E402
+import source_context  # noqa: E402
+import topics as topic_module  # noqa: E402
+from contracts import (  # noqa: E402
+    GeneratedText,
+    LanguageModelGateway,
+    Publication,
+    Publisher,
+    ReviewResult,
+    SourceBundle,
+    SourceGateway,
+    TopicRepository,
+)
 
 
-def _report(*, verdict: str = "pass", score: int = 5,
-            issues: list[dict] | None = None) -> dict:
+def _report(
+    *, verdict: str = "pass", score: int = 5, issues: list[dict] | None = None
+) -> dict:
     return {
         "verdict": verdict,
         "scores": {
@@ -34,9 +51,9 @@ def _report(*, verdict: str = "pass", score: int = 5,
 class ReviewJsonTest(unittest.TestCase):
     def test_accepts_valid_json_and_fenced_json(self) -> None:
         raw = json.dumps(_report(), ensure_ascii=False)
-        self.assertEqual(llm._parse_review_json(raw)["verdict"], "pass")
+        self.assertEqual(quality.parse_review_json(raw)["verdict"], "pass")
         self.assertEqual(
-            llm._parse_review_json(f"```json\n{raw}\n```")["verdict"],
+            quality.parse_review_json(f"```json\n{raw}\n```")["verdict"],
             "pass",
         )
 
@@ -50,24 +67,28 @@ class ReviewJsonTest(unittest.TestCase):
         report = _report(issues=[issue])
         report["scores"]["readability"] = 3
         raw = json.dumps(report, ensure_ascii=False)
-        self.assertEqual(llm._parse_review_json(raw)["verdict"], "revise")
+        self.assertEqual(quality.parse_review_json(raw)["verdict"], "revise")
 
     def test_low_score_requires_matching_issue(self) -> None:
-        report = _report(issues=[{
-            "category": "evidence",
-            "severity": "major",
-            "description": "근거가 부족하다.",
-            "suggestion": "근거 없는 문장을 제거한다.",
-        }])
+        report = _report(
+            issues=[
+                {
+                    "category": "evidence",
+                    "severity": "major",
+                    "description": "근거가 부족하다.",
+                    "suggestion": "근거 없는 문장을 제거한다.",
+                }
+            ]
+        )
         report["scores"]["coherence"] = 3
         raw = json.dumps(report, ensure_ascii=False)
         with self.assertRaisesRegex(ValueError, "coherence"):
-            llm._parse_review_json(raw)
+            quality.parse_review_json(raw)
 
     def test_revision_requires_actionable_issue(self) -> None:
         raw = json.dumps(_report(verdict="revise"), ensure_ascii=False)
         with self.assertRaisesRegex(ValueError, "구체적인 issue"):
-            llm._parse_review_json(raw)
+            quality.parse_review_json(raw)
 
 
 class ArticleStructureTest(unittest.TestCase):
@@ -78,7 +99,7 @@ class ArticleStructureTest(unittest.TestCase):
             + "\n\n내용입니다.\n\n".join(headings)
             + "\n\n마칩니다."
         )
-        valid, reason = llm.output_has_required_structure(article)
+        valid, reason = quality.output_has_required_structure(article)
         self.assertFalse(valid)
         self.assertIn("1차 섹션 과다", reason)
 
@@ -102,7 +123,24 @@ class ArticleStructureTest(unittest.TestCase):
 ### 정리
 
 마칩니다."""
-        self.assertEqual(llm.output_has_required_structure(article), (True, "ok"))
+        self.assertEqual(
+            quality.output_has_required_structure(article),
+            (True, "ok"),
+        )
+
+
+class ArchitectureContractTest(unittest.TestCase):
+    def test_current_adapters_implement_protocols(self) -> None:
+        self.assertIsInstance(llm.OpenRouterGateway(), LanguageModelGateway)
+        self.assertIsInstance(publishing.JekyllPublisher(), Publisher)
+        self.assertIsInstance(
+            source_context.OfficialDocumentSourceGateway(),
+            SourceGateway,
+        )
+        self.assertIsInstance(
+            topic_module.CatalogTopicRepository(),
+            TopicRepository,
+        )
 
 
 class ReviewApiTest(unittest.TestCase):
@@ -120,7 +158,9 @@ class ReviewApiTest(unittest.TestCase):
         }
         with (
             mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key"}),
-            mock.patch.object(llm.requests, "post", side_effect=[failed, succeeded]) as post,
+            mock.patch.object(
+                llm.requests, "post", side_effect=[failed, succeeded]
+            ) as post,
         ):
             report, model = llm.review("system", "user", ["first", "second"])
 
@@ -152,39 +192,51 @@ class ReviewApiTest(unittest.TestCase):
 class ReviewPromptAndArtifactsTest(unittest.TestCase):
     def test_writer_is_excluded_from_review_models_when_possible(self) -> None:
         models = ["qwen", "luna"]
-        self.assertEqual(main._independent_review_models(models, "qwen"), ["luna"])
-        self.assertEqual(main._independent_review_models(["qwen"], "qwen"), ["qwen"])
+        self.assertEqual(
+            review_pipeline.independent_review_models(models, "qwen"),
+            ["luna"],
+        )
+        self.assertEqual(
+            review_pipeline.independent_review_models(["qwen"], "qwen"),
+            ["qwen"],
+        )
 
     def test_source_quality_rejects_short_index_like_evidence(self) -> None:
         # 총 길이는 충분해도 짧은 링크 제목만 반복되는 색인형 문서는 제외한다.
         thin = [{"ok": True, "text": "짧은 링크 제목\n" * 400}]
-        self.assertFalse(main.source_quality(thin, 2500, 1200)[0])
+        self.assertFalse(quality.source_quality(thin, 2500, 1200)[0])
 
         rich = [{"ok": True, "text": ("충분히 구체적인 설명 문장 " * 8 + "\n") * 30}]
-        self.assertTrue(main.source_quality(rich, 2500, 1200)[0])
+        self.assertTrue(quality.source_quality(rich, 2500, 1200)[0])
 
     def test_review_and_revision_prompts_remain_valid_xml(self) -> None:
-        fetched = [{
-            "ok": True,
-            "fetch": "https://example.com/a?x=1&y=2",
-            "cite": "https://example.com/a?x=1&y=2",
-            "text": "원문 <태그> & 값 ]]> 다음",
-        }]
-        sources, _ = main.build_sources_block(fetched)
-        draft = main._as_cdata("제목: 테스트\n\n본문 ]]> 다음")
-        report = main._as_cdata(json.dumps(_report(), ensure_ascii=False))
+        fetched = [
+            {
+                "ok": True,
+                "fetch": "https://example.com/a?x=1&y=2",
+                "cite": "https://example.com/a?x=1&y=2",
+                "text": "원문 <태그> & 값 ]]> 다음",
+            }
+        ]
+        sources, _ = source_context.build_sources_block(fetched)
+        draft = source_context.as_cdata("제목: 테스트\n\n본문 ]]> 다음")
+        report = source_context.as_cdata(json.dumps(_report(), ensure_ascii=False))
 
         review_template = main.load_prompt("review_template.md")
         revision_template = main.load_prompt("revision_template.md")
-        ET.fromstring(review_template.format(
-            sources_block=sources,
-            draft_article=draft,
-        ))
-        ET.fromstring(revision_template.format(
-            sources_block=sources,
-            draft_article=draft,
-            review_report=report,
-        ))
+        ET.fromstring(
+            review_template.format(
+                sources_block=sources,
+                draft_article=draft,
+            )
+        )
+        ET.fromstring(
+            revision_template.format(
+                sources_block=sources,
+                draft_article=draft,
+                review_report=report,
+            )
+        )
 
     def test_comparison_artifacts_are_written_only_when_requested(self) -> None:
         report = _report()
@@ -193,7 +245,8 @@ class ReviewPromptAndArtifactsTest(unittest.TestCase):
                 os.environ,
                 {"REVIEW_ARTIFACT_DIR": temp_dir},
             ):
-                main._save_review_artifacts(
+                review_pipeline.save_review_artifacts(
+                    Path(temp_dir),
                     "topic::sample",
                     "<document />",
                     "제목: 전",
@@ -205,15 +258,18 @@ class ReviewPromptAndArtifactsTest(unittest.TestCase):
             run_dirs = list(Path(temp_dir).iterdir())
             self.assertEqual(len(run_dirs), 1)
             names = {path.name for path in run_dirs[0].iterdir()}
-            self.assertEqual(names, {
-                "source-documents.xml",
-                "before.md",
-                "review.json",
-                "final-review.json",
-                "review-history.json",
-                "after.md",
-                "changes.diff",
-            })
+            self.assertEqual(
+                names,
+                {
+                    "source-documents.xml",
+                    "before.md",
+                    "review.json",
+                    "final-review.json",
+                    "review-history.json",
+                    "after.md",
+                    "changes.diff",
+                },
+            )
             self.assertIn("제목: 후", (run_dirs[0] / "after.md").read_text())
 
 
@@ -234,25 +290,40 @@ class MainReviewFlowTest(unittest.TestCase):
             "tags": [],
             "sources": ["https://example.com"],
         }
-        fetched = [{
-            "ok": True,
-            "fetch": "https://example.com",
-            "cite": "https://example.com",
-            "text": "링크 제목\n" * 100,
-            "reason": "ok",
-        }]
-        with (
-            mock.patch.object(main, "load_dotenv"),
-            mock.patch.object(main, "load_config", return_value=cfg),
-            mock.patch.object(main.dedup, "pick_next_topic", return_value=topic),
-            mock.patch.object(main.dedup, "mark_done") as mark_done,
-            mock.patch.object(main.fetcher, "fetch_topic_sources", return_value=fetched),
-            mock.patch.object(main.llm, "generate") as generate,
-        ):
-            self.assertEqual(main.main(), 0)
+        fetched = [
+            {
+                "ok": True,
+                "fetch": "https://example.com",
+                "cite": "https://example.com",
+                "text": "링크 제목\n" * 100,
+                "reason": "ok",
+            }
+        ]
+        model_gateway = mock.Mock()
+        publisher = mock.Mock()
+        topic_repository = mock.Mock()
+        topic_repository.select.return_value = topic
+        source_gateway = mock.Mock()
+        source_gateway.fetch.return_value = SourceBundle(
+            documents=fetched,
+            prompt_context="<document />",
+            cite_urls=("https://example.com",),
+            title_hint="얕은 문서",
+        )
+        app = generator_pipeline.GeneratorPipeline(
+            cfg=cfg,
+            prompt_loader=lambda _: "unused",
+            model_gateway=model_gateway,
+            publisher=publisher,
+            topic_repository=topic_repository,
+            source_gateway=source_gateway,
+            generator_dir=GENERATOR_DIR,
+        )
+        self.assertEqual(app.run(), 0)
 
-        mark_done.assert_called_once_with("thin-topic")
-        generate.assert_not_called()
+        topic_repository.mark_done.assert_called_once_with("thin-topic")
+        model_gateway.generate.assert_not_called()
+        publisher.publish.assert_not_called()
 
     def test_failed_revision_gets_one_more_round_before_publish(self) -> None:
         issue = {
@@ -283,13 +354,15 @@ class MainReviewFlowTest(unittest.TestCase):
             "tags": ["test"],
             "sources": ["https://example.com"],
         }
-        fetched = [{
-            "ok": True,
-            "fetch": "https://example.com",
-            "cite": "https://example.com",
-            "text": "공식문서",
-            "reason": "ok",
-        }]
+        fetched = [
+            {
+                "ok": True,
+                "fetch": "https://example.com",
+                "cite": "https://example.com",
+                "text": "공식문서",
+                "reason": "ok",
+            }
+        ]
 
         def prompt(name: str) -> str:
             if name == "user_template.md":
@@ -304,41 +377,67 @@ class MainReviewFlowTest(unittest.TestCase):
             root = Path(temp_dir)
             output = root / "post.md"
 
-            def write_post(**kwargs) -> Path:
-                output.write_text(kwargs["body"], encoding="utf-8")
-                return output
+            def publish(article) -> Publication:
+                output.write_text(article.body, encoding="utf-8")
+                return Publication(path=output, has_diagram=False)
 
             generated = [
-                ("제목: 초안\n\n> 한 줄 요약: 초안\n\n### 개요\n초안\n\n### 정리\n초안", "writer"),
-                ("제목: 1차 수정본\n\n> 한 줄 요약: 수정\n\n### 개요\n수정\n\n### 정리\n수정", "writer"),
-                ("제목: 2차 수정본\n\n> 한 줄 요약: 수정\n\n### 개요\n최종\n\n### 정리\n최종", "writer"),
+                GeneratedText(
+                    "제목: 초안\n\n> 한 줄 요약: 초안\n\n"
+                    "### 개요\n초안\n\n### 정리\n초안",
+                    "writer",
+                ),
+                GeneratedText(
+                    "제목: 1차 수정본\n\n> 한 줄 요약: 수정\n\n"
+                    "### 개요\n수정\n\n### 정리\n수정",
+                    "writer",
+                ),
+                GeneratedText(
+                    "제목: 2차 수정본\n\n> 한 줄 요약: 수정\n\n"
+                    "### 개요\n최종\n\n### 정리\n최종",
+                    "writer",
+                ),
             ]
-            with (
-                mock.patch.object(main, "HERE", root / "generator"),
-                mock.patch.object(main, "load_dotenv"),
-                mock.patch.object(main, "load_config", return_value=cfg),
-                mock.patch.object(main, "load_prompt", side_effect=prompt),
-                mock.patch.object(main.dedup, "pick_next_topic", return_value=topic),
-                mock.patch.object(main.dedup, "mark_done") as mark_done,
-                mock.patch.object(main.fetcher, "fetch_topic_sources", return_value=fetched),
-                mock.patch.object(main.llm, "generate", side_effect=generated) as generate,
-                mock.patch.object(
-                    main.llm,
-                    "review",
-                    side_effect=[
-                        (report, "reviewer"),
-                        (report, "reviewer"),
-                        (_report(), "reviewer"),
-                    ],
-                ) as review,
-                mock.patch.object(main.post_writer, "write_post", side_effect=write_post),
-                mock.patch.object(main, "_save_review_artifacts"),
+            model_gateway = mock.Mock()
+            model_gateway.generate.side_effect = generated
+            model_gateway.review.side_effect = [
+                ReviewResult(report, "reviewer"),
+                ReviewResult(report, "reviewer"),
+                ReviewResult(_report(), "reviewer"),
+            ]
+            publisher = mock.Mock()
+            publisher.publish.side_effect = publish
+            publisher.discard.side_effect = lambda publication: publication.path.unlink(
+                missing_ok=True
+            )
+            topic_repository = mock.Mock()
+            topic_repository.select.return_value = topic
+            source_gateway = mock.Mock()
+            source_gateway.fetch.return_value = SourceBundle(
+                documents=fetched,
+                prompt_context="<document />",
+                cite_urls=("https://example.com",),
+                title_hint="테스트 주제",
+            )
+            app = generator_pipeline.GeneratorPipeline(
+                cfg=cfg,
+                prompt_loader=prompt,
+                model_gateway=model_gateway,
+                publisher=publisher,
+                topic_repository=topic_repository,
+                source_gateway=source_gateway,
+                generator_dir=root / "generator",
+            )
+            with mock.patch.object(
+                review_pipeline,
+                "save_review_artifacts",
             ):
-                self.assertEqual(main.main(), 0)
+                self.assertEqual(app.run(), 0)
 
-            self.assertEqual(generate.call_count, 3)
-            self.assertEqual(review.call_count, 3)
-            mark_done.assert_called_once_with("topic-id")
+            self.assertEqual(model_gateway.generate.call_count, 3)
+            self.assertEqual(model_gateway.review.call_count, 3)
+            self.assertEqual(publisher.publish.call_count, 2)
+            topic_repository.mark_done.assert_called_once_with("topic-id")
             self.assertIn("### 개요\n최종", output.read_text(encoding="utf-8"))
 
 

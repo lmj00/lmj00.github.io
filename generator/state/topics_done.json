@@ -72,5 +72,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/",
   "kubernetes::https://kubernetes.io/docs/concepts/services-networking/service/",
   "rfc-standards::rfc868",
-  "postgresql::https://www.postgresql.org/docs/current/install-post.html"
+  "postgresql::https://www.postgresql.org/docs/current/install-post.html",
+  "rabbitmq::docs/configure.md"
 ]

@@ -73,5 +73,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/services-networking/service/",
   "rfc-standards::rfc868",
   "postgresql::https://www.postgresql.org/docs/current/install-post.html",
-  "rabbitmq::docs/configure.md"
+  "rabbitmq::docs/configure.md",
+  "rabbitmq::docs/limits.md"
 ]

@@ -74,5 +74,6 @@
   "rfc-standards::rfc868",
   "postgresql::https://www.postgresql.org/docs/current/install-post.html",
   "rabbitmq::docs/configure.md",
-  "rabbitmq::docs/limits.md"
+  "rabbitmq::docs/limits.md",
+  "kubernetes::https://kubernetes.io/docs/concepts/containers/"
 ]

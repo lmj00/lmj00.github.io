@@ -75,5 +75,6 @@
   "postgresql::https://www.postgresql.org/docs/current/install-post.html",
   "rabbitmq::docs/configure.md",
   "rabbitmq::docs/limits.md",
-  "kubernetes::https://kubernetes.io/docs/concepts/containers/"
+  "kubernetes::https://kubernetes.io/docs/concepts/containers/",
+  "rabbitmq::docs/passwords.md"
 ]

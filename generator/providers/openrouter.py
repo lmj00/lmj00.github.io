@@ -6,8 +6,8 @@ import os
 import time
 import requests
 
-from contracts import GeneratedText, ModelGatewayError, ReviewResult
-from quality import (
+from generator.contracts import GeneratedText, ModelGatewayError, ReviewResult
+from generator.content.quality import (
     MIN_BODY_CHARS,
     REVIEW_RESPONSE_FORMAT,
     looks_truncated,

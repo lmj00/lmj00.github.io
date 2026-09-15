@@ -11,17 +11,30 @@
 - **중복 방지**: 이미 쓴 주제(`state/topics_done.json`)와 겹치면 건너뛴다. 미생성 주제가 없으면 생성하지 않는다.
 
 ## 구조
+
 ```
 generator/
   main.py               # CLI 조립 지점(설정 + 현재 구현체 연결)
+  __main__.py           # python -m generator 진입점
+  bootstrap.py          # 환경 변수·설정·프롬프트 로딩
+  paths.py              # 작업 디렉터리와 무관한 저장소 경로
   pipeline.py           # 생성 유스케이스 실행 순서
   contracts.py          # Article 데이터와 Protocol 교체 계약
-  quality.py            # 출처·본문·검수 JSON의 순수 검증 규칙
-  review_pipeline.py    # 독립 검수 → 수정 → 재검수
-  source_context.py     # 공식문서를 XML 프롬프트 컨텍스트로 변환
-  topics.py             # 분야 균형·난이도 기반 주제 선택 정책
-  llm.py                # OpenRouter 모델 어댑터와 fallback
-  publishing.py         # Jekyll Publisher 어댑터
+  content/
+    quality.py          # 출처·본문·검수 JSON의 순수 검증 규칙
+    review_pipeline.py  # 독립 검수 → 수정 → 재검수
+  sources/
+    catalog.py          # 주제 자동 발굴(GitHub 트리 / man / RFC 인덱스)
+    fetcher.py          # robots 체크 + fetch + 본문 추출
+    source_context.py   # 공식문서를 XML 프롬프트 컨텍스트로 변환
+    topics.py           # 분야 균형·난이도 기반 주제 선택 정책
+    difficulty.py       # 난이도 채점·캐시
+    dedup.py            # 중복 방지
+  providers/
+    openrouter.py       # OpenRouter 모델 어댑터와 fallback
+  publishing/
+    jekyll.py           # Jekyll Publisher 어댑터
+    post_writer.py      # 마크다운 교정·D2 렌더·포스트 작성
   sources.json          # 프롬프트/모델/catalogs/topics/품질 설정
   prompts/
     system.md           #   시스템 프롬프트(지시는 영어, 출력은 한국어)
@@ -29,10 +42,7 @@ generator/
     reviewer.md         #   독립 검수 기준
     review_template.md
     revision_template.md
-  catalog.py            # 주제 자동 발굴(GitHub 트리 / man 인덱스 / RFC 인덱스)
-  fetcher.py            # robots 체크 + fetch + 본문 추출
-  dedup.py              # 중복 방지
-  post_writer.py        # 마크다운 교정 + D2→SVG 렌더 + frontmatter/배지/출처 → .md
+  tests/test_review.py  # 본문·검수·패키지 경로 회귀 테스트
   state/topics_done.json
 ```
 
@@ -42,14 +52,30 @@ generator/
 같은 계약을 구현해 `main.py`의 조립 코드만 바꾸면 된다.
 
 ## 로컬 실행
+
+기존 실행 방식과 저장소 루트의 모듈 실행을 모두 지원한다.
+
 ```bash
 cd generator
 pip install -r requirements.txt
-cp .env.example .env          # .env 에 OPENROUTER_API_KEY 입력 (커밋 안 됨)
+# .env 파일에 OPENROUTER_API_KEY 설정 (커밋하지 않음)
 python main.py                # 다음 미생성 주제 1편 생성
 FORCE_TOPIC_ID=cs-websocket-protocol python main.py   # 특정 주제 강제
 ```
+
+저장소 루트에서는 `python -m generator`로 실행한다. 실제 생성에는 API 비용이 발생한다.
+`python -m generator --help`는 API를 호출하지 않는다.
+폴더 이동 전후의 모델·검수·발행 정책은 동일하며 상태 파일과 자산 저장 위치도 유지한다.
+
 > 다이어그램(D2) 렌더링에 `d2` 필요: `brew install d2`
+
+## 테스트
+
+저장소 루트에서 실행한다. 모델 호출은 모킹하며 유료 API를 호출하지 않는다.
+
+```bash
+python -m unittest discover -s generator/tests -t . -v
+```
 
 ## 자동 실행 (GitHub Actions)
 - `.github/workflows/generate-post.yml` 가 **매일 KST 06:00**(UTC 21:00)에 실행.

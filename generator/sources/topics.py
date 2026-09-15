@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import random
 
-import catalog
-import dedup
-import difficulty
+import generator.sources.catalog as catalog
+import generator.sources.dedup as dedup
+import generator.sources.difficulty as difficulty
 
 
 def _pick_lowest_level(bucket: list[dict], cfg: dict) -> dict:

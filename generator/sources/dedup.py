@@ -3,9 +3,8 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+from generator.paths import GENERATOR_DIR as HERE
 STATE_FILE = HERE / "state" / "topics_done.json"
 POSTS_DIR = HERE.parent / "_posts"
 

@@ -10,9 +10,9 @@ import re
 from collections.abc import Callable
 from pathlib import Path
 
-from contracts import Article, LanguageModelGateway, ReviewReport
-from quality import extract_title
-from source_context import as_cdata
+from generator.contracts import Article, LanguageModelGateway, ReviewReport
+from generator.content.quality import extract_title
+from generator.sources.source_context import as_cdata
 
 
 class ReviewRejectedError(RuntimeError):

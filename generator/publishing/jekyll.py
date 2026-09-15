@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import post_writer
-from contracts import Article, Publication
+import generator.publishing.post_writer as post_writer
+from generator.contracts import Article, Publication
 
 
 class JekyllPublisher:

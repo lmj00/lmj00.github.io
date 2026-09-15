@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import html
 
-import catalog
-import fetcher
-from contracts import SourceBundle
+import generator.sources.catalog as catalog
+import generator.sources.fetcher as fetcher
+from generator.contracts import SourceBundle
 
 
 def normalize_sources(sources: list) -> list[dict]:

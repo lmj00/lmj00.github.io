@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -10,17 +11,17 @@ from pathlib import Path
 from unittest import mock
 
 GENERATOR_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(GENERATOR_DIR))
+sys.path.insert(0, str(GENERATOR_DIR.parent))
 
-import llm  # noqa: E402
-import main  # noqa: E402
-import pipeline as generator_pipeline  # noqa: E402
-import publishing  # noqa: E402
-import quality  # noqa: E402
-import review_pipeline  # noqa: E402
-import source_context  # noqa: E402
-import topics as topic_module  # noqa: E402
-from contracts import (  # noqa: E402
+import generator.providers.openrouter as llm  # noqa: E402
+import generator.main as main  # noqa: E402
+import generator.pipeline as generator_pipeline  # noqa: E402
+import generator.publishing.jekyll as publishing  # noqa: E402
+import generator.content.quality as quality  # noqa: E402
+import generator.content.review_pipeline as review_pipeline  # noqa: E402
+import generator.sources.source_context as source_context  # noqa: E402
+import generator.sources.topics as topic_module  # noqa: E402
+from generator.contracts import (  # noqa: E402
     GeneratedText,
     LanguageModelGateway,
     Publication,
@@ -130,6 +131,40 @@ class ArticleStructureTest(unittest.TestCase):
 
 
 class ArchitectureContractTest(unittest.TestCase):
+    def test_moved_modules_keep_repository_resource_paths(self) -> None:
+        from generator.paths import ASSETS_DIR, GENERATOR_DIR, PROJECT_ROOT, PROMPTS_DIR, STATE_DIR
+        from generator.publishing import post_writer
+        from generator.sources import dedup, difficulty
+
+        self.assertEqual(GENERATOR_DIR, Path(__file__).resolve().parents[1])
+        self.assertEqual(PROJECT_ROOT, GENERATOR_DIR.parent)
+        self.assertEqual(dedup.STATE_FILE, STATE_DIR / "topics_done.json")
+        self.assertEqual(dedup.POSTS_DIR, PROJECT_ROOT / "_posts")
+        self.assertEqual(difficulty.CACHE_FILE, STATE_DIR / "difficulty.json")
+        self.assertEqual(post_writer.OUT_DIR, PROJECT_ROOT / "_posts/ai-notes")
+        self.assertEqual(post_writer.ASSETS_DIR, ASSETS_DIR / "diagrams")
+        self.assertEqual(main.load_prompt("system.md"), (PROMPTS_DIR / "system.md").read_text())
+
+    def test_module_and_script_entrypoints_support_help_without_api_key(self) -> None:
+        root = GENERATOR_DIR.parent
+        env = dict(os.environ)
+        env.pop("OPENROUTER_API_KEY", None)
+        with tempfile.TemporaryDirectory() as directory:
+            commands = [
+                (root, ["-m", "generator", "--help"]),
+                (root, ["generator/main.py", "--help"]),
+                (GENERATOR_DIR, ["main.py", "--help"]),
+                (Path(directory), [str(GENERATOR_DIR / "main.py"), "--help"]),
+            ]
+            for cwd, arguments in commands:
+                with self.subTest(cwd=cwd, arguments=arguments):
+                    result = subprocess.run(
+                        [sys.executable, *arguments], cwd=cwd, env=env,
+                        capture_output=True, text=True, timeout=20,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn("--help", result.stdout)
+
     def test_current_adapters_implement_protocols(self) -> None:
         self.assertIsInstance(llm.OpenRouterGateway(), LanguageModelGateway)
         self.assertIsInstance(publishing.JekyllPublisher(), Publisher)

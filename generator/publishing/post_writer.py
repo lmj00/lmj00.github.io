@@ -8,7 +8,7 @@ import tempfile
 import datetime as dt
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+from generator.paths import GENERATOR_DIR as HERE
 OUT_DIR = HERE.parent / "_posts" / "ai-notes"
 ASSETS_DIR = HERE.parent / "assets" / "diagrams"
 

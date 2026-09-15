@@ -2,44 +2,26 @@
 
 from __future__ import annotations
 
-import json
+import argparse
 import os
+import sys
 from pathlib import Path
 
-from llm import OpenRouterGateway
-from pipeline import GeneratorPipeline
-from publishing import JekyllPublisher
-from source_context import OfficialDocumentSourceGateway
-from topics import CatalogTopicRepository
+# Keep both direct script execution and `python -m generator` working.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-HERE = Path(__file__).resolve().parent
+from generator.bootstrap import load_config, load_dotenv, load_prompt
+from generator.paths import GENERATOR_DIR as HERE
+from generator.providers.openrouter import OpenRouterGateway
+from generator.pipeline import GeneratorPipeline
+from generator.publishing.jekyll import JekyllPublisher
+from generator.sources.source_context import OfficialDocumentSourceGateway
+from generator.sources.topics import CatalogTopicRepository
 
-
-def load_dotenv() -> None:
-    """generator/.env가 있으면 로컬 실행 환경에 추가한다."""
-    env_path = HERE / ".env"
-    if not env_path.exists():
-        return
-    for line in env_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, value = line.partition("=")
-        os.environ.setdefault(
-            key.strip(),
-            value.strip().strip('"').strip("'"),
-        )
-
-
-def load_config() -> dict:
-    return json.loads((HERE / "sources.json").read_text(encoding="utf-8"))
-
-
-def load_prompt(name: str) -> str:
-    return (HERE / "prompts" / name).read_text(encoding="utf-8")
-
-
-def main() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.parse_args(argv)
     load_dotenv()
     cfg = load_config()
     app = GeneratorPipeline(

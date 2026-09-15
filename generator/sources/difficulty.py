@@ -10,9 +10,8 @@ import json
 import os
 import re
 import requests
-from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+from generator.paths import GENERATOR_DIR as HERE
 CACHE_FILE = HERE / "state" / "difficulty.json"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 

@@ -7,7 +7,7 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from contracts import (
+from generator.contracts import (
     Article,
     LanguageModelGateway,
     ModelGatewayError,
@@ -16,8 +16,8 @@ from contracts import (
     SourceGateway,
     TopicRepository,
 )
-from quality import extract_title, source_quality
-from review_pipeline import ArticleReviewPipeline, ReviewRejectedError
+from generator.content.quality import extract_title, source_quality
+from generator.content.review_pipeline import ArticleReviewPipeline, ReviewRejectedError
 
 
 class GeneratorPipeline:

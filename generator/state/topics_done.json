@@ -77,5 +77,6 @@
   "rabbitmq::docs/limits.md",
   "kubernetes::https://kubernetes.io/docs/concepts/containers/",
   "rabbitmq::docs/passwords.md",
-  "postgresql::https://www.postgresql.org/docs/current/legalnotice.html"
+  "postgresql::https://www.postgresql.org/docs/current/legalnotice.html",
+  "rabbitmq::docs/specification.md"
 ]

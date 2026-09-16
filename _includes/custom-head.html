@@ -6,6 +6,10 @@
 {% endcomment %}
 
 {% comment %} 본문: Pretendard(한국어) / 크롬·코드: IBM Plex Mono {% endcomment %}
+{% if page.interactive_design %}
+<link rel="stylesheet" href="{{ '/assets/css/article-scenes.css' | relative_url }}">
+<script src="{{ '/assets/js/article-scenes.js' | relative_url }}" defer></script>
+{% endif %}
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -1,0 +1,5 @@
+.post-content .ai-scene { margin: 2rem 0; }
+.post-content .ai-scene-frame { display: block; width: 100%; height: 560px; border: 1px solid var(--border, #262b34); border-radius: 10px; background: var(--surface, #14171d); }
+.post-content .ai-scene figcaption { font-size: .8rem; color: var(--muted, #8b93a1); margin-bottom: .65rem; }
+.post-content .ai-scene-summary { margin-top: .7rem; font-size: .85rem; color: var(--muted, #8b93a1); }
+@media print { .post-content .ai-scene-frame { display: none; } }

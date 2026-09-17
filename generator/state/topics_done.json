@@ -78,5 +78,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/containers/",
   "rabbitmq::docs/passwords.md",
   "postgresql::https://www.postgresql.org/docs/current/legalnotice.html",
-  "rabbitmq::docs/specification.md"
+  "rabbitmq::docs/specification.md",
+  "postgresql::https://www.postgresql.org/docs/current/trigger-definition.html"
 ]

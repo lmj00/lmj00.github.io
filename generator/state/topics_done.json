@@ -80,5 +80,6 @@
   "postgresql::https://www.postgresql.org/docs/current/legalnotice.html",
   "rabbitmq::docs/specification.md",
   "postgresql::https://www.postgresql.org/docs/current/trigger-definition.html",
-  "kafka::docs/operations/basic-kafka-operations.md"
+  "kafka::docs/operations/basic-kafka-operations.md",
+  "rabbitmq::docs/production-checklist.md"
 ]

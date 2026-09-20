@@ -81,5 +81,6 @@
   "rabbitmq::docs/specification.md",
   "postgresql::https://www.postgresql.org/docs/current/trigger-definition.html",
   "kafka::docs/operations/basic-kafka-operations.md",
-  "rabbitmq::docs/production-checklist.md"
+  "rabbitmq::docs/production-checklist.md",
+  "kubernetes::https://kubernetes.io/docs/concepts/resource-management/"
 ]

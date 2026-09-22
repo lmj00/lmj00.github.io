@@ -83,5 +83,6 @@
   "kafka::docs/operations/basic-kafka-operations.md",
   "rabbitmq::docs/production-checklist.md",
   "kubernetes::https://kubernetes.io/docs/concepts/resource-management/",
-  "rabbitmq::docs/use-rabbitmq.md"
+  "rabbitmq::docs/use-rabbitmq.md",
+  "postgresql::https://www.postgresql.org/docs/current/installation.html"
 ]

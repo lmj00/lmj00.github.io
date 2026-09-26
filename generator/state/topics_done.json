@@ -87,5 +87,6 @@
   "postgresql::https://www.postgresql.org/docs/current/installation.html",
   "postgresql::https://www.postgresql.org/docs/current/client-interfaces.html",
   "kubernetes::https://kubernetes.io/docs/concepts/containers/cri/",
-  "kubernetes::https://kubernetes.io/docs/concepts/workloads/"
+  "kubernetes::https://kubernetes.io/docs/concepts/workloads/",
+  "kubernetes::https://kubernetes.io/docs/concepts/workloads/management/"
 ]

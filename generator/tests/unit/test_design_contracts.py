@@ -9,6 +9,7 @@ import unittest
 
 from jsonschema import Draft202012Validator
 
+from generator.design.design_browser import BrowserSceneVerifier
 from generator.design.scene_document import (
     clean_css,
     clean_html,
@@ -454,3 +455,19 @@ class InteractionPolicyTest(unittest.TestCase):
         value = motion_design()
         value["scenes"][0]["transitions"][0]["steps"][0]["target"] = "source"
         self.assertTrue(interaction_issues(value))
+
+
+class SceneHeightPolicyTest(unittest.TestCase):
+    def test_height_target_tolerance_and_hard_boundary(self):
+        check = BrowserSceneVerifier._check_height
+        self.assertIsNone(check(950, 320, "ready"))
+        for height in (951, 972, 1001, 1050):
+            for phase in ("settled", "moving"):
+                with self.subTest(height=height, phase=phase):
+                    warning = check(height, 320, "ready", phase)
+                    self.assertEqual(warning["severity"], "warning")
+                    self.assertEqual(warning["height_px"], height)
+                    self.assertEqual(warning["phase"], phase)
+        for phase in ("settled", "moving"):
+            with self.assertRaisesRegex(ValueError, "최대 허용 1050px"):
+                check(1051, 320, "ready", phase)

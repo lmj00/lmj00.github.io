@@ -11,6 +11,7 @@ from generator.design.compact_scenes import (
     build_compact_schema,
     compile_compact_design,
 )
+from generator.design.layout_diagnostics import BrowserLayoutError
 from generator.design.scene_clarity import clarity_observations, collect_clarity_issues
 from generator.design.scene_document import clean_html
 from generator.design.visual_contracts import DESIGN_SCHEMA
@@ -34,6 +35,17 @@ class ExplanationQualityTest(unittest.TestCase):
         ):
             with self.subTest(fragment=fragment), self.assertRaises(ValueError):
                 clean_html(fragment)
+
+
+class LayoutDiagnosticContractTest(unittest.TestCase):
+    def test_error_is_compatible_bounded_and_does_not_mutate_observations(self):
+        original = [{"state": str(index), "values": [1]} for index in range(12)]
+        error = BrowserLayoutError("height exceeded", original)
+        self.assertIsInstance(error, ValueError)
+        self.assertEqual(str(error), "height exceeded")
+        self.assertEqual(len(error.layout_diagnostics), 8)
+        error.layout_diagnostics[0]["values"].append(2)
+        self.assertEqual(original[0]["values"], [1])
 
 
 class SceneClarityTests(unittest.TestCase):

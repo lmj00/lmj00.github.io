@@ -23,6 +23,7 @@ generator/
   content/
     quality.py          # 출처·본문·검수 JSON의 순수 검증 규칙
     review_pipeline.py  # 독립 검수 → 수정 → 재검수
+  design/               # 시각화 데이터 검증·HTML 렌더링·브라우저 검사
   sources/
     catalog.py          # 주제 자동 발굴(GitHub 트리 / man / RFC 인덱스)
     fetcher.py          # robots 체크 + fetch + 본문 추출
@@ -69,12 +70,38 @@ FORCE_TOPIC_ID=cs-websocket-protocol python main.py   # 특정 주제 강제
 
 > 다이어그램(D2) 렌더링에 `d2` 필요: `brew install d2`
 
+## 인터랙티브 시각화 실행기
+
+`design/`는 장면 데이터와 HTML/CSS를 검증하고, 공통 실행기를 포함한 HTML 문서를
+만든다. 상태 전환·재생/일시정지·시나리오 선택·아이콘·수치 차트를 지원하며,
+동작 줄이기 설정과 화면 밖 재생 중단을 처리한다. 이 모듈 자체는 모델 API를 호출하지
+않는다. 글 생성 파이프라인에서 디자인을 생성하고 게시물에 자동 삽입하는 연결은
+아직 포함하지 않는다.
+
+- `compact_scenes.py`, `visual_contracts.py`: 템플릿·상태 값을 장면 데이터로 확장하고 입력 구조를 검증한다.
+- `scene_document.py`, `scene_motion.py`, `scene_presentation.py`, `scene_charts.py`, `scene_clarity.py`: HTML/CSS, 동작 경로, 도형·수치·변화 설명의 일관성을 검사하고 문서를 렌더링한다. 사실관계 검수를 대신하지는 않는다.
+- `design_browser.py`, `layout_diagnostics.py`: Chromium에서 실제 상태 전환·애니메이션·모바일/데스크톱 레이아웃을 확인한다.
+- `assets/js/scene-*.js`, `assets/css/scene-diagram.css`: 검증된 데이터를 실행하는 공통 코드다. 입력 데이터에 임의 JavaScript를 넣는 것은 허용하지 않는다.
+- `assets/js/article-scenes.js`, `assets/css/article-scenes.css`: 게시물 안 iframe의 높이와 외곽 표시를 관리한다. `interactive_design: true`인 페이지에만 로드한다.
+
+장면은 `sandbox="allow-scripts"` iframe에 넣는 것을 전제로 한다. 생성 문서는
+외부 네트워크 접근을 제한하고 공통 실행기만 사용한다. 입력 HTML에 임의 SVG나
+이벤트 핸들러를 허용하는 방식이 아니다.
+
 ## 테스트
 
 저장소 루트에서 실행한다. 모델 호출은 모킹하며 유료 API를 호출하지 않는다.
 
 ```bash
 python -m unittest discover -s generator/tests -t . -v
+```
+
+Chromium 검사는 기본 실행에서 건너뛴다. 저장소 루트에서 다음과 같이 실행한다.
+아래 검사도 모델 API를 호출하지 않는다.
+
+```bash
+python -m playwright install chromium
+DESIGN_BROWSER_TESTS=1 python -m unittest discover -s generator/tests/browser -t . -v
 ```
 
 ## 자동 실행 (GitHub Actions)

@@ -4,31 +4,61 @@
 - 미채점 주제만 LLM으로 1회 채점 → state/difficulty.json 에 캐시(이후 호출 0)
 - 채점 실패(모델 죽음/파싱 깨짐) 시 키워드 휴리스틱으로 폴백(절대 안 멈춤)
 """
+
 from __future__ import annotations
 
 import json
-import os
 import re
-import requests
 
+from generator.contracts import ModelGatewayError, TextCompletionGateway
 from generator.paths import GENERATOR_DIR as HERE
-CACHE_FILE = HERE / "state" / "difficulty.json"
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-DEFAULT_LEVEL = 3          # 캐시에 없을 때 안전 기본값
-CHUNK = 30                 # 한 번에 채점할 주제 수(너무 많으면 모델이 흘림)
+CACHE_FILE = HERE / "state" / "difficulty.json"
+
+DEFAULT_LEVEL = 3  # 캐시에 없을 때 안전 기본값
+CHUNK = 30  # 한 번에 채점할 주제 수(너무 많으면 모델이 흘림)
 
 # 휴리스틱 폴백용 키워드. 라벨/id에 있으면 해당 레벨로.
 _BASIC = [
-    "overview", "intro", "introduction", "getting-started",
-    "basic", "what-is", "quickstart", "glossary",
-    "개요", "소개", "기본", "시작",
+    "overview",
+    "intro",
+    "introduction",
+    "getting-started",
+    "basic",
+    "what-is",
+    "quickstart",
+    "glossary",
+    "개요",
+    "소개",
+    "기본",
+    "시작",
 ]
 _ADVANCED = [
-    "internal", "internals", "tuning", "optimization", "advanced", "consistency",
-    "replication", "mvcc", "lock", "locking", "deadlock", "quorum", "partition",
-    "sharding", "isolation", "wal", "vacuum", "recovery", "failover", "clustering",
-    "성능", "최적화", "복제", "내부", "튜닝",
+    "internal",
+    "internals",
+    "tuning",
+    "optimization",
+    "advanced",
+    "consistency",
+    "replication",
+    "mvcc",
+    "lock",
+    "locking",
+    "deadlock",
+    "quorum",
+    "partition",
+    "sharding",
+    "isolation",
+    "wal",
+    "vacuum",
+    "recovery",
+    "failover",
+    "clustering",
+    "성능",
+    "최적화",
+    "복제",
+    "내부",
+    "튜닝",
 ]
 
 
@@ -70,7 +100,11 @@ def heuristic_level(topic: dict) -> int:
     return 3 if depth < 3 else 4
 
 
-def _score_chunk_with_llm(topics: list[dict], models: list[str], api_key: str) -> dict:
+def _score_chunk_with_llm(
+    topics: list[dict],
+    models: list[str],
+    gateway: TextCompletionGateway,
+) -> dict:
     """미채점 주제 묶음을 LLM으로 레벨링. {id: level} 반환. 전부 실패 시 예외."""
     labels = {t["id"]: label_of(t) for t in topics}
     rev: dict[str, str] = {}
@@ -90,36 +124,21 @@ def _score_chunk_with_llm(topics: list[dict], models: list[str], api_key: str) -
         "Output ONLY a JSON object mapping each topic string (verbatim) to its integer "
         "level. Include every topic exactly once, no extra text."
     )
-    user = "주제 목록:\n" + listing + '\n\n각 주제에 1~5 레벨을 매겨 JSON {"주제": 레벨} 형태로만 출력.'
+    user = (
+        "주제 목록:\n"
+        + listing
+        + '\n\n각 주제에 1~5 레벨을 매겨 JSON {"주제": 레벨} 형태로만 출력.'
+    )
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://lmj00.github.io",
-        "X-Title": "lmj00-blog-generator",
-    }
     last_err = "?"
     for model in models:
-        payload = {
-            "model": model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "temperature": 0,
-        }
         try:
-            resp = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=(10, 120))
-        except requests.RequestException as e:
-            last_err = f"{model}: request_error {e}"
-            continue
-        if resp.status_code != 200:
-            last_err = f"{model}: http_{resp.status_code} {resp.text[:80]}"
-            continue
-        try:
-            content = resp.json()["choices"][0]["message"]["content"]
-        except (KeyError, ValueError, IndexError) as e:
-            last_err = f"{model}: parse_error {e}"
+            content = gateway.complete_text(
+                system, user, model, purpose="주제 난이도 채점"
+            ).content
+        except ModelGatewayError as e:
+            last_err = f"{model}: {type(e).__name__}"
+            print(f"  [채점 후보 실패] {model} — {type(e).__name__}", flush=True)
             continue
         m = re.search(r"\{.*\}", content, re.DOTALL)
         if not m:
@@ -146,21 +165,28 @@ def _score_chunk_with_llm(topics: list[dict], models: list[str], api_key: str) -
     raise RuntimeError(f"채점 모델 전부 실패: {last_err}")
 
 
-def score(topics: list[dict], cfg: dict) -> dict:
+def score(
+    topics: list[dict], cfg: dict, *, gateway: TextCompletionGateway | None = None
+) -> dict:
     """요청 주제들의 레벨을 반환({id: level}). 미채점 주제만 채점 후 캐시 저장."""
     cache = load_cache()
     todo = [t for t in topics if t["id"] not in cache]
     if todo:
         models = cfg.get("difficulty_model_fallback") or cfg.get("model_fallback", [])
-        api_key = os.environ.get("OPENROUTER_API_KEY")
         scored: dict[str, int] = {}
-        if api_key and models:
+        if gateway is not None and models:
             for i in range(0, len(todo), CHUNK):
-                chunk = todo[i:i + CHUNK]
+                chunk = todo[i : i + CHUNK]
+                print(
+                    f"  [채점] 묶음 {i // CHUNK + 1}/{(len(todo) + CHUNK - 1) // CHUNK} "
+                    f"({len(chunk)}개)",
+                    flush=True,
+                )
                 try:
-                    scored.update(_score_chunk_with_llm(chunk, models, api_key))
+                    scored.update(_score_chunk_with_llm(chunk, models, gateway))
                 except Exception as e:  # noqa: BLE001 — 어떤 실패든 휴리스틱으로 살린다
-                    print(f"  [채점] LLM 실패({e}) → 휴리스틱 폴백")
+                    # An arbitrary injected gateway may raise an unsanitized error.
+                    print(f"  [채점] LLM 실패({type(e).__name__}) → 휴리스틱 폴백")
                     for t in chunk:
                         scored[t["id"]] = heuristic_level(t)
         else:

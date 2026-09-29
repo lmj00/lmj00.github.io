@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
@@ -15,6 +15,7 @@ class GeneratedText:
 
     content: str
     model: str
+    usage: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -57,6 +58,19 @@ class Publication:
 class ModelGatewayError(RuntimeError):
     """모델 제공자 호출 또는 응답 계약이 실패했을 때 발생한다."""
 
+
+@runtime_checkable
+class TextCompletionGateway(Protocol):
+    """분류 등 짧은 텍스트 요청. 주제 선택 정책은 호출자가 소유한다."""
+
+    def complete_text(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model: str,
+        *,
+        purpose: str,
+    ) -> GeneratedText: ...
 
 @runtime_checkable
 class LanguageModelGateway(Protocol):

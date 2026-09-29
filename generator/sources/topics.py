@@ -7,23 +7,24 @@ import random
 import generator.sources.catalog as catalog
 import generator.sources.dedup as dedup
 import generator.sources.difficulty as difficulty
+from generator.contracts import TextCompletionGateway
 
 
-def _pick_lowest_level(bucket: list[dict], cfg: dict) -> dict:
+def _pick_lowest_level(bucket: list[dict], cfg: dict, *, gateway=None) -> dict:
     """후보 묶음에서 가장 기초인 레벨을 고르고 동레벨이면 무작위 선택."""
-    levels = difficulty.score(bucket, cfg)
+    levels = difficulty.score(bucket, cfg, gateway=gateway)
     min_level = min(levels[topic["id"]] for topic in bucket)
     finalists = [topic for topic in bucket if levels[topic["id"]] == min_level]
     print(f"  난이도 레벨 {min_level}(기초 우선) 후보 {len(finalists)}개 중 선택")
     return random.choice(finalists)
 
 
-def pick_balanced(undone: list[dict], cfg: dict) -> dict:
+def pick_balanced(undone: list[dict], cfg: dict, *, gateway=None) -> dict:
     """분야 가중치를 적용한 뒤 해당 분야의 기초 주제를 선택한다."""
     groups = cfg.get("groups")
     weights = cfg.get("group_weights")
     if not groups or not weights:
-        return _pick_lowest_level(undone, cfg)
+        return _pick_lowest_level(undone, cfg, gateway=gateway)
 
     id_to_group = {}
     for group_name, catalog_ids in groups.items():
@@ -42,31 +43,45 @@ def pick_balanced(undone: list[dict], cfg: dict) -> dict:
         weights=[weight for _, weight in available],
     )[0]
     print(f"  분야 선택: {chosen} ({len(buckets[chosen])}개 중)")
-    return _pick_lowest_level(buckets[chosen], cfg)
+    return _pick_lowest_level(buckets[chosen], cfg, gateway=gateway)
 
 
-def select_topic(cfg: dict, forced_id: str | None = None) -> dict | None:
+def select_topic(
+    cfg: dict, forced_id: str | None = None, *, gateway=None
+) -> dict | None:
     """수동 주제를 우선하고, 없으면 공식문서 카탈로그에서 선택한다."""
     topic = dedup.pick_next_topic(
         cfg.get("topics", []),
         forced_id=forced_id,
     )
-    if topic is not None or forced_id:
+    if topic is not None:
         return topic
 
     print("카탈로그에서 주제 자동 발굴 중...")
     pool = catalog.build_pool(cfg.get("catalogs", []))
+    if forced_id:
+        # Forced IDs may refer to a catalog page, including an already used topic.
+        return next(
+            (candidate for candidate in pool if candidate["id"] == forced_id), None
+        )
     done = set(dedup.load_done())
     undone = [candidate for candidate in pool if candidate["id"] not in done]
     print(f"  전체 후보 {len(pool)}개 / 미생성 {len(undone)}개")
-    return pick_balanced(undone, cfg) if undone else None
+    return pick_balanced(undone, cfg, gateway=gateway) if undone else None
 
 
 class CatalogTopicRepository:
     """수동 주제와 공식문서 카탈로그를 사용하는 현재 주제 저장소."""
 
+    def __init__(
+        self, *, record_done: bool = True, gateway: TextCompletionGateway | None = None
+    ):
+        self._record_done = record_done
+        self._gateway = gateway
+
     def select(self, cfg: dict, forced_id: str | None = None) -> dict | None:
-        return select_topic(cfg, forced_id)
+        return select_topic(cfg, forced_id, gateway=self._gateway)
 
     def mark_done(self, topic_id: str) -> None:
-        dedup.mark_done(topic_id)
+        if self._record_done:
+            dedup.mark_done(topic_id)

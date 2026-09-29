@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import html
 
+from bs4 import BeautifulSoup
 
+from generator.design.compact_scenes import compile_compact_design
 from generator.tests.fixtures.design import design_candidate
 
 
@@ -194,6 +196,22 @@ def continuous_candidate():
         },
     ]
     return value
+
+
+def compile_prompt_example(example):
+    inputs = example["input"]
+    return compile_compact_design(
+        example["output"],
+        inputs["headings"],
+        inputs["source_excerpts"],
+    )
+
+
+def entity_text(state, entity):
+    node = BeautifulSoup(state["html"], "html.parser").select_one(
+        f'[data-entity="{entity}"]'
+    )
+    return " ".join(node.get_text(" ", strip=True).split())
 
 
 def diagram_candidate(layout="flow"):
@@ -448,3 +466,11 @@ def presentation_scene(layout="flow", count=3):
         },
         "states": [{"html": html}, {"html": html.replace("대기", "완료")}],
     }
+
+
+def compiled_example(example):
+    return compile_compact_design(
+        example["output"],
+        example["input"]["headings"],
+        example["input"]["source_excerpts"],
+    )

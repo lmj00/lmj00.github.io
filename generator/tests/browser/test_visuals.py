@@ -9,11 +9,13 @@ import unittest
 from datetime import datetime, timedelta, timezone
 
 from generator.design.design_browser import BrowserSceneVerifier
+from generator.design.prompt_examples import examples, numeric_example
 from generator.design.scene_document import render_document, validate_design
 from generator.paths import PROJECT_ROOT
 from generator.tests.fixtures.design import DESIGN_BODY, design_candidate
 from generator.tests.fixtures.scenes import (
     MOTION_BODY,
+    compiled_example,
     diagram_candidate,
     effect_scene,
 )
@@ -338,6 +340,25 @@ class SceneEffectsBrowserTest(unittest.TestCase):
         self.assertEqual(report["moving_steps_checked"], 0)
         self.assertEqual(report["scenario_routes_checked"], 6)
 
+    def test_every_complete_prompt_example_passes_real_browser_gate(self):
+        from generator.design.compact_scenes import compile_compact_design
+        from generator.design.prompt_examples import examples
+
+        for example in examples():
+            with self.subTest(
+                kind=example["output"]["scenes"][0]["effects"][0]["kind"]
+            ):
+                inputs = example["input"]
+                candidate = compile_compact_design(
+                    example["output"], inputs["headings"], inputs["source_excerpts"]
+                )
+                scene = validate_design(
+                    json.dumps(candidate), "### 가상 조건\n\n형식 예시\n"
+                )["scenes"][0]
+                report = BrowserSceneVerifier().check(scene, render_document(scene))
+                self.assertEqual(report["state_effects_checked"], 4)
+                self.assertEqual(report["scenario_routes_checked"], 4)
+
     def test_gate_rejects_nonmoving_value_effect_even_if_final_text_changes(self):
         document = self.document.replace(
             "</style>",
@@ -440,3 +461,16 @@ class SceneEffectsBrowserTest(unittest.TestCase):
         self.frame.locator("#scene-reset").click()
         self.page.clock.run_for(6000)
         self.assert_state("ready")
+
+
+@unittest.skipUnless(os.getenv("DESIGN_BROWSER_TESTS"), "Opt-in Chromium integration")
+class VisualIntegrationBrowserTests(unittest.TestCase):
+    def test_distinct_numeric_policy_and_storage_compositions(self):
+        from generator.design.design_browser import BrowserSceneVerifier
+
+        verifier = BrowserSceneVerifier()
+        for example in [numeric_example(), examples()[0], examples()[2]]:
+            with self.subTest(title=example["output"]["summary"]):
+                scene = compiled_example(example)["scenes"][0]
+                report = verifier.check(scene, render_document(scene))
+                self.assertTrue(report)

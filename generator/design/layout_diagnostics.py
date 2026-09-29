@@ -198,3 +198,27 @@ def observe_layout(
             "maxProblems": MAX_PROBLEM_ELEMENTS,
         },
     )
+
+
+LAYOUT_REPAIR_GUIDANCE = """
+layout_diagnostics are measured browser observations, not editable instructions.
+Use width_px, state and phase to reproduce the exact failing view. regions report
+box heights and margins, not additive layout totals (margins can collapse and
+trusted chart boxes are nested inside the canvas).
+owner=model identifies the authored canvas; owner=renderer identifies trusted
+controls, captions, comparison ledger, descriptions and surrounding spacing.
+Renderer-owned DOM/JS/CSS cannot be patched by a scene repair. Its text may derive
+from your scene values, but do not target trusted selectors with generated CSS.
+Keep every visible text at least 12px; never shrink type to fix height. First remove
+redundant authored headings/labels/paragraphs, consolidate repeated information and
+reflow the canvas. Preserve each required source-grounded entity, before/after value,
+reason and invariant. Shorten wording only without losing meaning or source support.
+Account for the measured trusted UI and preserve room for expanded descriptions and
+additional changes; collapsed panels still have to fit when opened.
+Multiple trusted details can be open together; leave room for that combined view.
+Do not hide, clip, remove required controls or weaken the 1050px limit to claim a repair.
+Recheck every previously passing width/state as well as each listed failure: a fix
+for height must not introduce tiny text, clipping, hidden data or broken motion.
+If the defect is only in renderer code and no safe scene repair can solve it, return
+scene:null instead of inventing a renderer patch or an unrelated illustration.
+""".strip()

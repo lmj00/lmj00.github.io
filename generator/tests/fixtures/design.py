@@ -2,8 +2,30 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+from unittest import mock
 
+from generator.contracts import Article
 from generator.design.compact_scenes import compile_compact_design
+from generator.design.design_pipeline import ArticleDesignPipeline
+
+COMPACT_SOURCES = "<document><source_url>https://example.test/official</source_url><document_content>Requests are checked against the configured policy. The result depends on the input.</document_content></document>"
+
+
+def compact_candidate():
+    value = compact_design()
+    value["scenes"][0]["effects"] = [
+        {
+            "from": "ready",
+            "to": target,
+            "kind": "compare",
+            "entities": ["request"],
+            "duration_ms": 1000,
+        }
+        for target in ("allowed", "denied")
+    ]
+    return value
 
 
 HEADINGS = {"section_1": "조건 적용", "section_2": "데이터 변환"}
@@ -109,6 +131,37 @@ def compact_design():
 DESIGN_BODY = "### 개요\n\n공식문서 설명이다.\n\n### 두 확인의 차이\n\n두 확인은 독립적이다.\n\n### 정리\n\n책임을 구분한다."
 
 
+DESIGN_SOURCES = "<document><source_url>https://example.com/docs</source_url><document_content>테스트 공식문서 근거</document_content></document>"
+
+
+def design_review(*, issue=False, previous_status=None):
+    return json.dumps(
+        {
+            "verdict": "revise" if issue else "pass",
+            "issues": [
+                {
+                    "id": "I1",
+                    "target": "content",
+                    "path": "/candidate/scenes/0/caption",
+                    "kind": "readability",
+                    "problem": "근거 보완",
+                    "suggestion": "가정을 명확히 설명",
+                    "source_url": "",
+                    "source_quote": "",
+                }
+            ]
+            if issue
+            else [],
+            "previous_issues": [
+                {"id": "I1", "status": previous_status, "reason": "수정 내용을 대조함"}
+            ]
+            if previous_status
+            else [],
+        },
+        ensure_ascii=False,
+    )
+
+
 def design_candidate():
     return {
         "summary": "확인 전후를 비교하는 독립 상태판",
@@ -152,6 +205,34 @@ def design_candidate():
             }
         ],
     }
+
+
+def design_article():
+    return Article(
+        "확인 설명",
+        DESIGN_BODY,
+        "writer",
+        ("rabbitmq",),
+        ("https://www.rabbitmq.com/docs/confirms",),
+    )
+
+
+def scene_patch(value=None, indices=None):
+    value = design_candidate() if value is None else value
+    value = json.loads(json.dumps(value))
+    indices = list(range(len(value["scenes"]))) if indices is None else indices
+    for index in indices:
+        value["scenes"][index]["explanation"]["evidence"] = [
+            {"excerpt_id": "source-1-excerpt-1"}
+        ]
+    return json.dumps(
+        {
+            "patches": [
+                {"scene_index": index, "scene": value["scenes"][index]}
+                for index in indices
+            ]
+        }
+    )
 
 
 def clear_compact_design():
@@ -230,3 +311,24 @@ def clear_compact_design():
 
 def clear_design():
     return compile_compact_design(clear_compact_design(), HEADINGS, EXCERPTS)
+
+
+class DesignHarness:
+    """Mock dependencies for design-flow tests; not a discoverable TestCase."""
+
+    def setUp(self):
+        self.cfg = {
+            "design_enabled": True,
+            "design_max_revisions": 1,
+            "design_model_fallback": ["designer"],
+            "design_review_model_fallback": ["reviewer"],
+        }
+        self.models = mock.Mock()
+        self.verifier = mock.Mock()
+        self.verifier.check.return_value = {"ok": True}
+
+    def run_design(self, directory):
+        pipeline = ArticleDesignPipeline(
+            self.models, lambda _: "prompt", self.verifier, base_dir=Path(directory)
+        )
+        return pipeline.enhance(design_article(), DESIGN_SOURCES, self.cfg)

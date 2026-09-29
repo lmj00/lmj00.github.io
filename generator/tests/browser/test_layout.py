@@ -12,11 +12,13 @@ from datetime import datetime, timedelta, timezone
 
 from jsonschema import Draft202012Validator
 
+from generator.design.compact_scenes import compile_compact_design
 from generator.design.design_browser import BrowserSceneVerifier
 from generator.design.layout_diagnostics import (
     LAYOUT_DIAGNOSTIC_SCHEMA,
     BrowserLayoutError,
 )
+from generator.design.prompt_examples import numeric_example
 from generator.design.scene_document import render_document, validate_design
 from generator.tests.fixtures.design import DESIGN_BODY
 from generator.tests.fixtures.scenes import (
@@ -155,6 +157,23 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
         self.assertEqual(item["phase"], "expanded-changes")
         self.assertEqual(item["height_limit_px"], 1050)
         self.assertGreater(item["document_height_px"], 1050)
+
+    def test_numeric_table_expansion_is_checked_and_owned_by_renderer(self):
+        example = numeric_example()
+        scene = compile_compact_design(
+            example["output"],
+            example["input"]["headings"],
+            example["input"]["source_excerpts"],
+        )["scenes"][0]
+        error = self.check_fails(scene, ".scene-chart-details[open]{min-height:1100px}")
+        self.assertTrue(error.layout_diagnostics)
+        for item in error.layout_diagnostics:
+            self.assertEqual(item["phase"], "expanded-chart")
+            region = next(
+                region for region in item["regions"] if region["name"] == "chart"
+            )
+            self.assertEqual(region["owner"], "renderer")
+            self.assertGreater(region["height_px"], 1100)
 
     def test_individual_panels_fit_but_combined_expansion_is_held(self):
         scene = compact_panels_scene()

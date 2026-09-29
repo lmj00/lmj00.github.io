@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Callable, Protocol, runtime_checkable
 
 ReviewReport = dict[str, Any]
 
@@ -16,6 +16,23 @@ class GeneratedText:
     content: str
     model: str
     usage: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class ArticleScene:
+    """검증을 마친 글 내부의 독립 HTML 시각화."""
+
+    after_heading: str
+    title: str
+    caption: str
+    document: str
+
+
+@dataclass(frozen=True)
+class Presentation:
+    scenes: tuple[ArticleScene, ...]
+    summary: str
+    model: str
 
 
 @dataclass(frozen=True)
@@ -35,6 +52,7 @@ class Article:
     model: str
     tags: tuple[str, ...]
     source_urls: tuple[str, ...]
+    presentation: Presentation | None = None
 
 
 @dataclass(frozen=True)
@@ -53,6 +71,7 @@ class Publication:
 
     path: Path
     has_diagram: bool
+    assets: tuple[Path, ...] = ()
 
 
 class ModelGatewayError(RuntimeError):
@@ -71,6 +90,39 @@ class TextCompletionGateway(Protocol):
         *,
         purpose: str,
     ) -> GeneratedText: ...
+
+
+class DesignModelGateway(Protocol):
+    """Markdown 본문 계약과 분리된 구조화 디자인 생성 경계."""
+
+    def complete_json(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        models: list[str],
+        *,
+        purpose: str,
+        max_tokens: int | None,
+        reasoning_tokens: int,
+        reasoning_efforts: dict[str, str] | None = None,
+        response_schema: dict[str, Any] | None = None,
+        format_retries: int = 0,
+        on_attempt: Callable[[dict[str, Any]], None] | None = None,
+        on_progress: Callable[[dict[str, Any]], None] | None = None,
+    ) -> GeneratedText: ...
+
+
+class SceneVerifier(Protocol):
+    def preflight(self) -> None: ...
+
+    def check(self, scene: dict, document: str) -> dict: ...
+
+
+class ArticleDesigner(Protocol):
+    def preflight(self) -> None: ...
+
+    def enhance(self, article: Article, sources: str, cfg: dict) -> Article: ...
+
 
 @runtime_checkable
 class LanguageModelGateway(Protocol):

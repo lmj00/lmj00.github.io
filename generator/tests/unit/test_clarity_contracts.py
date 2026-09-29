@@ -3,28 +3,83 @@
 from __future__ import annotations
 
 import copy
+import json
 import unittest
 
 from jsonschema import Draft202012Validator
 
+from generator.design.compact_repair import plan_compact_field_repair
 from generator.design.compact_scenes import (
+    build_compact_repair_schema,
     build_compact_schema,
     compile_compact_design,
 )
+from generator.design.design_quality import validate_explanations
 from generator.design.layout_diagnostics import BrowserLayoutError
 from generator.design.scene_clarity import clarity_observations, collect_clarity_issues
-from generator.design.scene_document import clean_html
-from generator.design.visual_contracts import DESIGN_SCHEMA
+from generator.design.scene_document import clean_html, validate_design
+from generator.design.scene_repair import (
+    LAYOUT_REPAIR_INSTRUCTIONS,
+    SCENE_REPAIR_INSTRUCTIONS,
+)
+from generator.design.visual_contracts import DESIGN_SCHEMA, source_sections
 from generator.tests.fixtures.design import (
+    DESIGN_BODY,
+    DESIGN_SOURCES,
     EXCERPTS,
     HEADINGS,
     clear_compact_design,
     clear_design,
     compact_design,
+    design_candidate,
 )
 
 
 class ExplanationQualityTest(unittest.TestCase):
+    def check(self, value):
+        return validate_explanations(
+            validate_design(json.dumps(value), DESIGN_BODY),
+            source_sections(DESIGN_SOURCES),
+        )
+
+    def test_valid_interactive_and_static_explanations(self):
+        value = design_candidate()
+        self.assertEqual(self.check(value)["scenes"][0]["mode"], "interactive")
+        scene = value["scenes"][0]
+        scene["states"] = scene["states"][:1]
+        scene["states"][0]["actions"] = []
+        scene["explanation"]["mode"] = "static"
+        self.assertEqual(self.check(value)["scenes"][0]["mode"], "static")
+
+    def test_legacy_is_readable_but_not_new_quality_pass(self):
+        value = design_candidate()
+        del value["scenes"][0]["explanation"]
+        validate_design(json.dumps(value), DESIGN_BODY)
+        with self.assertRaisesRegex(ValueError, "explanation"):
+            self.check(value)
+
+    def test_missing_entities_noop_mode_and_fake_evidence_rejected(self):
+        for failure in ("entity", "noop", "mode", "quote", "url", "blank", "duplicate"):
+            value = copy.deepcopy(design_candidate())
+            scene = value["scenes"][0]
+            plan = scene["explanation"]
+            if failure == "entity":
+                plan["key_entities"] = ["nonexistent"]
+            elif failure == "noop":
+                scene["states"][1]["html"] = scene["states"][0]["html"]
+            elif failure == "mode":
+                plan["mode"] = "static"
+            elif failure == "quote":
+                plan["evidence"][0]["quote"] = "원문에 없는 주장"
+            elif failure == "url":
+                plan["evidence"][0]["source_url"] = "https://not-supplied.example"
+            elif failure == "blank":
+                plan["learning_goal"] = "  "
+            else:
+                plan["key_entities"] = ["broker", "broker"]
+            with self.subTest(failure=failure), self.assertRaises(ValueError):
+                self.check(value)
+
     def test_entity_attribute_is_not_arbitrary_data_or_code(self):
         for fragment in (
             '<p data-other="x">x</p>',
@@ -36,6 +91,13 @@ class ExplanationQualityTest(unittest.TestCase):
             with self.subTest(fragment=fragment), self.assertRaises(ValueError):
                 clean_html(fragment)
 
+    def test_source_quote_whitespace_is_normalized(self):
+        value = design_candidate()
+        value["scenes"][0]["explanation"]["evidence"][0]["quote"] = (
+            "테스트\n공식문서 근거"
+        )
+        self.check(value)
+
 
 class LayoutDiagnosticContractTest(unittest.TestCase):
     def test_error_is_compatible_bounded_and_does_not_mutate_observations(self):
@@ -46,6 +108,19 @@ class LayoutDiagnosticContractTest(unittest.TestCase):
         self.assertEqual(len(error.layout_diagnostics), 8)
         error.layout_diagnostics[0]["values"].append(2)
         self.assertEqual(original[0]["values"], [1])
+
+    def test_repair_contract_preserves_hard_gates_and_renderer_boundary(self):
+        self.assertIn(LAYOUT_REPAIR_INSTRUCTIONS, SCENE_REPAIR_INSTRUCTIONS)
+        for requirement in (
+            "12px",
+            "1050px",
+            "owner=model",
+            "owner=renderer",
+            "every previously passing",
+            "scene:null",
+        ):
+            self.assertIn(requirement, LAYOUT_REPAIR_INSTRUCTIONS)
+        self.assertIn("never shrink type", LAYOUT_REPAIR_INSTRUCTIONS)
 
 
 class SceneClarityTests(unittest.TestCase):
@@ -65,6 +140,14 @@ class SceneClarityTests(unittest.TestCase):
             )
         )
         self.assertEqual(DESIGN_SCHEMA, before)
+
+    def test_repair_schema_applies_same_opt_in_contract(self):
+        schema = build_compact_repair_schema(HEADINGS, EXCERPTS, require_clarity=True)
+        Draft202012Validator.check_schema(schema)
+        validator = Draft202012Validator(schema)
+        for make, valid in ((clear_compact_design, True), (compact_design, False)):
+            patch = {"patches": [{"scene_index": 0, "scene": make()["scenes"][0]}]}
+            self.assertEqual(validator.is_valid(patch), valid)
 
     def test_compile_preserves_new_fields_without_mutating_or_synthesizing(self):
         compact = clear_compact_design()
@@ -267,3 +350,25 @@ class SceneClarityTests(unittest.TestCase):
             observed["action_observations"][0]["text_verified_changes"], []
         )
         self.assertTrue(observed["issues"])
+
+    def test_field_repairs_keep_explanations_with_values_or_graph_but_not_css(self):
+        candidate = clear_compact_design()
+        for path, required_fields in (
+            ("html", {"html", "states", "change_explanations"}),
+            ("states/0/values", {"html", "states", "change_explanations"}),
+            ("states/0/actions/0/target", {"states", "effects", "change_explanations"}),
+            (
+                "change_explanations/0/from",
+                {"states", "effects", "change_explanations"},
+            ),
+            ("css", {"css"}),
+            ("interaction_mode", {"interaction_mode"}),
+        ):
+            with self.subTest(path=path):
+                plan = plan_compact_field_repair(
+                    candidate, f"compact/scenes/0/{path}: failure", HEADINGS, EXCERPTS
+                )
+                fields = set(plan["targets"]["fields"])
+                self.assertTrue(required_fields <= fields)
+                if path == "css":
+                    self.assertEqual(fields, {"css"})

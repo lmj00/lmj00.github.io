@@ -196,6 +196,120 @@ def build_compact_schema(
     return schema
 
 
+def build_compact_repair_schema(
+    headings: Mapping[str, str],
+    excerpts: Sequence[dict],
+    *,
+    allow_presentation: bool = False,
+    require_clarity: bool = False,
+) -> dict:
+    """Repair only explicitly selected scenes, still authoring one template each."""
+    scene = build_compact_schema(
+        headings,
+        excerpts,
+        allow_presentation=allow_presentation,
+        require_clarity=require_clarity,
+    )["properties"]["scenes"]["items"]
+    return _object(
+        patches={
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": _object(
+                scene_index={"type": "integer", "minimum": 0, "maximum": 1},
+                scene={"anyOf": [scene, {"type": "null"}]},
+            ),
+        }
+    )
+
+
+def apply_compact_repair(
+    original_compact: dict, raw_patch: str | dict, expected_indices
+) -> dict:
+    """Apply exact-scope patches; caller compiles and reruns every normal check.
+
+    Core entity IDs stay locked as in legacy scene repair. State IDs may change when
+    repairing an invalid graph, but the next compilation/validation must approve it.
+    """
+    if (
+        not isinstance(original_compact, dict)
+        or set(original_compact) != {"summary", "scenes"}
+        or not isinstance(original_compact["scenes"], list)
+        or not 1 <= len(original_compact["scenes"]) <= 2
+    ):
+        raise ValueError("compact_repair: invalid original design")
+    try:
+        indices = list(expected_indices)
+    except TypeError as exc:
+        raise ValueError("compact_repair: expected explicit scene indices") from exc
+    if (
+        not indices
+        or any(
+            type(index) is not int or not 0 <= index < len(original_compact["scenes"])
+            for index in indices
+        )
+        or len(set(indices)) != len(indices)
+    ):
+        raise ValueError("compact_repair: invalid or duplicate expected scene indices")
+    if isinstance(raw_patch, str):
+        if len(raw_patch) > 100000:
+            raise ValueError("compact_repair: response exceeds 100000 characters")
+        try:
+            patch = json.loads(raw_patch)
+        except json.JSONDecodeError as exc:
+            raise ValueError("compact_repair: invalid patch JSON") from exc
+    else:
+        patch = deepcopy(raw_patch)
+    if (
+        not isinstance(patch, dict)
+        or set(patch) != {"patches"}
+        or not isinstance(patch["patches"], list)
+        or len(patch["patches"]) != len(indices)
+    ):
+        raise ValueError("compact_repair: return exactly the requested scene patches")
+    repaired, seen = deepcopy(original_compact), set()
+    for item in patch["patches"]:
+        if not isinstance(item, dict) or set(item) != {"scene_index", "scene"}:
+            raise ValueError("compact_repair: invalid patch fields")
+        index, scene = item["scene_index"], item["scene"]
+        if type(index) is not int or index not in indices or index in seen:
+            raise ValueError("compact_repair: unknown or duplicate scene_index")
+        if scene is None:
+            raise ValueError(f"compact_repair/scenes/{index}: no safe repair was found")
+        if not isinstance(scene, dict):
+            raise ValueError(f"compact_repair/scenes/{index}: expected a compact scene")
+        original = original_compact["scenes"][index]
+        explanation = (
+            original.get("explanation", {}) if isinstance(original, dict) else {}
+        )
+        entities = (
+            explanation.get("key_entities") if isinstance(explanation, dict) else None
+        )
+        if (
+            isinstance(entities, list)
+            and entities
+            and all(
+                isinstance(entity, str)
+                and re.fullmatch(r"[a-z][a-z0-9_-]{0,31}", entity)
+                for entity in entities
+            )
+            and len(set(entities)) == len(entities)
+        ):
+            replacement = scene.get("explanation")
+            if (
+                not isinstance(replacement, dict)
+                or replacement.get("key_entities") != entities
+            ):
+                raise ValueError(
+                    f"compact_repair/scenes/{index}: existing key_entities are locked"
+                )
+        repaired["scenes"][index] = deepcopy(scene)
+        seen.add(index)
+    if seen != set(indices):
+        raise ValueError("compact_repair: missing requested scene patches")
+    return repaired
+
+
 def _validate_schema(value, schema, *, prefix="compact"):
     error = next(Draft202012Validator(schema).iter_errors(value), None)
     if error is not None:

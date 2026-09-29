@@ -9,7 +9,13 @@ import unittest
 from bs4 import BeautifulSoup
 from jsonschema import Draft202012Validator
 
+from generator.design.compact_repair import (
+    apply_compact_field_repair,
+    plan_compact_field_repair,
+)
 from generator.design.compact_scenes import (
+    apply_compact_repair,
+    build_compact_repair_schema,
     build_compact_schema,
     compile_compact_design,
 )
@@ -21,6 +27,236 @@ from generator.tests.fixtures.design import (
     HEADINGS,
     compact_design,
 )
+
+
+class CompactFieldRepairTests(unittest.TestCase):
+    def plan(self, candidate, path="css"):
+        return plan_compact_field_repair(
+            candidate,
+            ValueError(f"compact/scenes/0/{path}: test error"),
+            HEADINGS,
+            EXCERPTS,
+        )
+
+    def test_css_repair_changes_only_css_preserving_both_scenes_and_summary(self):
+        candidate = compact_design()
+        candidate["scenes"].append(copy.deepcopy(candidate["scenes"][0]))
+        candidate["scenes"][1]["heading_id"] = "section_2"
+        before = copy.deepcopy(candidate)
+        plan = self.plan(candidate)
+        self.assertEqual(plan["targets"], {"scene_index": 0, "fields": ["css"]})
+        self.assertNotIn("css", plan["request"]["scene_context"])
+        self.assertEqual(set(plan["request"]["current_fields"]), {"css"})
+        Draft202012Validator.check_schema(plan["schema"])
+        patch = {
+            "scene_index": 0,
+            "changes": {"css": ".scene-content .policy-card {display:block}"},
+        }
+        fixed = apply_compact_field_repair(candidate, json.dumps(patch), plan)
+        expected = copy.deepcopy(before)
+        expected["scenes"][0]["css"] = patch["changes"]["css"]
+        self.assertEqual(fixed, expected)
+        self.assertEqual(candidate, before)
+        self.assertEqual(fixed["scenes"][1], before["scenes"][1])
+        compile_compact_design(fixed, HEADINGS, EXCERPTS)
+
+    def test_html_and_binding_failures_repair_template_and_states_together_only(self):
+        candidate = compact_design()
+        for path in (
+            "html",
+            "states/0/values",
+            "states/1/entity_classes/0",
+            "states/0/html",
+        ):
+            with self.subTest(path=path):
+                plan = self.plan(candidate, path)
+                self.assertEqual(plan["targets"]["fields"], ["html", "states"])
+                self.assertEqual(
+                    set(plan["schema"]["properties"]["changes"]["properties"]),
+                    {"html", "states"},
+                )
+                self.assertNotIn("css", plan["request"]["current_fields"])
+
+    def test_actual_compiler_error_is_repaired_with_no_rewrite_of_unaffected_fields(
+        self,
+    ):
+        candidate = compact_design()
+        candidate["scenes"][0]["states"][0]["values"].pop()
+        try:
+            compile_compact_design(candidate, HEADINGS, EXCERPTS)
+        except ValueError as error:
+            plan = plan_compact_field_repair(candidate, error, HEADINGS, EXCERPTS)
+        else:
+            self.fail("Expected a compiler error")
+        replacement = compact_design()["scenes"][0]
+        patch = {
+            "scene_index": 0,
+            "changes": {"html": replacement["html"], "states": replacement["states"]},
+        }
+        fixed = apply_compact_field_repair(candidate, patch, plan)
+        compile_compact_design(fixed, HEADINGS, EXCERPTS)
+        for field in set(candidate["scenes"][0]) - {"html", "states"}:
+            self.assertEqual(fixed["scenes"][0][field], candidate["scenes"][0][field])
+
+    def test_state_graph_repair_includes_existing_dependencies_not_new_optional_fields(
+        self,
+    ):
+        candidate = compact_design()
+        for field in (
+            "states/0/actions/0/target",
+            "initial",
+            "playback/steps",
+            "scenarios/0/steps",
+        ):
+            with self.subTest(field=field):
+                plan = self.plan(candidate, field)
+                self.assertEqual(
+                    plan["targets"]["fields"],
+                    ["states", "initial", "playback", "scenarios"],
+                )
+                self.assertNotIn("html", plan["targets"]["fields"])
+                self.assertNotIn("effects", plan["targets"]["fields"])
+                self.assertNotIn("transitions", plan["targets"]["fields"])
+        candidate["scenes"][0]["effects"] = []
+        candidate["scenes"][0]["transitions"] = []
+        self.assertEqual(
+            self.plan(candidate, "effects")["targets"]["fields"],
+            ["states", "initial", "playback", "effects", "transitions", "scenarios"],
+        )
+
+    def test_simple_known_fields_have_exact_single_field_scope(self):
+        for field in ("explanation/excerpt_ids", "heading_id", "caption", "title"):
+            with self.subTest(field=field):
+                plan = self.plan(compact_design(), field)
+                self.assertEqual(plan["targets"]["fields"], [field.split("/")[0]])
+
+    def test_unknown_global_or_out_of_range_errors_have_no_repair_plan(self):
+        errors = (
+            "invalid JSON",
+            "compact/: extra fields",
+            "compact/scenes/0: missing html",
+            "compact/scenes/9/html: invalid",
+            "compact/scenes/0/presentation: invalid",
+            "compact/scenes/0/unknown: invalid",
+            "compiled/scenes/0/states/0/html: too long",
+            "some text compact/scenes/0/css: invalid",
+        )
+        for error in errors:
+            with self.subTest(error=error):
+                self.assertIsNone(
+                    plan_compact_field_repair(
+                        compact_design(), error, HEADINGS, EXCERPTS
+                    )
+                )
+        for candidate in (
+            None,
+            {},
+            {"summary": "x", "scenes": []},
+            {"summary": "x", "scenes": [None]},
+        ):
+            with self.subTest(candidate=candidate):
+                self.assertIsNone(self.plan(candidate))
+
+    def test_extra_missing_changed_scene_or_additional_top_fields_are_rejected(self):
+        candidate = compact_design()
+        plan = self.plan(candidate)
+        css = candidate["scenes"][0]["css"]
+        patches = (
+            {"scene_index": 0, "changes": {}},
+            {"scene_index": 0, "changes": {"css": css, "html": "<p>Unrelated</p>"}},
+            {"scene_index": 1, "changes": {"css": css}},
+            {"scene_index": False, "changes": {"css": css}},
+            {"scene_index": 0, "changes": {"css": css}, "summary": "unrelated"},
+            {"patches": [{"scene_index": 0, "changes": {"css": css}}]},
+            {"scene_index": 0, "changes": None},
+        )
+        for patch in patches:
+            with self.subTest(patch=patch), self.assertRaises(ValueError):
+                apply_compact_field_repair(candidate, patch, plan)
+
+    def test_html_repair_cannot_omit_states_or_change_css(self):
+        candidate = compact_design()
+        plan = self.plan(candidate, "html")
+        for changes in (
+            {"html": "<p>Only HTML</p>"},
+            {
+                "html": candidate["scenes"][0]["html"],
+                "states": candidate["scenes"][0]["states"],
+                "css": ".scene-content {display:block}",
+            },
+        ):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                apply_compact_field_repair(
+                    candidate, {"scene_index": 0, "changes": changes}, plan
+                )
+
+    def test_explanation_repair_cannot_remove_or_replace_locked_core_entities(self):
+        candidate = compact_design()
+        plan = self.plan(candidate, "explanation/excerpt_ids")
+        self.assertEqual(plan["request"]["locked_entities"], ["request"])
+        for entities in (["different"], ["request", "another"]):
+            explanation = copy.deepcopy(candidate["scenes"][0]["explanation"])
+            explanation["key_entities"] = entities
+            with (
+                self.subTest(entities=entities),
+                self.assertRaisesRegex(ValueError, "key_entities are locked"),
+            ):
+                apply_compact_field_repair(
+                    candidate,
+                    {"scene_index": 0, "changes": {"explanation": explanation}},
+                    plan,
+                )
+        explanation = copy.deepcopy(candidate["scenes"][0]["explanation"])
+        explanation["excerpt_ids"] = ["source-1-excerpt-2"]
+        fixed = apply_compact_field_repair(
+            candidate, {"scene_index": 0, "changes": {"explanation": explanation}}, plan
+        )
+        self.assertEqual(fixed["scenes"][0]["explanation"]["key_entities"], ["request"])
+
+    def test_dynamic_schema_rejects_unknown_heading_and_excerpt_ids(self):
+        candidate = compact_design()
+        plan = self.plan(candidate, "heading_id")
+        with self.assertRaises(ValueError):
+            apply_compact_field_repair(
+                candidate,
+                {"scene_index": 0, "changes": {"heading_id": "unknown"}},
+                plan,
+            )
+        plan = self.plan(candidate, "explanation")
+        explanation = copy.deepcopy(candidate["scenes"][0]["explanation"])
+        explanation["excerpt_ids"] = ["unknown"]
+        with self.assertRaises(ValueError):
+            apply_compact_field_repair(
+                candidate,
+                {"scene_index": 0, "changes": {"explanation": explanation}},
+                plan,
+            )
+
+    def test_duplicate_json_fields_and_oversized_invalid_patch_are_rejected(self):
+        candidate = compact_design()
+        plan = self.plan(candidate)
+        for raw in (
+            '{"scene_index":0,"changes":{"css":"x","css":"y"}}',
+            "{",
+            " " * 100001,
+        ):
+            with self.subTest(raw=raw[:80]), self.assertRaises(ValueError):
+                apply_compact_field_repair(candidate, raw, plan)
+
+    def test_plans_and_applied_results_do_not_alias_candidate_or_patch(self):
+        candidate = compact_design()
+        before = copy.deepcopy(candidate)
+        plan = self.plan(candidate)
+        plan["request"]["scene_context"]["explanation"]["takeaway"] = (
+            "Request copy only"
+        )
+        self.assertEqual(candidate, before)
+        patch = {"scene_index": 0, "changes": {"css": candidate["scenes"][0]["css"]}}
+        patch_before = copy.deepcopy(patch)
+        fixed = apply_compact_field_repair(candidate, patch, plan)
+        fixed["scenes"][0]["explanation"]["takeaway"] = "Returned copy only"
+        self.assertEqual(candidate, before)
+        self.assertEqual(patch, patch_before)
 
 
 class CompactSceneTests(unittest.TestCase):
@@ -346,3 +582,100 @@ class CompactSceneTests(unittest.TestCase):
         compiled = self.compile(value)
         with self.assertRaises(ValueError):
             validate_design(json.dumps(compiled), COMPACT_BODY)
+
+
+class CompactRepairTests(unittest.TestCase):
+    def test_patch_schema_reuses_compact_scene_with_resolved_id_enums(self):
+        schema = build_compact_repair_schema(HEADINGS, EXCERPTS)
+        Draft202012Validator.check_schema(schema)
+        patch = {
+            "patches": [{"scene_index": 0, "scene": compact_design()["scenes"][0]}]
+        }
+        self.assertTrue(Draft202012Validator(schema).is_valid(patch))
+
+    def test_saved_presentation_requires_explicit_repair_schema_compatibility(self):
+        value = compact_design()["scenes"][0]
+        value["presentation"] = {
+            "layout": "flow",
+            "eyebrow": "기존",
+            "links": [{"source": "request", "target": "result", "label": "결과"}],
+        }
+        patch = {"patches": [{"scene_index": 0, "scene": value}]}
+        self.assertFalse(
+            Draft202012Validator(
+                build_compact_repair_schema(HEADINGS, EXCERPTS)
+            ).is_valid(patch)
+        )
+        schema = build_compact_repair_schema(
+            HEADINGS, EXCERPTS, allow_presentation=True
+        )
+        self.assertTrue(Draft202012Validator(schema).is_valid(patch))
+        patch["patches"][0]["scene"] = None
+        self.assertTrue(Draft202012Validator(schema).is_valid(patch))
+
+    def test_scoped_patch_preserves_summary_order_and_untouched_scenes(self):
+        original = compact_design()
+        original["scenes"].append(copy.deepcopy(original["scenes"][0]))
+        original["scenes"][1]["heading_id"] = "section_2"
+        patch_scene = copy.deepcopy(original["scenes"][0])
+        patch_scene["caption"] = "수정한 설명"
+        patch = {"patches": [{"scene_index": 0, "scene": patch_scene}]}
+        before = copy.deepcopy((original, patch))
+        repaired = apply_compact_repair(original, json.dumps(patch), {0})
+        self.assertEqual((original, patch), before)
+        self.assertEqual(repaired["summary"], original["summary"])
+        self.assertEqual(repaired["scenes"][1], original["scenes"][1])
+        self.assertEqual(repaired["scenes"][0]["caption"], "수정한 설명")
+        compile_compact_design(repaired, HEADINGS, EXCERPTS)
+        repaired["scenes"][1]["title"] = "only the returned copy changes"
+        self.assertEqual(original, before[0])
+
+    def test_missing_extra_duplicate_null_and_out_of_scope_patches_are_rejected(self):
+        scene = compact_design()["scenes"][0]
+        patches = (
+            {"patches": []},
+            {"patches": [{"scene_index": 1, "scene": scene}]},
+            {"patches": [{"scene_index": True, "scene": scene}]},
+            {"patches": [{"scene_index": 0, "scene": None}]},
+            {"patches": [{"scene_index": 0, "scene": scene, "extra": True}]},
+            {"patches": [{"scene_index": 0, "scene": scene}] * 2},
+            {
+                "patches": [{"scene_index": 0, "scene": scene}],
+                "summary": "do not change",
+            },
+        )
+        for patch in patches:
+            with (
+                self.subTest(patch=patch),
+                self.assertRaisesRegex(ValueError, "compact_repair"),
+            ):
+                apply_compact_repair(compact_design(), patch, {0})
+        for indices in ([], [0, 0], [True], [1], None):
+            with (
+                self.subTest(indices=indices),
+                self.assertRaisesRegex(ValueError, "compact_repair"),
+            ):
+                apply_compact_repair(compact_design(), {"patches": []}, indices)
+
+    def test_core_entity_ids_cannot_be_deleted_or_changed_to_escape_checks(self):
+        original = compact_design()
+        scene = copy.deepcopy(original["scenes"][0])
+        scene["explanation"]["key_entities"] = ["different"]
+        with self.assertRaisesRegex(ValueError, "key_entities are locked"):
+            apply_compact_repair(
+                original, {"patches": [{"scene_index": 0, "scene": scene}]}, {0}
+            )
+
+    def test_schema_and_compiler_still_reject_invalid_replacement_details(self):
+        original = compact_design()
+        scene = copy.deepcopy(original["scenes"][0])
+        scene["heading_id"] = "unknown-heading"
+        patch = {"patches": [{"scene_index": 0, "scene": scene}]}
+        self.assertFalse(
+            Draft202012Validator(
+                build_compact_repair_schema(HEADINGS, EXCERPTS)
+            ).is_valid(patch)
+        )
+        repaired = apply_compact_repair(original, patch, {0})
+        with self.assertRaisesRegex(ValueError, "heading_id"):
+            compile_compact_design(repaired, HEADINGS, EXCERPTS)

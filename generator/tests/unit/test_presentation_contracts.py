@@ -9,22 +9,115 @@ from copy import deepcopy
 
 from jsonschema import Draft202012Validator
 
+from generator.design.compact_repair import plan_compact_field_repair
+from generator.design.compact_scenes import compile_compact_design
+from generator.design.design_checks import inspect_scene_browsers
+from generator.design.design_inputs import resolve_review, review_choices
+from generator.design.layout_diagnostics import BrowserLayoutError
+from generator.design.prompt_examples import examples, numeric_example, select_examples
 from generator.design.scene_charts import chart_fallback_html, validate_scene_charts
+from generator.design.scene_clarity import collect_clarity_issues
 from generator.design.scene_document import clean_html, render_document, validate_design
-from generator.design.scene_motion import validate_scene_motion
+from generator.design.scene_motion import interaction_issues, validate_scene_motion
 from generator.design.scene_presentation import DIAGRAM_ICONS, validate_presentation
 from generator.design.visual_contracts import (
     DESIGN_SCHEMA,
     SCENE_PRESENTATION_SCHEMA,
     SCENE_TRANSITIONS_SCHEMA,
+    ReviewContractError,
+    is_chart_numeric_target,
+    validate_review,
 )
 from generator.tests.fixtures.design import DESIGN_BODY
 from generator.tests.fixtures.scenes import (
+    compile_prompt_example,
+    compiled_example,
     diagram_candidate,
     diagram_node,
+    entity_text,
     numeric_scene,
     presentation_scene,
 )
+
+
+class DesignExamplesClarityTests(unittest.TestCase):
+    def test_every_example_has_real_choices_and_verified_changes(self):
+        for example in examples():
+            with self.subTest(title=example["output"]["summary"]):
+                design = compile_prompt_example(example)
+                self.assertEqual(collect_clarity_issues(design, required=True), [])
+                self.assertEqual(interaction_issues(design), [])
+                scene = design["scenes"][0]
+                states = {state["id"]: state for state in scene["states"]}
+                for change in scene["change_explanations"]:
+                    for field in change["changes"]:
+                        self.assertEqual(
+                            entity_text(states[change["from"]], field["entity"]),
+                            " ".join(field["before"].split()),
+                        )
+                        self.assertEqual(
+                            entity_text(states[change["to"]], field["entity"]),
+                            " ".join(field["after"].split()),
+                        )
+                    self.assertEqual(
+                        change["reason"], states[change["to"]]["description"]
+                    )
+
+    def test_original_remains_readable_in_all_outcomes(self):
+        for example in examples():
+            scene = compile_prompt_example(example)["scenes"][0]
+            original = entity_text(scene["states"][0], "original")
+            for state in scene["states"]:
+                self.assertEqual(entity_text(state, "original"), original)
+            self.assertTrue(original)
+
+    def test_different_topics_and_compositions_are_not_renamed_cards(self):
+        bank = examples()
+        self.assertEqual(
+            {item["output"]["scenes"][0]["effects"][0]["kind"] for item in bank},
+            {"compare", "transform", "reveal"},
+        )
+        layouts = [item["output"]["scenes"][0]["html"] for item in bank]
+        self.assertIn('class="access"', layouts[0])
+        self.assertIn('<dl class="ledger">', layouts[1])
+        self.assertIn('class="shelf"', layouts[2])
+        for example in bank:
+            scene = example["output"]["scenes"][0]
+            self.assertTrue(example["example_only"])
+            self.assertIn("가상", scene["caption"])
+            self.assertIn("가상", example["input"]["source_excerpts"][0]["quote"])
+            self.assertNotIn("<button", scene["html"])
+            self.assertNotIn("presentation", scene)
+            self.assertNotIn("조건 A", json.dumps(scene, ensure_ascii=False))
+
+    def test_generic_claim_cannot_replace_actual_changed_value(self):
+        design = compile_prompt_example(examples()[0])
+        design["scenes"][0]["change_explanations"][0]["changes"][0]["after"] = (
+            "특정 필드 변경됨"
+        )
+        self.assertTrue(collect_clarity_issues(design, required=True))
+
+    def test_original_removal_and_missing_branch_explanation_are_rejected(self):
+        initial = compile_prompt_example(examples()[0])
+        for defect in ("missing_original", "missing_edge"):
+            with self.subTest(defect=defect):
+                design = copy.deepcopy(initial)
+                scene = design["scenes"][0]
+                if defect == "missing_original":
+                    scene["states"][1]["html"] = scene["states"][1]["html"].replace(
+                        'data-entity="original"', 'data-entity="replacement"'
+                    )
+                else:
+                    scene["change_explanations"].pop()
+                self.assertTrue(collect_clarity_issues(design, required=True))
+
+    def test_selection_is_small_diverse_and_returns_isolated_data(self):
+        selected = select_examples("정책 비교")
+        self.assertEqual(len(selected), 2)
+        self.assertNotEqual(selected[0]["output"], selected[1]["output"])
+        self.assertLess(len(json.dumps(selected, ensure_ascii=False)), 18000)
+        selected[0]["output"]["scenes"][0]["html"] = "mutated"
+        self.assertNotEqual(select_examples("정책 비교")[0], selected[0])
 
 
 class DiagramIntegrationTest(unittest.TestCase):
@@ -356,3 +449,136 @@ class ScenePresentationTest(unittest.TestCase):
             validator.validate([transition])
         transition["steps"][0]["kind"] = "executable"
         self.assertFalse(validator.is_valid([transition]))
+
+
+class VisualIntegrationTests(unittest.TestCase):
+    def test_numeric_example_compiles_with_clarity_and_safe_rendering(self):
+        from generator.design.scene_clarity import collect_clarity_issues
+
+        design = compiled_example(numeric_example())
+        before = copy.deepcopy(design)
+        valid = validate_design(json.dumps(design), "### 가상 조건\n설명")
+        self.assertEqual(collect_clarity_issues(valid, required=True), [])
+        self.assertEqual(design, before)
+        document = render_document(valid["scenes"][0])
+        self.assertIn("ArticleCharts", document)
+        self.assertIn("connect-src 'none'", document.replace("&#x27;", "'"))
+        self.assertNotIn('<script src="http', document)
+
+    def test_numeric_selection_is_relevant_and_does_not_replace_other_examples(self):
+        for title in ("시계열의 수치 비교", "Counter and Gauge", "메트릭 해석"):
+            chosen = select_examples(title)
+            self.assertEqual(len(chosen), 2)
+            self.assertIn("charts", chosen[0]["output"]["scenes"][0])
+            self.assertLess(len(json.dumps(chosen, ensure_ascii=False)), 18000)
+        self.assertNotIn(
+            "charts", select_examples("정책 비교")[0]["output"]["scenes"][0]
+        )
+        self.assertEqual(len(examples()), 3)
+
+    def test_chart_repairs_include_state_and_html_dependencies(self):
+        example = numeric_example()
+        original = copy.deepcopy(example["output"])
+        for field in ("charts", "states/0/actions", "html"):
+            plan = plan_compact_field_repair(
+                original,
+                ValueError(f"compact/scenes/0/{field}: invalid chart"),
+                example["input"]["headings"],
+                example["input"]["source_excerpts"],
+            )
+            self.assertIn("charts", plan["targets"]["fields"])
+            self.assertIn("states", plan["targets"]["fields"])
+        self.assertEqual(original, example["output"])
+
+    def test_review_can_identify_exact_wrong_numeric_chart_value(self):
+        example = numeric_example()
+        candidate = compiled_example(example)
+        source = example["input"]["source_excerpts"][0]
+        sections = [{"url": source["source_url"], "content": source["quote"]}]
+        choices = review_choices(candidate, sections)
+        path = "/candidate/scenes/0/charts/0/series/0/values/0"
+        target = next(
+            item for item in choices["review_targets"] if item["path"] == path
+        )
+        report = resolve_review(
+            json.dumps(
+                {
+                    "verdict": "revise",
+                    "previous_issues": [],
+                    "issues": [
+                        {
+                            "id": "I1",
+                            "target_ref": target["target_ref"],
+                            "evidence_ref": "source-1-excerpt-1",
+                            "kind": "factual",
+                            "problem": "관측 수치를 다시 확인해야 한다.",
+                            "suggestion": "제공한 가상 규칙의 첫 관측값과 대조한다.",
+                        }
+                    ],
+                }
+            ),
+            choices,
+        )
+        actual = validate_review(
+            json.dumps(report),
+            candidate=candidate,
+            inputs={"current_official_sections": sections},
+            editable_visuals=True,
+        )
+        self.assertEqual(actual["issues"][0]["path"], path)
+        report["issues"][0]["path"] = "/candidate/scenes/0/playback/interval_ms"
+        with self.assertRaises(ReviewContractError):
+            validate_review(
+                json.dumps(report),
+                candidate=candidate,
+                inputs={"current_official_sections": sections},
+            )
+
+    def test_protected_chart_css_failure_repairs_css_not_numeric_data(self):
+        example = numeric_example()
+        candidate = copy.deepcopy(example["output"])
+        candidate["scenes"][0]["css"] += (
+            ".scene-content .scene-chart-graphic{height:1px}"
+        )
+        try:
+            compile_compact_design(
+                candidate,
+                example["input"]["headings"],
+                example["input"]["source_excerpts"],
+            )
+        except ValueError as error:
+            plan = plan_compact_field_repair(
+                candidate,
+                error,
+                example["input"]["headings"],
+                example["input"]["source_excerpts"],
+            )
+        else:
+            self.fail("Generated CSS must not change trusted chart geometry")
+        self.assertEqual(plan["targets"]["fields"], ["css"])
+
+    def test_numeric_review_does_not_authorize_arbitrary_structures_or_booleans(self):
+        valid = "/candidate/scenes/0/charts/0/series/0/values/0"
+        for value in (True, False, None, [], {}, float("inf"), float("nan"), 10**1000):
+            self.assertFalse(is_chart_numeric_target(valid, value))
+        self.assertTrue(is_chart_numeric_target(valid, -2.5))
+        self.assertFalse(is_chart_numeric_target("/renderer/charts", 2))
+
+    def test_structured_layout_failure_reaches_report_and_repair_issue(self):
+        design = compiled_example(examples()[0])
+        evidence = [{"width_px": 320, "state": "read", "phase": "settled"}]
+
+        class FailingVerifier:
+            def check(self, scene, document):
+                raise BrowserLayoutError("layout diagnostic fixture", evidence)
+
+        _, reports, issues = inspect_scene_browsers(
+            design,
+            "### 가상 조건\n설명",
+            FailingVerifier(),
+        )
+        self.assertEqual(reports[0]["layout_diagnostics"], evidence)
+        self.assertEqual(issues[0]["layout_diagnostics"], evidence)
+        issues[0]["layout_diagnostics"][0]["width_px"] = 999
+        self.assertEqual(evidence[0]["width_px"], 320)
+        self.assertEqual(reports[0]["layout_diagnostics"][0]["width_px"], 320)

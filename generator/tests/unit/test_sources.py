@@ -4,16 +4,20 @@ from __future__ import annotations
 
 import copy
 import io
+import re
 import socket
 import unittest
+import xml.etree.ElementTree as ET
 from contextlib import redirect_stdout
 from unittest import mock
 
 import generator.sources.fetcher as fetcher
 from generator.contracts import GeneratedText, ModelGatewayError
+from generator.design.visual_contracts import ReviewContractError, source_sections
 from generator.sources import difficulty, topics
 from generator.sources.source_context import (
     OfficialDocumentSourceGateway,
+    as_cdata,
     supporting_candidates,
 )
 from generator.tests.fixtures.sources import (
@@ -596,3 +600,30 @@ class SupportingFetchSafetyTests(NoNetworkTests):
         self.assertFalse(actual["ok"])
         self.assertIn("robots_disallow", actual["reason"])
         self.assertEqual(self.network.call_count, 1)
+
+
+class SourceXMLTest(unittest.TestCase):
+    def test_new_and_legacy_rfc_page_breaks_keep_normalized_evidence(self):
+        source = "A page.\fNext page.\vDetails."
+        wrapped = (
+            "<document><source_url>https://www.rfc-editor.org/rfc/rfc8077</source_url>"
+            "<document_content><![CDATA[%s]]></document_content></document>"
+        )
+        for content in (source, as_cdata(source)):
+            indexed = source_sections(wrapped % content)
+            self.assertEqual(
+                re.sub(r"\s+", " ", indexed[0]["content"]),
+                re.sub(r"\s+", " ", source),
+            )
+        ET.fromstring(wrapped % as_cdata(source))
+
+    def test_invalid_non_whitespace_controls_still_fail(self):
+        with self.assertRaises(ReviewContractError):
+            source_sections("<document>broken\x00</document>")
+
+    def test_cdata_terminator_keeps_original_text(self):
+        value = "text ]]> next"
+        self.assertEqual(
+            ET.fromstring("<root><![CDATA[" + as_cdata(value) + "]]></root>").text,
+            value,
+        )

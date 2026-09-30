@@ -90,5 +90,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/workloads/",
   "kubernetes::https://kubernetes.io/docs/concepts/workloads/management/",
   "kubernetes::https://kubernetes.io/docs/concepts/",
-  "rfc-standards::rfc1123"
+  "rfc-standards::rfc1123",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/"
 ]

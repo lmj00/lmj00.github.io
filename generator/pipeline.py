@@ -9,9 +9,9 @@ from pathlib import Path
 
 from generator.contracts import (
     Article,
+    ArticleDesigner,
     LanguageModelGateway,
     ModelGatewayError,
-    Publication,
     Publisher,
     SourceGateway,
     TopicRepository,
@@ -33,6 +33,7 @@ class GeneratorPipeline:
         topic_repository: TopicRepository,
         source_gateway: SourceGateway,
         generator_dir: Path,
+        design_pipeline: ArticleDesigner | None = None,
     ) -> None:
         self._cfg = cfg
         self._load_prompt = prompt_loader
@@ -41,6 +42,7 @@ class GeneratorPipeline:
         self._topics = topic_repository
         self._sources = source_gateway
         self._generator_dir = generator_dir
+        self._design = design_pipeline
         self._review = ArticleReviewPipeline(
             model_gateway,
             prompt_loader,
@@ -49,6 +51,23 @@ class GeneratorPipeline:
 
     def run(self, forced_topic_id: str | None = None) -> int:
         cfg = self._cfg
+        if cfg.get("design_required", False):
+            if (
+                not cfg.get("review_enabled")
+                or not cfg.get("design_enabled")
+                or self._design is None
+            ):
+                print(
+                    "[실패] 필수 시각화에는 내용 검수와 디자인 단계가 필요합니다.",
+                    file=sys.stderr,
+                )
+                return 1
+            try:
+                # A missing browser must not waste paid drafting/review calls.
+                self._design.preflight()
+            except ModelGatewayError as exc:
+                print(f"[실패] {exc}", file=sys.stderr)
+                return 1
         models = self._select_models()
         topic = self._topics.select(cfg, forced_topic_id)
         if topic is None:
@@ -92,9 +111,8 @@ class GeneratorPipeline:
             sources_block=sources.prompt_context,
         )
 
-        publication = None
         try:
-            article, publication = self._generate_draft(
+            article = self._generate_draft(
                 topic,
                 hint,
                 list(sources.cite_urls),
@@ -111,17 +129,20 @@ class GeneratorPipeline:
                     writer_models=models,
                     cfg=cfg,
                 )
-                if final_article != article:
-                    self._publisher.discard(publication)
-                    publication = self._publisher.publish(final_article)
-                    article = final_article
-                    print(
-                        f"  수정 완료: {article.title} / {len(article.body)}자 "
-                        f"/ 모델 {article.model}"
+                if self._design is not None and cfg.get("design_enabled", False):
+                    final_article = self._design.enhance(
+                        final_article, sources.prompt_context, cfg
                     )
+                article = final_article
+            # No draft is written to the live Jekyll tree before review completes.
+            if cfg.get("design_required", False) and (
+                not cfg.get("review_enabled", False)
+                or not article.presentation
+                or not article.presentation.scenes
+            ):
+                raise ReviewRejectedError("필수 시각화 미통과 — 발행 보류")
+            publication = self._publisher.publish(article)
         except (ModelGatewayError, ReviewRejectedError) as exc:
-            if publication is not None:
-                self._publisher.discard(publication)
             print(f"[실패] {exc}", file=sys.stderr)
             return 1
 
@@ -153,39 +174,18 @@ class GeneratorPipeline:
         system_prompt: str,
         user_prompt: str,
         models: list[str],
-    ) -> tuple[Article, Publication]:
+    ) -> Article:
         print("LLM 생성 중(fallback 체인)...")
-        retry_tags = set(self._cfg.get("diagram_retry_tags", []))
-        diagram_worthy = bool(retry_tags & set(topic.get("tags", [])))
-        retries = self._cfg.get("diagram_retries", 0) if diagram_worthy else 0
-        if retries == 0:
-            print("  (다이어그램은 선택 사항 — 재시도 없이 1회 생성)")
-
-        for attempt in range(retries + 1):
-            generated = self._models.generate(
-                system_prompt,
-                user_prompt,
-                models,
-                purpose="초안 생성",
-            )
-            title, body = extract_title(generated.content, hint)
-            article = Article(
-                title=title,
-                body=body,
-                model=generated.model,
-                tags=tuple(topic.get("tags", [])),
-                source_urls=tuple(source_urls),
-            )
-            publication = self._publisher.publish(article)
-            if publication.has_diagram or attempt == retries:
-                mark = "O" if publication.has_diagram else "X(수용)"
-                print(
-                    f"  성공 모델: {article.model}  "
-                    f"(제목: {article.title} / {len(article.body)}자 "
-                    f"/ 다이어그램 {mark})"
-                )
-                return article, publication
-            print(f"  다이어그램 없음(시도 {attempt + 1}/{retries + 1}) → 재생성")
-            self._publisher.discard(publication)
-
-        raise RuntimeError("생성 결과 파일을 찾을 수 없습니다.")
+        generated = self._models.generate(
+            system_prompt, user_prompt, models, purpose="초안 생성"
+        )
+        title, body = extract_title(generated.content, hint)
+        # D2 rendering belongs to final publication. Do not publish a draft merely
+        # to detect a missing diagram and then delete it for a generation retry.
+        return Article(
+            title=title,
+            body=body,
+            model=generated.model,
+            tags=tuple(topic.get("tags", [])),
+            source_urls=tuple(source_urls),
+        )

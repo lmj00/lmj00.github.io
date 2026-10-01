@@ -36,12 +36,27 @@ jobs:
         working-directory: generator
         run: pip install -r requirements.txt
 
-      - name: Generate post
+      - name: Install design validation browser
         working-directory: generator
+        run: python -m playwright install --with-deps chromium
+
+      - name: Test generator
+        run: |
+          python -m unittest discover -s generator/tests/unit -t . -q -b
+          python -m unittest discover -s generator/tests/integration -t . -q -b
+
+      - name: Test design browser
+        env:
+          DESIGN_BROWSER_TESTS: "1"
+        run: |
+          python -c "from generator.design.design_browser import BrowserSceneVerifier; BrowserSceneVerifier().preflight()"
+          python -m unittest discover -s generator/tests/browser -t . -q -b
+
+      - name: Generate post
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           FORCE_TOPIC_ID: ${{ github.event.inputs.topic_id }}
-        run: python main.py
+        run: python -m generator
 
       - name: Commit new post
         id: commit
@@ -50,6 +65,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add _posts/ai-notes/ generator/state/topics_done.json
           git add assets/diagrams/ 2>/dev/null || true   # 다이어그램 없는 날 대비
+          if [ -d assets/generated/designs ]; then
+            git add assets/generated/designs/
+          fi
           if git diff --staged --quiet; then
             echo "새 글 없음 — 커밋/배포 생략"
             echo "committed=false" >> "$GITHUB_OUTPUT"

@@ -1,36 +1,51 @@
 """생성된 본문 → Jekyll 포스트 파일(.md) 작성."""
+
 from __future__ import annotations
 
+import datetime as dt
 import os
 import re
 import subprocess
 import tempfile
-import datetime as dt
 from pathlib import Path
 
 from generator.paths import GENERATOR_DIR as HERE
+
 OUT_DIR = HERE.parent / "_posts" / "ai-notes"
 ASSETS_DIR = HERE.parent / "assets" / "diagrams"
 
 _D2_BLOCK = re.compile(r"```d2\s*\n(.*?)```", re.DOTALL)
 
-# 다이어그램 스타일. main에서 sources.json 설정으로 덮어씀.
-D2_FLAGS = ["--theme=3", "--sketch", "--pad=40"]
+# 기본값은 불변이다. 발행기별 설정은 호출 인자로 전달한다.
+DEFAULT_D2_FLAGS = ("--theme=3", "--sketch", "--pad=40")
 
 
-def _render_one_d2(src: str, slug: str, idx: int) -> str | None:
+def _render_one_d2(
+    src: str,
+    slug: str,
+    idx: int,
+    assets_dir: Path | None = None,
+    *,
+    d2_flags: tuple[str, ...] = DEFAULT_D2_FLAGS,
+) -> str | None:
     """d2 소스 하나를 SVG로 렌더링. 성공 시 이미지 마크다운, 실패 시 None(제거)."""
-    ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+    assets_dir = assets_dir if assets_dir is not None else ASSETS_DIR
+    assets_dir.mkdir(parents=True, exist_ok=True)
     svg_name = f"{slug}-{idx}.svg"
-    svg_path = ASSETS_DIR / svg_name
+    svg_path = assets_dir / svg_name
     tmp = None
     try:
-        with tempfile.NamedTemporaryFile("w", suffix=".d2", delete=False,
-                                         encoding="utf-8") as tf:
+        with tempfile.NamedTemporaryFile(
+            "w", suffix=".d2", delete=False, encoding="utf-8"
+        ) as tf:
             tf.write(src)
             tmp = tf.name
-        r = subprocess.run(["d2", *D2_FLAGS, tmp, str(svg_path)],
-                           capture_output=True, text=True, timeout=60)
+        r = subprocess.run(
+            ["d2", *d2_flags, tmp, str(svg_path)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
         if r.returncode != 0:
             print(f"  [d2] 블록 {idx} 렌더 실패 → 제거: {r.stderr.strip()[:120]}")
             return None
@@ -49,7 +64,12 @@ def _render_one_d2(src: str, slug: str, idx: int) -> str | None:
 def _is_table_sep(line: str) -> bool:
     """표 구분선인지 (| : - — – 공백 으로만 이뤄지고 대시와 파이프 포함)."""
     s = line.strip()
-    return bool(s) and set(s) <= set("|:-—– \t") and "|" in s and any(c in s for c in "-—–")
+    return (
+        bool(s)
+        and set(s) <= set("|:-—– \t")
+        and "|" in s
+        and any(c in s for c in "-—–")
+    )
 
 
 def normalize_markdown(body: str) -> str:
@@ -71,11 +91,17 @@ def normalize_markdown(body: str) -> str:
     return "\n".join(out)
 
 
-def render_d2_blocks(body: str, slug: str) -> str:
+def render_d2_blocks(
+    body: str,
+    slug: str,
+    assets_dir: Path | None = None,
+    *,
+    d2_flags: tuple[str, ...] = DEFAULT_D2_FLAGS,
+) -> str:
     """본문의 ```d2 블록을 렌더링한 SVG 이미지로 치환. 실패한 블록은 제거."""
     matches = list(_D2_BLOCK.finditer(body))
     for i, m in enumerate(matches, 1):
-        replacement = _render_one_d2(m.group(1), slug, i)
+        replacement = _render_one_d2(m.group(1), slug, i, assets_dir, d2_flags=d2_flags)
         if replacement is None:
             replacement = ""
         body = body.replace(m.group(0), replacement, 1)
@@ -90,8 +116,9 @@ def _slugify(text: str) -> str:
     return text[:60] or "post"
 
 
-def _frontmatter(title: str, when: dt.datetime, model: str, tags: list[str],
-                 source_urls: list[str]) -> str:
+def _frontmatter(
+    title: str, when: dt.datetime, model: str, tags: list[str], source_urls: list[str]
+) -> str:
     tag_str = ", ".join(tags)
     src_yaml = "\n".join(f"  - {u}" for u in source_urls)
     # 같은 날 여러 글도 순서가 유지되도록 시간+타임존까지 기록
@@ -123,21 +150,34 @@ def _footer(model: str, source_urls: list[str]) -> str:
     )
 
 
-def write_post(title: str, body: str, model: str, tags: list[str],
-               source_urls: list[str], when: dt.datetime | None = None) -> Path:
+def write_post(
+    title: str,
+    body: str,
+    model: str,
+    tags: list[str],
+    source_urls: list[str],
+    when: dt.datetime | None = None,
+    out_dir: Path | None = None,
+    assets_dir: Path | None = None,
+    *,
+    d2_flags: tuple[str, ...] = DEFAULT_D2_FLAGS,
+) -> Path:
     # KST 기준 현재 시각(시간 포함) — 같은 날 여러 글의 순서 보존
     when = when or dt.datetime.now(tz=dt.timezone(dt.timedelta(hours=9)))
     date_str = when.date().isoformat()
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir = out_dir if out_dir is not None else OUT_DIR
+    output_dir.mkdir(parents=True, exist_ok=True)
     slug = _slugify(title)
     filename = f"{date_str}-{slug}.md"
-    path = OUT_DIR / filename
+    path = output_dir / filename
 
     # 마크다운 실수 교정 후, ```d2 블록을 SVG로 렌더링해 이미지로 치환
     body = normalize_markdown(body)
-    body = render_d2_blocks(body, f"{date_str}-{slug}")
+    body = render_d2_blocks(body, f"{date_str}-{slug}", assets_dir, d2_flags=d2_flags)
 
-    top_badge = "> 🤖 이 글은 공식문서를 근거로 **AI가 자동 생성**한 학습 노트입니다.\n\n"
+    top_badge = (
+        "> 🤖 이 글은 공식문서를 근거로 **AI가 자동 생성**한 학습 노트입니다.\n\n"
+    )
     content = (
         _frontmatter(title, when, model, tags, source_urls)
         + "\n"

@@ -8,38 +8,58 @@ layout: default
   {% assign empty_array = '' | split: '' %}
 
   {% for post in posts %}
+    {% unless post.categories contains 'ai-notes' %}
     {% if post.modified_date %}
       {% assign empty_array = empty_array | push: post %}
     {% endif %}
+    {% endunless %}
   {% endfor %}
 
   {% assign empty_array = empty_array | sort:'modified_date' | reverse %}
 
-    <ul class="recent-ul">
-      <h3 class="recent-h">최근 변경된 문서</h3>
-
-      {% for recent in empty_array limit: 10 %}
-        <li id="recent-li">
-          <span class="post-meta">
-            {{ recent.modified_date }} -
-          </span>
-          <a href="{{ recent.url }}">
+  <aside class="home-updates" aria-label="문서 소식">
+    <section class="recent-ul" aria-label="최근 변경된 문서">
+      <h3 class="home-update-heading">최근 변경된 문서</h3>
+      <ul class="home-update-list">
+      {% for recent in empty_array limit: 5 %}
+        <li>
+          <time class="post-meta" datetime="{{ recent.modified_date | date: '%Y-%m-%d' }}">{{ recent.modified_date | date: '%Y-%m-%d' }}</time>
+          <a href="{{ recent.url | relative_url }}">
             {{ recent.title | escape }}
           </a>
         </li>
       {% endfor %}
+      </ul>
 
-      <h4 id="recent-h4" class="recent-h">
-        <a href="/recent">
-          변경된 전체 문서 ({{ empty_array.size }})
-        </a>
-      </h4>
-    </ul>
+      <a class="home-update-more" href="{{ '/recent/' | relative_url }}">변경된 전체 문서 ({{ empty_array.size }})</a>
+    </section>
+
+    {% assign ai_posts = site.categories['ai-notes'] %}
+    {% if ai_posts.size > 0 %}
+    <section class="home-ai-notes" aria-labelledby="ai-notes-heading">
+      <h3 id="ai-notes-heading" class="home-update-heading">AI 생성 학습 노트</h3>
+      <ul class="home-update-list">
+        {% for post in ai_posts limit: 3 %}
+        <li>
+          <time class="post-meta" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y-%m-%d' }}</time>
+          <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      <a class="home-update-more" href="{{ '/category/ai-notes' | relative_url }}">AI 학습 노트 전체 보기 ({{ ai_posts.size }})</a>
+    </section>
+    {% endif %}
+  </aside>
 
   {% if site.paginate %}
     {% assign posts = paginator.posts %}
   {% else %}
-    {% assign posts = site.posts %}
+    {% assign posts = '' | split: '' %}
+    {% for post in site.posts %}
+      {% unless post.categories contains 'ai-notes' %}
+        {% assign posts = posts | push: post %}
+      {% endunless %}
+    {% endfor %}
   {% endif %}
 
   {%- if posts.size > 0 -%}

@@ -8,9 +8,11 @@ permalink: recent/
 
 
 {% for post in posts %}
+  {% unless post.categories contains 'ai-notes' %}
   {% if post.modified_date %}
     {% assign empty_array = empty_array | push: post %}
   {% endif %}
+  {% endunless %}
 {% endfor %}
 
 {% assign empty_array = empty_array | sort:'modified_date' | reverse %}

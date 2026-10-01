@@ -17,6 +17,54 @@
   --soft:        rgba(255, 255, 255, .05);
 }
 
+// 홈의 자동 생성 글은 별도 소식 목록으로 모은다.
+.home { display: flex; flex-direction: column; }
+.home-updates {
+  order: 1;
+  margin-bottom: 2rem;
+  font-size: .875rem;
+  overflow-wrap: anywhere;
+  .home-update-heading {
+    margin: 0;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .home-update-list { margin: .75rem 0; padding: 0; list-style: none; }
+  .home-update-list li {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: .625rem;
+    align-items: baseline;
+    padding: .4rem 0;
+    line-height: 1.6;
+  }
+  .post-meta { font-size: .7rem; white-space: nowrap; }
+  .home-update-more { display: inline-block; padding: .25rem 0; font-size: .8rem; line-height: 1.5; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+}
+.home-ai-notes {
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--border);
+}
+@media screen and (min-width: 1351px) {
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 270px;
+    column-gap: 24px;
+    width: calc(100% + 294px);
+    align-items: start;
+    > .post-list, > .post-list-heading, > .pager { grid-column: 1; }
+  }
+  .home-updates {
+    order: 0;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    .recent-ul { position: static; margin: 0 0 1.5rem; }
+  }
+}
+
 // ── 배경 분위기: 은은한 상단 파란 광 + 미세 그리드 ────────
 body {
   background-color: var(--bg);

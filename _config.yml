@@ -68,6 +68,15 @@ future: true
 paginate: 8
 paginate_path: "/page:num/"
 
+# jekyll-paginate는 hidden 글을 페이지 계산에서 제외한다.
+# 글 URL과 ai-notes 카테고리 목록은 그대로 발행한다.
+defaults:
+  - scope:
+      path: "_posts/ai-notes"
+      type: posts
+    values:
+      hidden: true
+
 permalink: /:categories/:title
 
 # 생성기는 사이트 빌드 대상에서 제외 (LLM 스크립트는 Jekyll이 렌더링하지 않음)

@@ -8,9 +8,9 @@ import os
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from generator.design.design_browser import BrowserSceneVerifier
+from generator.design.design_browser import BrowserSceneVerifier, SCENE_HEIGHT_LIMIT_PX
 from generator.design.prompt_examples import examples, numeric_example
-from generator.design.scene_document import render_document, validate_design
+from generator.design.scene_document import render_document, state_paths, validate_design
 from generator.paths import PROJECT_ROOT
 from generator.tests.fixtures.design import DESIGN_BODY, design_candidate
 from generator.tests.fixtures.scenes import (
@@ -465,6 +465,43 @@ class SceneEffectsBrowserTest(unittest.TestCase):
 
 @unittest.skipUnless(os.getenv("DESIGN_BROWSER_TESTS"), "Opt-in Chromium integration")
 class VisualIntegrationBrowserTests(unittest.TestCase):
+    def test_mobile_numeric_table_has_height_headroom_in_every_state(self):
+        from playwright.sync_api import sync_playwright
+
+        scene = compiled_example(numeric_example())["scenes"][0]
+        verifier = BrowserSceneVerifier()
+        paths = state_paths(scene)
+        with sync_playwright() as playwright:
+            browser = verifier._launch(playwright)
+            try:
+                with verifier._scene_page(
+                    browser, render_document(scene), [], [], reduced_motion="reduce"
+                ) as (page, frame):
+                    page.set_viewport_size({"width": 336, "height": 1200})
+                    frame.locator("#scene-content[data-state]").wait_for(state="attached")
+                    for state in scene["states"]:
+                        with self.subTest(state=state["id"]):
+                            frame.locator("#scene-reset").click()
+                            for index in paths[state["id"]]:
+                                frame.locator(f'button[data-action="{index}"]').click()
+                            summary = frame.locator(".scene-chart-details > summary")
+                            summary.focus()
+                            summary.press("Enter")
+                            table = frame.locator(".scene-chart-table")
+                            self.assertTrue(table.is_visible())
+                            verifier._check_text_visibility(table, "수치 차트 표")
+                            height = frame.locator("body").evaluate("el => el.scrollHeight")
+                            # This fixed example must not sit on the publication limit:
+                            # CI and local fonts can differ by a line of rendered text.
+                            self.assertLessEqual(height, SCENE_HEIGHT_LIMIT_PX - 30)
+                            self.assertEqual(table.locator("tbody tr").count(), 3)
+                            self.assertGreaterEqual(
+                                frame.locator("#scene-reset").bounding_box()["height"], 44
+                            )
+                            summary.press("Enter")
+            finally:
+                browser.close()
+
     def test_distinct_numeric_policy_and_storage_compositions(self):
         from generator.design.design_browser import BrowserSceneVerifier
 

@@ -311,6 +311,18 @@ BASE_CSS = """
 .scene-transfer-token{position:absolute;z-index:11;max-width:min(11rem,70%);padding:5px 10px;border:1px solid #ffb86b;border-radius:5px;background:#0c0e12;color:#ffb86b;font:600 13px/1.5 ui-monospace,monospace;white-space:normal;overflow-wrap:anywhere;text-align:center;translate:-50% -50%;box-shadow:0 3px 16px #0c0e12;pointer-events:none}
 body:not(.diagram-scene) span[data-icon]{display:inline-flex;width:28px;height:28px;vertical-align:middle;color:#79b8ff;flex-shrink:0}body:not(.diagram-scene) span[data-icon] svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:400px){body{padding:14px}}
+/* Leave room for platform font metrics when mobile readers expand chart tables.
+   Keep text, chart geometry and 44px controls intact; diagram presets stay separate. */
+@media(max-width:400px){
+body:not(.diagram-scene):has(.scene-chart){padding-block:10px}
+body:not(.diagram-scene):has(.scene-chart) .scene-caption{margin-bottom:10px}
+body:not(.diagram-scene):has(.scene-chart) #scene-scenarios{margin-bottom:10px}
+body:not(.diagram-scene):has(.scene-chart) .scene-change-summary{margin-top:12px;padding-top:8px}
+body:not(.diagram-scene):has(.scene-chart) .scene-change-summary h3{margin-bottom:6px}
+body:not(.diagram-scene):has(.scene-chart) .scene-change-row{padding-block:6px}
+body:not(.diagram-scene):has(.scene-chart) .scene-change-reason{margin-block:8px}
+body:not(.diagram-scene):has(.scene-chart) #scene-playback{margin-top:8px}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 """
 

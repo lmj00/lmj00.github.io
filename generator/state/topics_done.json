@@ -93,5 +93,6 @@
   "rfc-standards::rfc1123",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors/",
-  "postgresql::https://www.postgresql.org/docs/current/managing-databases.html"
+  "postgresql::https://www.postgresql.org/docs/current/managing-databases.html",
+  "prometheus::https://prometheus.io/docs/introduction/design-doc/"
 ]

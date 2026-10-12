@@ -53,10 +53,26 @@ jobs:
           python -m unittest discover -s generator/tests/browser -t . -q -b
 
       - name: Generate post
+        id: generate_post
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           FORCE_TOPIC_ID: ${{ github.event.inputs.topic_id }}
         run: python -m generator
+
+      - name: Upload design failure diagnostics
+        if: ${{ failure() && steps.generate_post.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-failure-${{ github.run_id }}-${{ github.run_attempt }}
+          # Upload diagnostic metadata only; do not include .env or raw model content.
+          path: |
+            generator/.design-runs/**/result.json
+            generator/.design-runs/**/usage.json
+            generator/.design-runs/**/provenance.json
+            generator/.design-runs/**/*-progress.jsonl
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Commit new post
         id: commit

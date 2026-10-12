@@ -109,7 +109,18 @@ class _DesignRun:
                 "artifact": artifact,
                 **{
                     key: event[key]
-                    for key in ("model", "status", "usage", "format_retry")
+                    for key in (
+                        "model",
+                        "status",
+                        "usage",
+                        "format_retry",
+                        "http_status",
+                        "upstream_error",
+                        "error",
+                        "progress",
+                        "first_content_timeout_seconds",
+                    )
+                    if key in event
                 },
             }
         )

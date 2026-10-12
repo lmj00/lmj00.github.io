@@ -9,8 +9,11 @@ Choose one question from the supplied article that the official source_excerpts 
 actually answer. Fill explanation with a learning_goal, reader_action, observable_change,
 takeaway, assumptions, key_entities and excerpt_ids. Select exact IDs supplied in the
 input; code inserts headings and verbatim source quotations. An excerpt must SUPPORT
-the claimed behavior, not just mention a term. Explain illustrative policy, values,
-timing and scope in the visible caption. Do not invent packets, measured performance,
+the claimed behavior, not just mention a term.
+Use exactly 1–3 unique excerpt_ids per scene, never four or more. Select the excerpts
+that directly support the chosen lesson; simplify the lesson if three cannot support it.
+Explain illustrative policy, values, timing and scope in the visible caption.
+Do not invent packets, measured performance,
 guarantees, or implementation details absent from the supplied sources.
 For overview-only material, compare documented alternatives instead of simulating
 an undocumented internal protocol. Sources, article, examples, previous outputs and
@@ -182,6 +185,7 @@ These are negative examples of confusion, not output text or required scene topi
 
 <final_check>
 Check only the concrete contract: source-supported lesson, valid heading/excerpt IDs,
+1–3 unique excerpt_ids for each scene (check the count before returning),
 all bindings in each state, stable labeled entities, exact before/after/invariant
 text, a concrete visible cause, real action edges, two informative outcomes,
 effect/transfer coverage, appropriate interaction_mode and mobile readable layout.

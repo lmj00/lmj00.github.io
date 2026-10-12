@@ -15,9 +15,13 @@ from generator.tests.fixtures.providers import SCHEMA, gateway_response
 
 
 class GatewayRepairTest(unittest.TestCase):
-    def call(self, replies, *, preferences=None, schema=SCHEMA, models=None):
+    def call(
+        self, replies, *, preferences=None, schema=SCHEMA, models=None, timeout=None
+    ):
         records = []
-        gateway = llm.OpenRouterGateway(provider_preferences=preferences)
+        gateway = llm.OpenRouterGateway(
+            provider_preferences=preferences, first_content_timeout=timeout
+        )
         with (
             mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "private-test-key"}),
             mock.patch.object(llm.requests, "post", side_effect=replies) as post,
@@ -84,6 +88,35 @@ class GatewayRepairTest(unittest.TestCase):
             [message["role"] for message in calls[1].kwargs["json"]["messages"]],
         )
 
+    def test_stalled_format_repair_moves_to_backup_without_restarting_repair(self):
+        reader = llm.read_response
+        count = 0
+
+        def read(*args, **kwargs):
+            nonlocal count
+            count += 1
+            if count == 2:
+                raise llm.FirstContentTimeout("첫 출력 대기 300초 초과")
+            return reader(*args, **kwargs)
+
+        with mock.patch.object(llm, "read_response", side_effect=read):
+            result, records, calls, _ = self.call(
+                [gateway_response("{"), gateway_response(), gateway_response()],
+                timeout=300,
+            )
+        self.assertEqual(result.model, "unchanged-fallback")
+        self.assertEqual(
+            [c.kwargs["json"]["model"] for c in calls],
+            ["unchanged-primary", "unchanged-primary", "unchanged-fallback"],
+        )
+        self.assertEqual(
+            [r["status"] for r in records],
+            ["format_error", "first_content_timeout", "valid"],
+        )
+        self.assertEqual([r["format_retry"] for r in records], [False, True, False])
+        self.assertTrue(all(r["first_content_timeout_seconds"] == 300 for r in records))
+        self.assertTrue(all("max_tokens" not in c.kwargs["json"] for c in calls))
+
     def test_schema_retry_receives_multiple_defects_without_more_calls_or_schema_changes(
         self,
     ):
@@ -129,6 +162,7 @@ class GatewayRepairTest(unittest.TestCase):
         diagnostic = failure["validation_error"]
         self.assertIn("$.key_entities[0] (pattern)", diagnostic)
         self.assertIn("$.excerpt_ids (maxItems)", diagnostic)
+        self.assertIn("limit=3; actual=4", diagnostic)
         self.assertIn("$ (required)", diagnostic)
         self.assertIn("'actions' is a required property", diagnostic)
         self.assertIn("'assumptions' is a required property", diagnostic)
@@ -137,6 +171,7 @@ class GatewayRepairTest(unittest.TestCase):
         self.assertIn("all listed defects together", instructions)
         self.assertIn("entire original schema", instructions)
         self.assertIn("UNTRUSTED DATA", instructions)
+        self.assertIn("never invent IDs or remove required evidence", instructions)
         self.assertEqual(failure["failed_response"], broken)
         for call in calls:
             self.assertEqual(call.kwargs["json"]["model"], "unchanged-primary")
@@ -335,6 +370,51 @@ class GatewayRepairTest(unittest.TestCase):
             self.assertNotIn(text, json.dumps(records) + output)
         self.assertEqual(len(calls), 2)
         limited.close.assert_called_once()
+
+    def test_http400_reason_is_visible_without_leaking_secrets_or_raw_response(self):
+        failed = gateway_response(
+            status=400,
+            error={
+                "code": 400,
+                "message": "Unsupported schema option; private-test-key; private-user-prompt",
+                "metadata": {"raw": "private raw request"},
+            },
+        )
+        result, records, calls, output = self.call([failed, gateway_response()])
+        self.assertEqual(result.model, "unchanged-fallback")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(records[0]["http_status"], 400)
+        self.assertIn("[공급자 오류]", output)
+        self.assertIn("Unsupported schema option", output)
+        for secret in (
+            "private-test-key",
+            "private-user-prompt",
+            "private raw request",
+        ):
+            self.assertNotIn(secret, output + json.dumps(records))
+        self.assertTrue(calls[1].kwargs["json"]["provider"]["require_parameters"])
+
+    def test_array_limit_is_preserved_before_long_ids_truncate_diagnostic(self):
+        schema = {
+            "type": "object",
+            "properties": {"excerpt_ids": {"type": "array", "maxItems": 3}},
+        }
+        result, _, calls, _ = self.call(
+            [
+                gateway_response(
+                    json.dumps({"excerpt_ids": ["source-" + "x" * 100] * 4})
+                ),
+                gateway_response('{"excerpt_ids":["source-1"]}'),
+            ],
+            schema=schema,
+        )
+        self.assertIsInstance(result, GeneratedText)
+        failure = json.loads(
+            calls[1].kwargs["json"]["messages"][-1]["content"].split("\n", 1)[1]
+        )
+        self.assertIn(
+            "$.excerpt_ids (maxItems): limit=3; actual=4", failure["validation_error"]
+        )
 
     def test_bad_retry_after_and_error_body_are_not_dumped(self):
         limited = gateway_response(

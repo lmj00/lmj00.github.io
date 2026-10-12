@@ -77,6 +77,52 @@ class CompactPipelineTest(unittest.TestCase):
             self.assertTrue((run / "provenance.json").exists())
             verifier.check.assert_called_once()
 
+    def test_failed_run_usage_keeps_safe_diagnostics_without_model_content(self):
+        with tempfile.TemporaryDirectory() as directory:
+            models, verifier = mock.Mock(), mock.Mock()
+
+            def fail(*args, **kwargs):
+                kwargs["on_attempt"](
+                    {
+                        "model": "writer",
+                        "status": "request_error",
+                        "format_retry": False,
+                        "http_status": 400,
+                        "upstream_error": {
+                            "code": "400",
+                            "message": "Unsupported option",
+                        },
+                        "first_content_timeout_seconds": 300,
+                        "error": "HTTPError HTTP 400",
+                        "content": "raw model response not for the diagnostic artifact",
+                    }
+                )
+                raise ModelGatewayError("HTTP 400")
+
+            models.complete_json.side_effect = fail
+            app = ArticleDesignPipeline(
+                models, load_prompt, verifier, base_dir=Path(directory)
+            )
+            config = self.cfg()
+            config["design_max_revisions"] = 0
+            with self.assertRaises(ModelGatewayError):
+                app.enhance(
+                    Article("정책", COMPACT_BODY, "original", (), ()),
+                    COMPACT_SOURCES,
+                    config,
+                )
+            run = next(Path(directory).glob(".design-runs/*"))
+            usage = json.loads((run / "usage.json").read_text())
+            self.assertEqual(
+                usage[0]["upstream_error"]["message"], "Unsupported option"
+            )
+            self.assertEqual(usage[0]["http_status"], 400)
+            self.assertEqual(usage[0]["first_content_timeout_seconds"], 300)
+            self.assertNotIn("content", usage[0])
+            self.assertEqual(
+                json.loads((run / "result.json").read_text())["status"], "held"
+            )
+
     def test_review_failure_repairs_only_compact_scene_then_rechecks(self):
         with tempfile.TemporaryDirectory() as directory:
             models, verifier = mock.Mock(), mock.Mock()

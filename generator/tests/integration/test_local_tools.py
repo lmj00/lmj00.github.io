@@ -371,6 +371,28 @@ class LocalProfileTest(unittest.TestCase):
             self.assertEqual(used["design_model_fallback"][0], "qwen/qwen3.8-flash")
             self.assertEqual(config, self.config())
 
+    def test_automated_cli_enables_first_content_deadline_from_config(self):
+        for configured in (None, 480):
+            with self.subTest(seconds=configured):
+                config = self.config()
+                if configured is not None:
+                    config["design_first_content_timeout_seconds"] = configured
+                with (
+                    mock.patch.object(main_main, "load_dotenv"),
+                    mock.patch.object(main_main, "load_config", return_value=config),
+                    mock.patch.object(main_main, "OpenRouterGateway") as gateway,
+                    mock.patch.object(main_main, "JekyllPublisher"),
+                    mock.patch.object(main_main, "GeneratorPipeline") as pipeline,
+                ):
+                    pipeline.return_value.run.return_value = 0
+                    self.assertEqual(main_main.main([]), 0)
+                    gateway.assert_called_once_with(
+                        first_content_timeout=configured or 300
+                    )
+                    self.assertIsNone(
+                        pipeline.call_args.kwargs["cfg"]["design_max_tokens"]
+                    )
+
     def test_design_only_preview_reuses_body_and_retains_review_pipeline(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -102,7 +102,9 @@ def main(argv=None) -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
-    gateway_options = {}
+    gateway_options = {
+        "first_content_timeout": cfg.get("design_first_content_timeout_seconds", 300)
+    }
     if deadline is not None:
         gateway_options["first_content_timeout"] = deadline
     if cfg.get("design_provider_preferences"):

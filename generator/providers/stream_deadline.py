@@ -1,4 +1,4 @@
-"""첫 유효 출력 전까지만 적용하는 로컬 스트림 대기 제한.
+"""첫 유효 출력 전까지만 적용하는 스트림 대기 제한.
 
 읽기 스레드가 응답을 소유한다. deadline 만료 시 호출자는 즉시 다음 후보로 진행하며,
 읽기 스레드는 다음 수신/소켓 타임아웃에 응답을 닫는다. 공급자 과금 취소를 보장하지 않는다.
@@ -29,7 +29,7 @@ def deadline_chunks(response, observation, seconds):
 
     def receive():
         try:
-            # Small reads expose keepalives promptly; only local opt-in uses this.
+            # Small reads expose keepalives promptly even before a complete SSE event.
             for chunk in response.iter_content(chunk_size=1):
                 if stopped.is_set():
                     break
@@ -45,7 +45,7 @@ def deadline_chunks(response, observation, seconds):
             finally:
                 send("done", None)
 
-    worker = Thread(target=receive, name="local-design-stream", daemon=True)
+    worker = Thread(target=receive, name="design-stream", daemon=True)
     worker.start()
     try:
         while True:

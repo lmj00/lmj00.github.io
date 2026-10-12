@@ -47,6 +47,8 @@
   "_supporting_documents_note": "원본 공식 문서 본문에서 주제와 관련된 동일 출처 상세 문서만 최대 2개 보강한다. 재귀 탐색하지 않으며 안전하지 않거나 가져올 수 없는 링크는 제외한다. 0이면 기존 단일 출처 방식이다.",
   "_design_generation_note": "글별 HTML/CSS를 한 번 생성하고 상태별 값만 전달한다. 제목/인용/검수 위치는 제공된 ID로 선택하며 원문은 코드가 삽입한다. legacy는 이전 생성 계약 비교용이며 저장된 후보는 그대로 재개할 수 있다.",
   "design_provider_preferences": {},
+  "design_first_content_timeout_seconds": 300,
+  "_design_first_content_note": "구조화 API 요청마다 첫 유효 결과가 300초 동안 없으면 다음 후보로 전환한다. 연결 유지·공백·추론은 결과로 세지 않는다. 출력이 시작된 뒤의 총 생성 시간과 출력 토큰은 제한하지 않는다.",
   "_design_provider_note": "모델은 유지한다. 필요하면 sort: latency 또는 throughput으로 같은 모델의 공급자 선택을 실험한다. 기본은 기존 라우팅을 유지하며 실제 공급자/사용량을 기록한다.",
   "_design_interaction_note": "본문당 최소 한 장면은 근거 있는 전달·조건 비교·값 변환·상세 펼치기와 서로 다른 결과 선택을 포함한다. 단순 테두리 변경은 인정하지 않는다. 의미 있는 조작을 만들 수 없으면 발행을 보류한다. 기존 글/저장된 미리보기는 변경하지 않는다.",
   "design_model_fallback": ["deepseek/deepseek-v4-flash-0731", "qwen/qwen3.8-flash"],

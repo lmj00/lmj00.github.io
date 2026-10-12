@@ -373,7 +373,7 @@ class DeadlineTest(unittest.TestCase):
             [r["status"] for r in records], ["first_content_timeout", "valid"]
         )
         self.assertTrue(all(not r["format_retry"] for r in records))
-        self.assertEqual(records[0]["local_first_content_timeout_seconds"], 120)
+        self.assertEqual(records[0]["first_content_timeout_seconds"], 120)
         for call in post.call_args_list:
             self.assertNotIn("max_tokens", call.kwargs["json"])
             self.assertNotIn("first_content_timeout", call.kwargs["json"])

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Collection
 
 import generator.sources.catalog as catalog
 import generator.sources.dedup as dedup
@@ -47,11 +48,20 @@ def pick_balanced(undone: list[dict], cfg: dict, *, gateway=None) -> dict:
 
 
 def select_topic(
-    cfg: dict, forced_id: str | None = None, *, gateway=None
+    cfg: dict,
+    forced_id: str | None = None,
+    *,
+    gateway=None,
+    excluded_ids: Collection[str] = (),
 ) -> dict | None:
     """수동 주제를 우선하고, 없으면 공식문서 카탈로그에서 선택한다."""
+    excluded = set(excluded_ids)
     topic = dedup.pick_next_topic(
-        cfg.get("topics", []),
+        [
+            item
+            for item in cfg.get("topics", [])
+            if forced_id or item["id"] not in excluded
+        ],
         forced_id=forced_id,
     )
     if topic is not None:
@@ -65,7 +75,11 @@ def select_topic(
             (candidate for candidate in pool if candidate["id"] == forced_id), None
         )
     done = set(dedup.load_done())
-    undone = [candidate for candidate in pool if candidate["id"] not in done]
+    undone = [
+        candidate
+        for candidate in pool
+        if candidate["id"] not in done and candidate["id"] not in excluded
+    ]
     print(f"  전체 후보 {len(pool)}개 / 미생성 {len(undone)}개")
     return pick_balanced(undone, cfg, gateway=gateway) if undone else None
 
@@ -79,8 +93,16 @@ class CatalogTopicRepository:
         self._record_done = record_done
         self._gateway = gateway
 
-    def select(self, cfg: dict, forced_id: str | None = None) -> dict | None:
-        return select_topic(cfg, forced_id, gateway=self._gateway)
+    def select(
+        self,
+        cfg: dict,
+        forced_id: str | None = None,
+        *,
+        excluded_ids: Collection[str] = (),
+    ) -> dict | None:
+        return select_topic(
+            cfg, forced_id, gateway=self._gateway, excluded_ids=excluded_ids
+        )
 
     def mark_done(self, topic_id: str) -> None:
         if self._record_done:

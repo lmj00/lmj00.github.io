@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import copy
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -373,6 +376,211 @@ class GeneralAutomationTest(unittest.TestCase):
             candidate={"caption": "주장"},
             inputs={"current_official_sections": sections},
         )
+
+
+class SourceTopicRetryTest(unittest.TestCase):
+    def bundle(self, *, rich=False, unavailable=False):
+        return SourceBundle(
+            documents=[
+                {
+                    "ok": not unavailable,
+                    "text": "공식 근거 설명 " * 50 if rich else "링크 제목\n" * 30,
+                }
+            ],
+            prompt_context="official source",
+            cite_urls=() if unavailable else ("https://example.test/official",),
+            title_hint="확인 설명",
+        )
+
+    def build(self):
+        models, publisher, repository, sources = [mock.Mock() for _ in range(4)]
+        candidates = [
+            {"id": f"topic-{index}", "title_hint": f"주제 {index}", "tags": []}
+            for index in range(1, 5)
+        ]
+        repository.select.side_effect = candidates
+        models.generate.return_value = GeneratedText(
+            "제목: 확인 설명\n\n" + DESIGN_BODY, "writer"
+        )
+        publisher.publish.return_value = Publication(
+            Path("/tmp/source-retry.md"), False
+        )
+        app = GeneratorPipeline(
+            cfg={
+                "user_agent": "test",
+                "model_fallback": ["writer"],
+                "min_total_source_chars": 120,
+                "min_substantive_source_chars": 100,
+            },
+            prompt_loader=lambda _: "prompt",
+            model_gateway=models,
+            publisher=publisher,
+            topic_repository=repository,
+            source_gateway=sources,
+            generator_dir=Path("/tmp/generator"),
+        )
+        return app, models, publisher, repository, sources, candidates
+
+    def test_first_supported_topic_generates_exactly_one_post_within_three_checks(self):
+        for successful_attempt in (1, 2, 3):
+            with self.subTest(attempt=successful_attempt):
+                app, models, publisher, repository, sources, candidates = self.build()
+                sources.fetch.side_effect = [
+                    *[self.bundle() for _ in range(successful_attempt - 1)],
+                    self.bundle(rich=True),
+                ]
+                self.assertEqual(app.run(), 0)
+                self.assertEqual(repository.select.call_count, successful_attempt)
+                self.assertEqual(sources.fetch.call_count, successful_attempt)
+                models.generate.assert_called_once()
+                publisher.publish.assert_called_once()
+                self.assertEqual(
+                    repository.mark_done.call_args_list,
+                    [mock.call(item["id"]) for item in candidates[:successful_attempt]],
+                )
+                for index, selection in enumerate(repository.select.call_args_list):
+                    self.assertEqual(
+                        selection.kwargs["excluded_ids"],
+                        frozenset(item["id"] for item in candidates[:index]),
+                    )
+
+    def test_three_insufficient_sources_end_without_any_generation_or_publication(self):
+        app, models, publisher, repository, sources, _ = self.build()
+        sources.fetch.return_value = self.bundle()
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(app.run(), 0)
+        self.assertIn("출처 검사 3개 주제 미통과", output.getvalue())
+        self.assertEqual(repository.select.call_count, 3)
+        self.assertEqual(repository.mark_done.call_count, 3)
+        self.assertEqual(sources.fetch.call_count, 3)
+        for request in (
+            models.generate,
+            models.review,
+            models.complete_json,
+            models.build_fallback_chain,
+        ):
+            request.assert_not_called()
+        publisher.publish.assert_not_called()
+
+    def test_configured_zero_or_one_retry_caps_source_checks(self):
+        for retries in (0, 1):
+            with self.subTest(retries=retries):
+                app, models, _, repository, sources, _ = self.build()
+                app._cfg["source_topic_retries"] = retries
+                sources.fetch.return_value = self.bundle()
+                self.assertEqual(app.run(), 0)
+                self.assertEqual(repository.select.call_count, 1 + retries)
+                models.generate.assert_not_called()
+
+    def test_invalid_retry_budget_fails_before_source_or_model_requests(self):
+        for retries in (-1, 3, True, "2", 2.0, None):
+            with self.subTest(retries=retries):
+                app, models, publisher, repository, sources, _ = self.build()
+                app._cfg["source_topic_retries"] = retries
+                self.assertEqual(app.run(), 1)
+                repository.select.assert_not_called()
+                sources.fetch.assert_not_called()
+                models.generate.assert_not_called()
+                publisher.publish.assert_not_called()
+
+    def test_forced_topic_never_silently_selects_another_topic(self):
+        app, models, publisher, repository, sources, candidates = self.build()
+        sources.fetch.return_value = self.bundle()
+        self.assertEqual(app.run(candidates[0]["id"]), 0)
+        repository.select.assert_called_once_with(
+            app._cfg, candidates[0]["id"], excluded_ids=frozenset()
+        )
+        sources.fetch.assert_called_once()
+        models.generate.assert_not_called()
+        publisher.publish.assert_not_called()
+
+    def test_exhausted_candidates_stop_early(self):
+        app, models, _, repository, sources, candidates = self.build()
+        repository.select.side_effect = [candidates[0], None]
+        sources.fetch.return_value = self.bundle()
+        self.assertEqual(app.run(), 0)
+        self.assertEqual(repository.select.call_count, 2)
+        sources.fetch.assert_called_once()
+        models.generate.assert_not_called()
+
+    def test_broken_selector_cannot_refetch_same_topic(self):
+        app, models, _, repository, sources, candidates = self.build()
+        repository.select.side_effect = None
+        repository.select.return_value = candidates[0]
+        sources.fetch.return_value = self.bundle()
+        self.assertEqual(app.run(), 0)
+        sources.fetch.assert_called_once()
+        repository.mark_done.assert_called_once_with(candidates[0]["id"])
+        models.generate.assert_not_called()
+
+    def test_temporary_or_partial_fetch_failure_is_not_marked_done(self):
+        for partial in (False, True):
+            with self.subTest(partial=partial):
+                app, models, publisher, repository, sources, candidates = self.build()
+                failed = self.bundle(unavailable=True)
+                if partial:
+                    thin = self.bundle()
+                    failed = SourceBundle(
+                        thin.documents + failed.documents,
+                        thin.prompt_context,
+                        thin.cite_urls,
+                        thin.title_hint,
+                    )
+                sources.fetch.side_effect = [failed, self.bundle(rich=True)]
+                self.assertEqual(app.run(), 0)
+                repository.mark_done.assert_called_once_with(candidates[1]["id"])
+                self.assertEqual(
+                    repository.select.call_args_list[1].kwargs["excluded_ids"],
+                    frozenset({candidates[0]["id"]}),
+                )
+                models.generate.assert_called_once()
+                publisher.publish.assert_called_once()
+
+    def test_readonly_preview_reselects_unique_manual_topics_without_persisting_state(
+        self,
+    ):
+        app, models, publisher, _, sources, candidates = self.build()
+        app._cfg["topics"] = candidates
+        original = copy.deepcopy(app._cfg)
+        app._topics = topics.CatalogTopicRepository(record_done=False)
+        sources.fetch.side_effect = [
+            self.bundle(),
+            self.bundle(),
+            self.bundle(rich=True),
+        ]
+        with (
+            mock.patch.object(topics.dedup, "_load_done", return_value=[]),
+            mock.patch.object(topics.dedup, "existing_post_titles", return_value=set()),
+            mock.patch.object(topics.dedup, "mark_done") as persist,
+            mock.patch.object(topics.catalog, "build_pool") as catalog,
+        ):
+            self.assertEqual(app.run(), 0)
+        self.assertEqual(
+            [call.args[0]["id"] for call in sources.fetch.call_args_list],
+            [item["id"] for item in candidates[:3]],
+        )
+        self.assertEqual(app._cfg, original)
+        persist.assert_not_called()
+        catalog.assert_not_called()
+        models.generate.assert_called_once()
+        publisher.publish.assert_called_once()
+
+    def test_generation_or_review_failure_does_not_start_another_source_cycle(self):
+        for phase in ("generate", "review"):
+            with self.subTest(phase=phase):
+                app, models, publisher, repository, sources, _ = self.build()
+                sources.fetch.return_value = self.bundle(rich=True)
+                if phase == "generate":
+                    models.generate.side_effect = ModelGatewayError("API failed")
+                else:
+                    app._cfg["review_enabled"] = True
+                    app._review = mock.Mock()
+                    app._review.run.side_effect = ReviewRejectedError("review failed")
+                self.assertEqual(app.run(), 1)
+                repository.select.assert_called_once()
+                sources.fetch.assert_called_once()
+                repository.mark_done.assert_not_called()
+                publisher.publish.assert_not_called()
 
 
 class MainReviewFlowTest(unittest.TestCase):

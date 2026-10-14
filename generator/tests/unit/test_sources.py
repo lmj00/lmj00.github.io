@@ -12,9 +12,10 @@ from contextlib import redirect_stdout
 from unittest import mock
 
 import generator.sources.fetcher as fetcher
+from generator.bootstrap import load_config
 from generator.contracts import GeneratedText, ModelGatewayError
 from generator.design.visual_contracts import ReviewContractError, source_sections
-from generator.sources import difficulty, topics
+from generator.sources import catalog, difficulty, topics
 from generator.sources.source_context import (
     OfficialDocumentSourceGateway,
     as_cdata,
@@ -113,6 +114,87 @@ class DifficultyGatewayTest(unittest.TestCase):
             result = topics.CatalogTopicRepository(gateway=gateway).select({})
         self.assertEqual(result, candidate)
         score.assert_called_once_with([candidate], {}, gateway=gateway)
+
+
+class TopicSelectionTest(unittest.TestCase):
+    def test_manual_candidates_respect_per_run_exclusions_without_config_mutation(self):
+        candidates = [
+            {"id": "first", "title_hint": "첫 주제"},
+            {"id": "second", "title_hint": "다음 주제"},
+        ]
+        cfg = {"topics": candidates}
+        original = copy.deepcopy(cfg)
+        with (
+            mock.patch.object(topics.dedup, "_load_done", return_value=[]),
+            mock.patch.object(topics.dedup, "existing_post_titles", return_value=set()),
+            mock.patch.object(catalog, "build_pool") as pool,
+        ):
+            result = topics.select_topic(cfg, excluded_ids={"first"})
+        self.assertEqual(result, candidates[1])
+        self.assertEqual(cfg, original)
+        pool.assert_not_called()
+
+    def test_catalog_excludes_done_and_already_tried_before_balanced_selection(self):
+        candidates = [{"id": name} for name in ("done", "tried", "remaining")]
+        with (
+            mock.patch.object(topics.dedup, "pick_next_topic", return_value=None),
+            mock.patch.object(topics.dedup, "load_done", return_value=["done"]),
+            mock.patch.object(catalog, "build_pool", return_value=candidates),
+            mock.patch.object(
+                topics, "pick_balanced", return_value=candidates[2]
+            ) as pick,
+        ):
+            result = topics.select_topic({}, excluded_ids={"tried"})
+        self.assertEqual(result, candidates[2])
+        pick.assert_called_once_with([candidates[2]], {}, gateway=None)
+
+    def test_excluded_catalog_has_no_random_or_difficulty_selection(self):
+        with (
+            mock.patch.object(topics.dedup, "pick_next_topic", return_value=None),
+            mock.patch.object(topics.dedup, "load_done", return_value=[]),
+            mock.patch.object(catalog, "build_pool", return_value=[{"id": "tried"}]),
+            mock.patch.object(topics, "pick_balanced") as pick,
+        ):
+            self.assertIsNone(topics.select_topic({}, excluded_ids={"tried"}))
+        pick.assert_not_called()
+
+    def test_explicit_forced_topic_still_overrides_done_and_exclusions(self):
+        candidate = {"id": "chosen", "title_hint": "지정한 주제"}
+        with (
+            mock.patch.object(topics.dedup, "_load_done", return_value=["chosen"]),
+            mock.patch.object(topics.dedup, "existing_post_titles", return_value=set()),
+        ):
+            self.assertEqual(
+                topics.select_topic(
+                    {"topics": [candidate]}, "chosen", excluded_ids={"chosen"}
+                ),
+                candidate,
+            )
+
+    def test_configured_postgresql_filters_meta_pages_but_keeps_concepts(self):
+        cfg = load_config()
+        postgresql = next(cat for cat in cfg["catalogs"] if cat["id"] == "postgresql")
+        base = "https://www.postgresql.org/docs/current/"
+        excluded = [
+            "docguide.html",
+            "docguide-authoring.html",
+            "docguide-build.html",
+            "legalnotice.html",
+            "biblio.html",
+            "bookindex.html",
+            "index.html",
+        ]
+        retained = ["mvcc.html", "transaction-iso.html", "wal.html"]
+        with mock.patch.object(
+            catalog,
+            "_sitemap_locs",
+            return_value=[base + page for page in excluded + retained],
+        ):
+            result = catalog.candidates_from_sitemap(postgresql)
+        self.assertEqual(
+            [item["cite"] for item in result], [base + page for page in retained]
+        )
+        self.assertEqual(cfg["source_topic_retries"], 2)
 
 
 class NoNetworkTests(unittest.TestCase):

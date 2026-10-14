@@ -13,6 +13,7 @@ from generator.contracts import (
     LanguageModelGateway,
     ModelGatewayError,
     Publisher,
+    SourceBundle,
     SourceGateway,
     TopicRepository,
 )
@@ -51,6 +52,12 @@ class GeneratorPipeline:
 
     def run(self, forced_topic_id: str | None = None) -> int:
         cfg = self._cfg
+        retries = cfg.get("source_topic_retries", 2)
+        if type(retries) is not int or not 0 <= retries <= 2:
+            print(
+                "[실패] source_topic_retries는 0~2의 정수여야 합니다.", file=sys.stderr
+            )
+            return 1
         if cfg.get("design_required", False):
             if (
                 not cfg.get("review_enabled")
@@ -68,40 +75,11 @@ class GeneratorPipeline:
             except ModelGatewayError as exc:
                 print(f"[실패] {exc}", file=sys.stderr)
                 return 1
+        selected = self._select_supported_topic(forced_topic_id, retries=retries)
+        if selected is None:
+            return 0
+        topic, sources = selected
         models = self._select_models()
-        topic = self._topics.select(cfg, forced_topic_id)
-        if topic is None:
-            print(
-                "생성할 새 주제가 없습니다(모두 소진 또는 잘못된 FORCE_TOPIC_ID). 종료."
-            )
-            return 0
-
-        print(
-            f"선택된 주제: {topic['id']} - "
-            f"{topic.get('title_hint') or '(fetch 후 제목 추출)'}"
-        )
-        print("공식문서 fetch 중...")
-        sources = self._sources.fetch(
-            topic,
-            user_agent=cfg["user_agent"],
-            max_chars=cfg.get("max_chars_per_source", 16000),
-        )
-        if not sources.cite_urls:
-            print(
-                "사용 가능한 출처가 없습니다(robots 차단/오류). 이 주제는 건너뜁니다."
-            )
-            return 0
-
-        enough, source_reason = source_quality(
-            sources.documents,
-            cfg.get("min_total_source_chars", 0),
-            cfg.get("min_substantive_source_chars", 0),
-        )
-        if not enough:
-            print(f"출처 품질 부족({source_reason}) — 억지로 글을 만들지 않습니다.")
-            self._topics.mark_done(topic["id"])
-            return 0
-        print(f"  출처 품질: {source_reason}")
 
         hint = sources.title_hint
         system_prompt = self._load_prompt(cfg.get("system_prompt", "system.md"))
@@ -153,6 +131,64 @@ class GeneratorPipeline:
             displayed_path = publication.path
         print(f"작성 완료: {displayed_path}")
         return 0
+
+    def _select_supported_topic(
+        self, forced_topic_id: str | None, *, retries: int
+    ) -> tuple[dict, SourceBundle] | None:
+        """자동 선택의 출처 부족만 재선택한다. 검수·생성 실패의 재시도는 별도다."""
+        cfg = self._cfg
+        limit = 1 if forced_topic_id else 1 + retries
+        tried: set[str] = set()
+        for attempt in range(1, limit + 1):
+            topic = self._topics.select(
+                cfg, forced_topic_id, excluded_ids=frozenset(tried)
+            )
+            if topic is None:
+                print(
+                    "생성할 새 주제가 없습니다(모두 소진 또는 잘못된 FORCE_TOPIC_ID). 종료."
+                )
+                return None
+            if topic["id"] in tried:
+                print("이미 확인한 주제가 다시 선택되어 재선택을 중단합니다.")
+                return None
+            tried.add(topic["id"])
+            print(
+                f"선택된 주제 ({attempt}/{limit}): {topic['id']} - "
+                f"{topic.get('title_hint') or '(fetch 후 제목 추출)'}"
+            )
+            print("공식문서 fetch 중...")
+            sources = self._sources.fetch(
+                topic,
+                user_agent=cfg["user_agent"],
+                max_chars=cfg.get("max_chars_per_source", 16000),
+            )
+            if not sources.cite_urls:
+                # 일시적인 수집 실패는 이번 실행에서만 제외하고 다음 날 재확인한다.
+                print(
+                    "사용 가능한 출처가 없습니다(robots 차단/오류). 완료로 기록하지 않습니다."
+                )
+            else:
+                enough, reason = source_quality(
+                    sources.documents,
+                    cfg.get("min_total_source_chars", 0),
+                    cfg.get("min_substantive_source_chars", 0),
+                )
+                if enough:
+                    print(f"  출처 품질: {reason}")
+                    return topic, sources
+                print(f"출처 품질 부족({reason}) — 억지로 글을 만들지 않습니다.")
+                if sources.documents and all(
+                    item.get("ok") for item in sources.documents
+                ):
+                    self._topics.mark_done(topic["id"])
+                else:
+                    print(
+                        "  일부 출처 수집 실패 — 완료로 기록하지 않고 다음 실행에 재확인합니다."
+                    )
+            if attempt < limit:
+                print(f"  다른 주제로 재선택합니다. (추가 시도 {attempt}/{retries})")
+        print(f"출처 검사 {limit}개 주제 미통과 — 이번 실행은 발행 없이 종료합니다.")
+        return None
 
     def _select_models(self) -> list[str]:
         cfg = self._cfg

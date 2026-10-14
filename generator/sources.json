@@ -11,6 +11,8 @@
   "_source_quality_note": "가져온 공식문서가 설명형 글을 뒷받침할 만큼 충분한지 확인한다. 전체 글자 수와 50자 이상 문장·문단의 글자 수를 함께 검사해 색인·목차형 페이지를 거른다.",
   "min_total_source_chars": 2000,
   "min_substantive_source_chars": 1200,
+  "source_topic_retries": 2,
+  "_source_topic_retries_note": "자동 선택한 주제의 공식 근거가 부족하면 다른 주제를 최대 2회 더 고른다(최초 포함 최대 3개). 첫 출처 검사를 통과한 주제만 글을 생성하며 검수 기준은 낮추지 않는다. 수동 강제 지정은 다른 주제로 바꾸지 않는다. 일시적인 출처 수집 실패는 영구 완료로 기록하지 않는다. 0이면 재선택하지 않는다.",
 
   "_diagram_note": "D2는 최종 검수 후 임시 공간에서 렌더링한다. 다이어그램 존재 여부를 확인하기 위한 초안 발행·삭제·재생성은 하지 않는다.",
 
@@ -149,7 +151,7 @@
       "sitemap": "https://www.postgresql.org/sitemap.xml",
       "include": "/docs/current/",
       "_note": "SQL 명령어/함수/카탈로그 등 레퍼런스 페이지는 제외하고 개념 위주만.",
-      "_exclude_note": "레퍼런스(sql/함수/카탈로그)·부록 contrib 모듈·절차언어 등 곁가지 제외. 개념 챕터만 남긴다.",
+      "_exclude_note": "레퍼런스(sql/함수/카탈로그)·부록 contrib 모듈·절차언어 등 곁가지 제외. 문서 제작 안내·법적 고지·참고문헌·색인도 제외하고 개념 챕터만 남긴다.",
       "exclude_globs": [
         "*/sql-*", "*/functions-*", "*/catalog-*", "*/contrib-*", "*/app-*",
         "*/release-*", "*/ecpg-*", "*/libpq-*", "*/protocol-*", "*/errcodes*",
@@ -160,7 +162,9 @@
         "*/hstore*", "*/citext*", "*/cube*", "*/ltree*", "*/tablefunc*",
         "*/unaccent*", "*/bloom*", "*/amcheck*", "*/isn*", "*/earthdistance*",
         "*/tcn*", "*/tsm-*", "*/passwordcheck*", "*/basebackup*", "*/seg*",
-        "*/pageinspect*", "*/oldsnapshot*", "*/dict-*", "*/auth-*", "*/tsm*"
+        "*/pageinspect*", "*/oldsnapshot*", "*/dict-*", "*/auth-*", "*/tsm*",
+        "*/docguide*", "*/legalnotice.html", "*/biblio.html", "*/bookindex.html",
+        "*/index.html"
       ],
       "tags": ["postgresql", "db"],
       "_license": "PostgreSQL License (permissive, 문서 포함)"

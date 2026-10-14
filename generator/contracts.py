@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Protocol, runtime_checkable
@@ -166,7 +167,15 @@ class Publisher(Protocol):
 class TopicRepository(Protocol):
     """수동 목록·카탈로그·DB 등 주제 저장 방식의 계약."""
 
-    def select(self, cfg: dict, forced_id: str | None = None) -> dict | None: ...
+    def select(
+        self,
+        cfg: dict,
+        forced_id: str | None = None,
+        *,
+        excluded_ids: Collection[str] = (),
+    ) -> dict | None:
+        """이번 실행에서 이미 확인한 주제는 제외한다. 강제 지정은 그대로 따른다."""
+        ...
 
     def mark_done(self, topic_id: str) -> None: ...
 

@@ -12,7 +12,8 @@ on:
         default: ""
 
 permissions:
-  contents: write   # 새 글 커밋/푸시 (push가 Pages 네이티브 빌드를 자동 트리거)
+  contents: write   # 새 글과 출처 부족 처리 기록 커밋/푸시
+  pages: write      # 기본 토큰 push 뒤 Pages 빌드를 명시적으로 요청
 
 # 동시 실행 방지 (cron+수동 겹쳐서 배포 충돌 안 나게)
 concurrency:
@@ -52,12 +53,32 @@ jobs:
           python -c "from generator.design.design_browser import BrowserSceneVerifier; BrowserSceneVerifier().preflight()"
           python -m unittest discover -s generator/tests/browser -t . -q -b
 
+      - name: Restore generation state
+        id: generation_cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            generator/state/difficulty.json
+            generator/state/pending-post.json
+          key: generator-state-v1-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            generator-state-v1-${{ github.ref_name }}-
+
       - name: Generate post
         id: generate_post
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           FORCE_TOPIC_ID: ${{ github.event.inputs.topic_id }}
         run: python -m generator
+
+      - name: Save generation state even after failure
+        if: ${{ always() && steps.generate_post.outcome != 'skipped' && steps.generate_post.outcome != '' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            generator/state/difficulty.json
+            generator/state/pending-post.json
+          key: ${{ steps.generation_cache.outputs.cache-primary-key }}
 
       - name: Upload design failure diagnostics
         if: ${{ failure() && steps.generate_post.outcome == 'failure' }}
@@ -74,16 +95,23 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Commit new post
+      - name: Commit publication or source skip state
         id: commit
+        if: ${{ always() && (steps.generate_post.outcome == 'success' || steps.generate_post.outcome == 'failure') }}
+        env:
+          GENERATION_OUTCOME: ${{ steps.generate_post.outcome }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add _posts/ai-notes/ generator/state/topics_done.json
-          git add assets/diagrams/ 2>/dev/null || true   # 다이어그램 없는 날 대비
-          if [ -d assets/generated/designs ]; then
-            git add assets/generated/designs/
+          git add generator/state/topics_done.json
+          if [ "$GENERATION_OUTCOME" = "success" ]; then
+            git add _posts/ai-notes/
+            git add assets/diagrams/ 2>/dev/null || true
+            if [ -d assets/generated/designs ]; then
+              git add assets/generated/designs/
+            fi
           fi
+          echo "post_created=false" >> "$GITHUB_OUTPUT"
           if git diff --staged --quiet; then
             echo "새 글 없음 — 커밋/배포 생략"
             echo "committed=false" >> "$GITHUB_OUTPUT"
@@ -97,6 +125,34 @@ jobs:
             fi
             git push
             echo "committed=true" >> "$GITHUB_OUTPUT"
+            if [ -n "$NEW" ]; then
+              echo "post_created=true" >> "$GITHUB_OUTPUT"
+              echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            fi
           fi
-          # push가 master의 Pages 네이티브 빌드를 자동으로 트리거하므로
-          # 별도 배포 요청은 하지 않는다(중복 요청 시 동시 배포 충돌).
+
+      - name: Build and verify GitHub Pages
+        if: ${{ always() && steps.commit.outputs.post_created == 'true' }}
+        timeout-minutes: 12
+        uses: actions/github-script@v7
+        env:
+          PUBLICATION_COMMIT: ${{ steps.commit.outputs.commit_sha }}
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            await github.rest.repos.requestPagesBuild({owner, repo});
+            core.info('새 게시물 커밋의 Pages 빌드를 요청했습니다.');
+            for (let attempt = 0; attempt < 40; attempt++) {
+              const {data: build} = await github.rest.repos.getLatestPagesBuild({owner, repo});
+              if (build.commit === process.env.PUBLICATION_COMMIT) {
+                if (build.status === 'built') {
+                  await core.summary.addRaw('새 게시물 생성 및 Pages 빌드 완료.').write();
+                  return;
+                }
+                if (build.status === 'errored') {
+                  throw new Error('게시물은 커밋됐지만 Pages 빌드가 실패했습니다. Pages 로그를 확인하세요.');
+                }
+              }
+              await new Promise(resolve => setTimeout(resolve, 15000));
+            }
+            throw new Error('게시물은 커밋됐지만 10분 안에 해당 커밋의 Pages 빌드 완료를 확인하지 못했습니다.');

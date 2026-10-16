@@ -19,10 +19,12 @@ from generator.design.design_pipeline import ArticleDesignPipeline
 from generator.design.design_resume import load_saved_design
 from generator.paths import GENERATOR_DIR as HERE
 from generator.pipeline import GeneratorPipeline
+from generator.pending_post import PendingPostStore
 from generator.providers.openrouter import OpenRouterGateway
 from generator.publishing.jekyll import JekyllPreviewPublisher, JekyllPublisher
 from generator.sources.source_context import OfficialDocumentSourceGateway
 from generator.sources.topics import CatalogTopicRepository
+from generator.sources.dedup import load_done
 from generator.tools.local_profile import add_local_options, local_settings
 
 
@@ -171,6 +173,13 @@ def main(argv=None) -> int:
         generator_dir=HERE,
         design_pipeline=ArticleDesignPipeline(
             models, load_prompt, BrowserSceneVerifier(), base_dir=HERE
+        ),
+        pending_store=(
+            None
+            if args.local_preview
+            else PendingPostStore(
+                HERE / "state" / "pending-post.json", completed_topics=load_done
+            )
         ),
     )
     return app.run(args.topic_id or os.environ.get("FORCE_TOPIC_ID") or None)

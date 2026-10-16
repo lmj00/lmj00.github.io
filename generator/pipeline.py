@@ -19,6 +19,7 @@ from generator.contracts import (
 )
 from generator.content.quality import extract_title, source_quality
 from generator.content.review_pipeline import ArticleReviewPipeline, ReviewRejectedError
+from generator.pending_post import PendingPostStore
 
 
 class GeneratorPipeline:
@@ -35,6 +36,7 @@ class GeneratorPipeline:
         source_gateway: SourceGateway,
         generator_dir: Path,
         design_pipeline: ArticleDesigner | None = None,
+        pending_store: PendingPostStore | None = None,
     ) -> None:
         self._cfg = cfg
         self._load_prompt = prompt_loader
@@ -44,6 +46,7 @@ class GeneratorPipeline:
         self._sources = source_gateway
         self._generator_dir = generator_dir
         self._design = design_pipeline
+        self._pending = pending_store
         self._review = ArticleReviewPipeline(
             model_gateway,
             prompt_loader,
@@ -75,41 +78,66 @@ class GeneratorPipeline:
             except ModelGatewayError as exc:
                 print(f"[실패] {exc}", file=sys.stderr)
                 return 1
-        selected = self._select_supported_topic(forced_topic_id, retries=retries)
-        if selected is None:
-            return 0
-        topic, sources = selected
+        store = (
+            self._pending
+            if not forced_topic_id
+            and cfg.get("review_enabled")
+            and cfg.get("design_required")
+            else None
+        )
+        pending = store.resume() if store else None
+        if pending:
+            topic = {"id": pending.topic_id}
+            article = pending.article
+            hint = article.title
+            sources_block = pending.sources
+            source_urls = list(article.source_urls)
+        else:
+            selected = self._select_supported_topic(
+                forced_topic_id,
+                retries=retries,
+                excluded_ids=store.excluded_ids if store else (),
+            )
+            if selected is None:
+                return 0
+            topic, sources = selected
+            article = None
+            hint = sources.title_hint
+            sources_block = sources.prompt_context
+            source_urls = list(sources.cite_urls)
         models = self._select_models()
 
-        hint = sources.title_hint
         system_prompt = self._load_prompt(cfg.get("system_prompt", "system.md"))
         user_prompt = self._load_prompt("user_template.md").format(
             title_hint=html.escape(hint, quote=True),
             tags=html.escape(", ".join(topic.get("tags", [])), quote=True),
-            sources_block=sources.prompt_context,
+            sources_block=sources_block,
         )
 
         try:
-            article = self._generate_draft(
-                topic,
-                hint,
-                list(sources.cite_urls),
-                system_prompt,
-                user_prompt,
-                models,
-            )
+            if article is None:
+                article = self._generate_draft(
+                    topic,
+                    hint,
+                    source_urls,
+                    system_prompt,
+                    user_prompt,
+                    models,
+                )
             if cfg.get("review_enabled", False):
                 final_article = self._review.run(
                     article,
                     topic_id=topic["id"],
-                    sources_block=sources.prompt_context,
+                    sources_block=sources_block,
                     system_prompt=system_prompt,
                     writer_models=models,
                     cfg=cfg,
                 )
+                if store:
+                    store.save(topic["id"], final_article, sources_block)
                 if self._design is not None and cfg.get("design_enabled", False):
                     final_article = self._design.enhance(
-                        final_article, sources.prompt_context, cfg
+                        final_article, sources_block, cfg
                     )
                 article = final_article
             # No draft is written to the live Jekyll tree before review completes.
@@ -125,6 +153,8 @@ class GeneratorPipeline:
             return 1
 
         self._topics.mark_done(topic["id"])
+        # Git push may still fail after local publication. Keep the checkpoint
+        # until the next run sees this topic in the persisted completion record.
         try:
             displayed_path = publication.path.relative_to(self._generator_dir.parent)
         except ValueError:
@@ -133,12 +163,12 @@ class GeneratorPipeline:
         return 0
 
     def _select_supported_topic(
-        self, forced_topic_id: str | None, *, retries: int
+        self, forced_topic_id: str | None, *, retries: int, excluded_ids=()
     ) -> tuple[dict, SourceBundle] | None:
         """자동 선택의 출처 부족만 재선택한다. 검수·생성 실패의 재시도는 별도다."""
         cfg = self._cfg
         limit = 1 if forced_topic_id else 1 + retries
-        tried: set[str] = set()
+        tried: set[str] = set(excluded_ids)
         for attempt in range(1, limit + 1):
             topic = self._topics.select(
                 cfg, forced_topic_id, excluded_ids=frozenset(tried)

@@ -8,6 +8,8 @@ import io
 import tempfile
 import unittest
 from contextlib import redirect_stdout
+from dataclasses import replace
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -19,9 +21,11 @@ import generator.sources.topics as topics
 from generator.content.review_pipeline import ReviewRejectedError
 from generator.contracts import (
     Article,
+    ArticleScene,
     GeneratedText,
     ModelGatewayError,
     Publication,
+    Presentation,
     ReviewResult,
     SourceBundle,
 )
@@ -29,6 +33,7 @@ from generator.design.design_pipeline import ArticleDesignPipeline
 from generator.design.visual_contracts import source_sections, validate_review
 from generator.paths import GENERATOR_DIR
 from generator.pipeline import GeneratorPipeline
+from generator.pending_post import PendingPostStore
 from generator.publishing.jekyll import JekyllPreviewPublisher
 from generator.tests.fixtures.content import review_report
 from generator.tests.fixtures.design import DESIGN_BODY, design_article
@@ -114,6 +119,104 @@ class PipelineDesignOrderingTest(unittest.TestCase):
         )
         self.assertEqual(app.run(), 0)
         self.assertEqual(events, ["review", "design", "publish"])
+
+
+class PendingPostRecoveryTest(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.path = Path(self.directory.name) / "pending-post.json"
+        self.store = PendingPostStore(self.path)
+
+    def app(self):
+        app, publisher, topics, designer = PipelineDesignOrderingTest().build()
+        app._cfg["design_required"] = True
+        app._pending = self.store
+        designer.enhance.return_value = replace(
+            design_article(),
+            presentation=Presentation(
+                (ArticleScene("section", "title", "caption", "document"),),
+                "summary",
+                "designer",
+            ),
+        )
+        return app, publisher, topics, designer
+
+    def test_design_failure_resumes_body_until_remote_completion_is_observed(self):
+        app, publisher, topics, designer = self.app()
+        designer.enhance.side_effect = ModelGatewayError("height")
+        self.assertEqual(app.run(), 1)
+        publisher.publish.assert_not_called()
+        topics.mark_done.assert_not_called()
+        self.assertEqual(
+            json.loads(self.path.read_text())["pending"]["article"]["body"], DESIGN_BODY
+        )
+        # A new process/store must restore the reviewed body, not generate another draft.
+        app._pending = PendingPostStore(self.path)
+        designer.enhance.side_effect = None
+        self.assertEqual(app.run(), 0)
+        app._generate_draft.assert_called_once()
+        topics.select.assert_called_once()
+        app._sources.fetch.assert_called_once()
+        self.assertEqual(app._review.run.call_count, 2)
+        publisher.publish.assert_called_once()
+        topics.mark_done.assert_called_once_with("test-topic")
+        self.assertIsNotNone(json.loads(self.path.read_text())["pending"])
+        # A failed push must leave a resumable body; a committed completion must not.
+        self.assertIsNotNone(PendingPostStore(self.path).resume())
+        committed = PendingPostStore(self.path, completed_topics=lambda: {"test-topic"})
+        self.assertIsNone(committed.resume())
+        self.assertIsNone(json.loads(self.path.read_text())["pending"])
+
+    def test_failed_recheck_cannot_publish_cached_body(self):
+        self.store.save("saved-topic", design_article(), "source")
+        app, publisher, topics, designer = self.app()
+        app._review.run.side_effect = ReviewRejectedError("recheck")
+        self.assertEqual(app.run(), 1)
+        app._generate_draft.assert_not_called()
+        designer.enhance.assert_not_called()
+        publisher.publish.assert_not_called()
+        topics.mark_done.assert_not_called()
+        self.assertIsNotNone(json.loads(self.path.read_text())["pending"])
+
+    def test_force_topic_preserves_unrelated_pending_post(self):
+        self.store.save("saved-topic", design_article(), "source")
+        original = self.path.read_bytes()
+        app, _, _, _ = self.app()
+        self.assertEqual(app.run("forced-topic"), 0)
+        app._generate_draft.assert_called_once()
+        self.assertEqual(self.path.read_bytes(), original)
+
+    def test_resume_budget_survives_save_and_excludes_exhausted_topic(self):
+        self.store.save("test-topic", design_article(), "source")
+        for _ in range(2):
+            store = PendingPostStore(self.path)
+            self.assertIsNotNone(store.resume())
+            store.save("test-topic", design_article(), "source")
+        app, _, topics, designer = self.app()
+        topics.select.return_value = None
+        self.assertEqual(app.run(), 0)
+        self.assertEqual(
+            topics.select.call_args.kwargs["excluded_ids"], frozenset({"test-topic"})
+        )
+        designer.enhance.assert_not_called()
+        self.assertIsNone(json.loads(self.path.read_text())["pending"])
+
+    def test_completed_expired_and_corrupt_checkpoints_are_not_published(self):
+        self.store.save("done", design_article(), "source")
+        completed = PendingPostStore(self.path, completed_topics=lambda: {"done"})
+        self.assertIsNone(completed.resume())
+        self.store.save("stale", design_article(), "source")
+        value = json.loads(self.path.read_text())
+        value["pending"]["created_at"] = (
+            datetime.now(timezone.utc) - timedelta(days=8)
+        ).isoformat()
+        self.path.write_text(json.dumps(value))
+        self.assertIsNone(self.store.resume())
+        self.assertEqual(self.store.excluded_ids, {"stale"})
+        self.path.write_text('{"version": 1, "pending": {"topic_id": "broken"}}')
+        self.assertIsNone(self.store.resume())
+        self.assertIsNone(json.loads(self.path.read_text())["pending"])
 
 
 class GeneralAutomationTest(unittest.TestCase):

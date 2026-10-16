@@ -22,6 +22,8 @@ generator/.env
 generator/.review-runs/
 generator/.design-runs/
 generator/state/difficulty.json
+generator/state/pending-post.json
+generator/state/pending-post.tmp
 
 # Local preview outputs (canonical demo sources live in generator/examples/)
 /previews/

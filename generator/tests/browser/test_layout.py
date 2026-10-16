@@ -7,6 +7,7 @@ import html
 import json
 import os
 import unittest
+from pathlib import Path
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
@@ -133,7 +134,7 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
     def test_description_expansion_keeps_limit_and_identifies_renderer_height(self):
         error = self.check_fails(
             clarity_scene(),
-            'body:has(#scene-content[data-state="team"]) #scene-extra-details[open] #scene-status{min-height:1100px}',
+            'body:has(#scene-content[data-state="team"]) #scene-extra-details[open] #scene-status{min-height:1700px}',
         )
         item = error.layout_diagnostics[0]
         self.assertEqual(item["phase"], "expanded-description")
@@ -151,12 +152,12 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
             )
             state["description"] = edge["reason"]
         error = self.check_fails(
-            scene, ".scene-change-details[open]{min-height:1100px}"
+            scene, ".scene-change-details[open]{min-height:1700px}"
         )
         item = error.layout_diagnostics[0]
         self.assertEqual(item["phase"], "expanded-changes")
-        self.assertEqual(item["height_limit_px"], 1050)
-        self.assertGreater(item["document_height_px"], 1050)
+        self.assertEqual(item["height_limit_px"], 1600)
+        self.assertGreater(item["document_height_px"], 1600)
 
     def test_numeric_table_expansion_is_checked_and_owned_by_renderer(self):
         example = numeric_example()
@@ -165,7 +166,7 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
             example["input"]["headings"],
             example["input"]["source_excerpts"],
         )["scenes"][0]
-        error = self.check_fails(scene, ".scene-chart-details[open]{min-height:1100px}")
+        error = self.check_fails(scene, ".scene-chart-details[open]{min-height:1700px}")
         self.assertTrue(error.layout_diagnostics)
         for item in error.layout_diagnostics:
             self.assertEqual(item["phase"], "expanded-chart")
@@ -177,14 +178,17 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
 
     def test_individual_panels_fit_but_combined_expansion_is_held(self):
         scene = compact_panels_scene()
-        css = "#scene-extra-details[open] #scene-status{min-height:130px}"
+        css = (
+            'body:has(#scene-content[data-state="team"]) .scene-change-details[open]{min-height:650px}'
+            'body:has(#scene-content[data-state="team"]) #scene-extra-details[open] #scene-status{min-height:650px}'
+        )
         with self.panel_frame(scene, css) as frame:
             for selector in (".scene-change-details", "#scene-extra-details"):
                 details = frame.locator(selector)
                 summary = details.locator(":scope > summary")
                 summary.press("Enter")
                 self.assertLessEqual(
-                    frame.locator("body").evaluate("body => body.scrollHeight"), 1050
+                    frame.locator("body").evaluate("body => body.scrollHeight"), 1600
                 )
                 summary.press("Enter")
             with self.assertRaises(BrowserLayoutError) as result:
@@ -193,7 +197,7 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
                 result.exception.layout_diagnostics[0]["phase"], "expanded-all"
             )
             self.assertGreater(
-                result.exception.layout_diagnostics[0]["document_height_px"], 1050
+                result.exception.layout_diagnostics[0]["document_height_px"], 1600
             )
             self.assertEqual(frame.locator("details[open]").count(), 0)
         error = self.check_fails(scene, css)
@@ -223,6 +227,53 @@ class BrowserLayoutDiagnosticTest(unittest.TestCase):
                 )
         report = BrowserSceneVerifier().check(scene, render_document(scene))
         self.assertEqual(report["change_explanations_checked"], 4)
+
+    def test_reader_expansion_grows_and_shrinks_real_article_frame(self):
+        from playwright.sync_api import sync_playwright
+
+        scene = compact_panels_scene()
+        document = render_document(scene).replace(
+            "</style>",
+            'body:has(#scene-content[data-state="team"]):has(details[open]){min-height:1121px}</style>',
+            1,
+        )
+        report = BrowserSceneVerifier().check(scene, document)
+        self.assertTrue(any(w["height_px"] > 1050 for w in report["warnings"]))
+        with sync_playwright() as playwright:
+            browser = BrowserSceneVerifier()._launch(playwright)
+            try:
+                page = browser.new_page(
+                    viewport={"width": 336, "height": 800}, reduced_motion="reduce"
+                )
+                page.set_content(
+                    '<iframe class="ai-scene-frame" sandbox="allow-scripts" style="width:100%;height:560px;border:0" srcdoc="'
+                    + html.escape(document, quote=True)
+                    + '"></iframe>'
+                )
+                page.add_script_tag(
+                    path=str(
+                        Path(__file__).resolve().parents[3]
+                        / "assets/js/article-scenes.js"
+                    )
+                )
+                frame = page.frame_locator("iframe")
+                frame.locator('button[data-action="0"]').click()
+                frame.locator("#scene-extra-details > summary").press("Enter")
+                page.wait_for_function(
+                    "parseFloat(document.querySelector('iframe').style.height) >= 1133"
+                )
+                content_height = frame.locator("body").evaluate(
+                    "body => body.scrollHeight"
+                )
+                self.assertGreaterEqual(
+                    page.locator("iframe").bounding_box()["height"], content_height
+                )
+                frame.locator("#scene-extra-details > summary").press("Enter")
+                page.wait_for_function(
+                    "parseFloat(document.querySelector('iframe').style.height) < 1100"
+                )
+            finally:
+                browser.close()
 
     def test_combined_expansion_rejects_unreadable_values_and_restores_panels(self):
         with self.panel_frame(

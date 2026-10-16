@@ -1,9 +1,9 @@
 /* Scope both height messages and reading controls to generated article scenes. */
 (() => {
   "use strict";
-  // Generation accepts up to 1050px of content; leave room for the runtime's
-  // resize padding. This cap is also exercised by the browser regression tests.
-  const MAX_FRAME_HEIGHT = 1100;
+  // Collapsed scenes are checked at 1050px, expanded details at 1600px.
+  // Leave room for the runtime's resize padding without clipping opened panels.
+  const MAX_FRAME_HEIGHT = 1650;
   const frames = [...document.querySelectorAll("iframe.ai-scene-frame")];
   // A cached frame may send its first measurement before this deferred script.
   // Measure both already-loaded frames and frames that finish loading later.

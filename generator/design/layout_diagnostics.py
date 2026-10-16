@@ -216,7 +216,9 @@ reason and invariant. Shorten wording only without losing meaning or source supp
 Account for the measured trusted UI and preserve room for expanded descriptions and
 additional changes; collapsed panels still have to fit when opened.
 Multiple trusted details can be open together; leave room for that combined view.
-Do not hide, clip, remove required controls or weaken the 1050px limit to claim a repair.
+Do not hide, clip or remove required controls. The collapsed/moving limit is 1050px;
+reader-expanded panels have a separate 1600px limit. Use the measured height_limit_px
+for each phase, including when several panels are open together.
 Recheck every previously passing width/state as well as each listed failure: a fix
 for height must not introduce tiny text, clipping, hidden data or broken motion.
 If the defect is only in renderer code and no safe scene repair can solve it, return

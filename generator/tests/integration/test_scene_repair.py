@@ -144,6 +144,40 @@ class EvidenceRepairFlowTest(unittest.TestCase):
 
 
 class SceneRepairFlowTest(unittest.TestCase):
+    def test_two_revisions_allow_layout_repair_then_independent_review_repair(self):
+        value = design_candidate()
+        break_entities(value)
+        fixed = design_candidate()
+        fixed["scenes"][0]["caption"] += " 설명용 가정이다."
+        with tempfile.TemporaryDirectory() as directory:
+            harness, pipeline = self.harness(directory)
+            harness.cfg["design_max_revisions"] = 2
+            harness.models.complete_json.side_effect = [
+                GeneratedText(scene_patch(), "designer"),
+                GeneratedText(design_review(issue=True), "reviewer"),
+                GeneratedText(scene_patch(fixed), "designer"),
+                GeneratedText(design_review(previous_status="resolved"), "reviewer"),
+            ]
+            result = pipeline.enhance(
+                design_article(),
+                DESIGN_SOURCES,
+                harness.cfg,
+                initial_candidate=GeneratedText(json.dumps(value), "designer"),
+                initial_author_models=("designer",),
+            )
+            self.assertIsNotNone(result.presentation)
+            self.assertEqual(result.body, DESIGN_BODY)
+            self.assertEqual(harness.models.complete_json.call_count, 4)
+
+    def test_invalid_revision_budget_fails_before_model_calls(self):
+        for budget in (-1, 3, True, 1.5, "2"):
+            with tempfile.TemporaryDirectory() as directory:
+                harness, pipeline = self.harness(directory)
+                harness.cfg["design_max_revisions"] = budget
+                with self.assertRaisesRegex(ModelGatewayError, "0~2"):
+                    pipeline.enhance(design_article(), DESIGN_SOURCES, harness.cfg)
+                harness.models.complete_json.assert_not_called()
+
     def harness(self, directory):
         harness = DesignHarness()
         harness.setUp()

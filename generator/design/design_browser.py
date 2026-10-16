@@ -12,10 +12,14 @@ from generator.design.layout_diagnostics import BrowserLayoutError, observe_layo
 from generator.design.scene_charts import verify_chart_graphics
 from generator.design.scene_document import state_paths
 
-# A reading-length target is not a rendering failure. Keep the hard limit below
-# the parent frame's 1100px cap (assets/js/article-scenes.js), including resize padding.
+# Collapsed scenes stay compact; reader-opened details may use more vertical space.
+# Both limits leave resize padding below the parent frame's 1650px cap.
 SCENE_HEIGHT_TARGET_PX = 950
 SCENE_HEIGHT_LIMIT_PX = 1050
+SCENE_EXPANDED_HEIGHT_LIMIT_PX = 1600
+_EXPANDED_PHASES = frozenset(
+    {"expanded-description", "expanded-changes", "expanded-chart", "expanded-all"}
+)
 
 
 class BrowserUnavailable(RuntimeError):
@@ -25,19 +29,20 @@ class BrowserUnavailable(RuntimeError):
 class BrowserSceneVerifier:
     @staticmethod
     def _check_height(height, width, state_id, phase="settled", *, frame=None):
-        if height > SCENE_HEIGHT_LIMIT_PX:
+        limit = (
+            SCENE_EXPANDED_HEIGHT_LIMIT_PX
+            if phase in _EXPANDED_PHASES
+            else SCENE_HEIGHT_LIMIT_PX
+        )
+        if height > limit:
             message = (
                 f"{width}px / {state_id} ({phase}) 화면 높이 {height}px > "
-                f"최대 허용 {SCENE_HEIGHT_LIMIT_PX}px"
+                f"최대 허용 {limit}px"
             )
             if frame is not None:
                 raise BrowserLayoutError(
                     message,
-                    [
-                        observe_layout(
-                            frame, state_id, phase, ["height"], SCENE_HEIGHT_LIMIT_PX
-                        )
-                    ],
+                    [observe_layout(frame, state_id, phase, ["height"], limit)],
                 )
             raise ValueError(message)
         if height > SCENE_HEIGHT_TARGET_PX:
@@ -49,7 +54,7 @@ class BrowserSceneVerifier:
                 "phase": phase,
                 "height_px": height,
                 "target_px": SCENE_HEIGHT_TARGET_PX,
-                "limit_px": SCENE_HEIGHT_LIMIT_PX,
+                "limit_px": limit,
             }
         return None
 
@@ -192,7 +197,7 @@ class BrowserSceneVerifier:
                         state_id,
                         "expanded-all",
                         [violation],
-                        SCENE_HEIGHT_LIMIT_PX,
+                        SCENE_EXPANDED_HEIGHT_LIMIT_PX,
                     )
                 ],
             ) from exc
@@ -390,6 +395,7 @@ class BrowserSceneVerifier:
             "height_policy": {
                 "target_px": SCENE_HEIGHT_TARGET_PX,
                 "limit_px": SCENE_HEIGHT_LIMIT_PX,
+                "expanded_limit_px": SCENE_EXPANDED_HEIGHT_LIMIT_PX,
             },
             "warnings": height_warnings,
             **continuity,
@@ -1038,7 +1044,7 @@ class BrowserSceneVerifier:
             page.on("pageerror", lambda error: errors.append(str(error)))
             page.set_content(
                 '<iframe id="test-scene" sandbox="allow-scripts" '
-                'style="width:100%;height:1100px;border:0" '
+                'style="width:100%;height:1650px;border:0" '
                 f'srcdoc="{html.escape(document, quote=True)}"></iframe>'
             )
             yield page, page.frame_locator("#test-scene")

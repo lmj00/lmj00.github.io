@@ -645,11 +645,15 @@ class ClarityBrowserGateTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "실제 텍스트.*offscreen-text"):
             BrowserSceneVerifier().check(scene, render_document(scene))
 
-    def test_collapsing_long_description_does_not_bypass_expanded_height_limit(self):
+    def test_readable_long_description_can_expand_beyond_collapsed_height_limit(self):
         scene = clarity_scene()
         scene["states"][1]["description"] = "원래 상태 설명의 문장입니다. " * 35
         self.assertLessEqual(len(scene["states"][1]["description"]), 700)
-        with self.assertRaisesRegex(
-            ValueError, "expanded-description.*최대 허용 1050px"
-        ):
-            BrowserSceneVerifier().check(scene, render_document(scene))
+        report = BrowserSceneVerifier().check(scene, render_document(scene))
+        self.assertTrue(
+            any(
+                warning["phase"] == "expanded-description"
+                and warning["height_px"] > 1050
+                for warning in report["warnings"]
+            )
+        )

@@ -151,7 +151,9 @@ At 320px switch multi-column layouts to a readable stack. Body 14–16px, minimu
 Aim below 950px including controls, caption AND the trusted change ledger. Reserve
 roughly 280–360px for that common UI on mobile; keep the custom canvas compact, with
 short field values rather than repeating the rule and result in several blocks.
-950–1050px is only a warning. Never shrink
+950–1050px is only a warning for the collapsed view. Reader-opened description,
+change and numeric-table panels may expand the total height up to 1600px, including
+when opened together. Keep the default view within 1050px. Never shrink
 or clip text to pass. No new site header, hero, navigation or full article duplication.
 Use existing icon spans: <span class="diagram-symbol" data-icon="server"></span>.
 Allowed icons: producer, consumer, queue, exchange, server, database, cache, document.

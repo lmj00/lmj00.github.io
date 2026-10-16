@@ -230,7 +230,12 @@ class DiagramBrowserTest(unittest.TestCase):
         script = PROJECT_ROOT / "assets/js/article-scenes.js"
         self.page.add_script_tag(content=script.read_text())
         child = self.page.frames[1]
-        for requested, expected in ((1013, 1013), (1062, 1062), (2000, 1100)):
+        for requested, expected in (
+            (1013, 1013),
+            (1062, 1062),
+            (1612, 1612),
+            (2000, 1650),
+        ):
             child.evaluate(
                 "height => parent.postMessage({type:'article-scene:resize',height}, '*')",
                 requested,
@@ -241,7 +246,7 @@ class DiagramBrowserTest(unittest.TestCase):
         )
         self.page.evaluate("postMessage({type:'article-scene:resize',height:500}, '*')")
         self.page.clock.run_for(100)
-        expect(self.page.locator("iframe")).to_have_css("height", "1100px")
+        expect(self.page.locator("iframe")).to_have_css("height", "1650px")
 
     def test_long_mobile_connector_labels_wrap_without_clipping_or_node_collisions(
         self,

@@ -458,6 +458,21 @@ class InteractionPolicyTest(unittest.TestCase):
 
 
 class SceneHeightPolicyTest(unittest.TestCase):
+    def test_expanded_panels_have_a_separate_bounded_height(self):
+        for phase in (
+            "expanded-description",
+            "expanded-changes",
+            "expanded-chart",
+            "expanded-all",
+        ):
+            for height in (1051, 1121, 1600):
+                warning = BrowserSceneVerifier._check_height(
+                    height, 320, "ready", phase
+                )
+                self.assertEqual(warning["limit_px"], 1600)
+            with self.assertRaisesRegex(ValueError, "최대 허용 1600px"):
+                BrowserSceneVerifier._check_height(1601, 320, "ready", phase)
+
     def test_height_target_tolerance_and_hard_boundary(self):
         check = BrowserSceneVerifier._check_height
         self.assertIsNone(check(950, 320, "ready"))

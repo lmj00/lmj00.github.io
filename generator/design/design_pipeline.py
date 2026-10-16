@@ -351,7 +351,10 @@ class ArticleDesignPipeline:
         design_model = None
         author_models = set(initial_author_models)
         context = _DesignContext(article, cfg, request, wire_input, prompts, compact)
-        attempts = 1 + max(0, min(1, int(cfg.get("design_max_revisions", 1))))
+        revisions = cfg.get("design_max_revisions", 1)
+        if type(revisions) is not int or not 0 <= revisions <= 2:
+            raise ModelGatewayError("design_max_revisions는 0~2의 정수여야 합니다.")
+        attempts = 1 + revisions
         for attempt in range(1, attempts + 1):
             state.update(attempts=attempt, stage="design")
             run.save_state()

@@ -32,6 +32,8 @@ Use confident wording only when the evidence is explicit. Keep the tone compact,
 <readability>
 Use `###` for primary sections and `####` only when a real subsection is needed. Keep each paragraph to one main idea and normally three or four sentences, with a blank line between paragraphs.
 
+Aim for at most 7 primary (`###`) sections in total, including 개요 and 정리: normally at most 5 main-body sections. This is a readability target, not a reason to delete necessary evidence or explanations. Merge related sections or use genuine `####` subsections; do not merely relabel unrelated sections to reduce the count.
+
 Explain concepts in connected prose. Use a list only for genuinely discrete items. Introduce every list or table with a sentence. When several items must be compared across the same attributes, use a Markdown table instead of parallel bullet lists.
 
 Bold only important concepts. Wrap commands, configuration values, API names, and identifiers in backticks. Avoid excessive emphasis and fragmented one-line bullets.

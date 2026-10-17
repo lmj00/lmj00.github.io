@@ -53,16 +53,20 @@ class ReviewJsonTest(unittest.TestCase):
 
 
 class ArticleStructureTest(unittest.TestCase):
-    def test_rejects_too_many_primary_sections(self) -> None:
+    def test_extra_primary_sections_are_a_readability_target_not_rejection(self) -> None:
         headings = ["### 개요"] + [f"### 항목 {i}" for i in range(1, 7)] + ["### 정리"]
         article = (
             "제목: 테스트\n\n> 한 줄 요약: 요약\n\n"
             + "\n\n내용입니다.\n\n".join(headings)
             + "\n\n마칩니다."
         )
-        valid, reason = quality.output_has_required_structure(article)
-        self.assertFalse(valid)
-        self.assertIn("1차 섹션 과다", reason)
+        self.assertEqual(quality.output_has_required_structure(article), (True, "ok"))
+        self.assertEqual(quality.primary_section_count(article), 8)
+
+    def test_subheadings_do_not_count_as_primary_sections(self) -> None:
+        self.assertEqual(
+            quality.primary_section_count("### 개요\n#### 세부 내용\n### 정리"), 2
+        )
 
     def test_accepts_compact_primary_section_structure(self) -> None:
         article = """제목: 테스트

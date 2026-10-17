@@ -16,6 +16,12 @@ _VISUAL_BLOCK_OPEN = re.compile(r"^:::(key-point|flow|caution)\s*$", re.MULTILIN
 _VISUAL_BLOCK_CLOSE = re.compile(r"^:::\s*$", re.MULTILINE)
 
 MIN_BODY_CHARS = 900
+PRIMARY_SECTION_TARGET = 7
+
+
+def primary_section_count(text: str) -> int:
+    """큰 소제목 개수는 가독성 권장 기준이며 발행 거부 조건이 아니다."""
+    return len(_PRIMARY_HEADING.findall(text))
 
 REVIEW_SCORE_KEYS = (
     "grounding",
@@ -142,10 +148,6 @@ def output_has_required_structure(text: str) -> tuple[bool, str]:
         positions.append(matches[0].start())
     if positions != sorted(positions) or len(set(positions)) != len(positions):
         return False, "필수 섹션 순서 오류"
-
-    primary_count = len(_PRIMARY_HEADING.findall(stripped))
-    if primary_count > 7:
-        return False, f"1차 섹션 과다({primary_count}개 > 7개)"
 
     visual_types = _VISUAL_BLOCK_OPEN.findall(stripped)
     if len(visual_types) > 2:

@@ -16,11 +16,13 @@ from jsonschema import Draft202012Validator
 
 from generator.content.quality import (
     MIN_BODY_CHARS,
+    PRIMARY_SECTION_TARGET,
     REVIEW_RESPONSE_FORMAT,
     looks_truncated,
     output_has_required_structure,
     output_is_clean_korean,
     parse_review_json,
+    primary_section_count,
 )
 from generator.contracts import GeneratedText, ModelGatewayError, ReviewResult
 from generator.providers.openrouter_stream import (
@@ -336,6 +338,51 @@ def build_fallback_chain(
     return usable
 
 
+def _compact_primary_sections(payload: dict, content: str, *, key: str, purpose: str) -> str:
+    """섹션 정리는 한 번만 시도한다. 실패해도 유효한 원본은 버리지 않는다."""
+    count = primary_section_count(content)
+    if count <= PRIMARY_SECTION_TARGET:
+        return content
+    model = payload["model"]
+    print(f"  [가독성 정리] {model} — 큰 소제목 {count}개, 정리 1회 요청", flush=True)
+    request = {
+        **payload,
+        "messages": [
+            *payload["messages"],
+            {"role": "assistant", "content": content},
+            {
+                "role": "user",
+                "content": (
+                    f"위 초안의 큰 소제목(###)을 개요·정리 포함 {PRIMARY_SECTION_TARGET}개 "
+                    "이하로 정리하는 것을 목표로 관련 섹션을 합쳐 주세요. "
+                    "필요한 하위 절에만 ####를 사용하고 무관한 절의 제목만 바꾸지 마세요. "
+                    "제공된 출처와 원래 작성 규칙을 유지하고, 핵심 근거·예시·주의점을 "
+                    "삭제하거나 새 사실을 추가하지 마세요. 제목·한 줄 요약·개요·정리를 "
+                    "포함한 완성된 글 전체만 반환하세요."
+                ),
+            },
+        ],
+    }
+    try:
+        data, revised = _request_text(request, key=key, purpose=f"{purpose} 섹션 정리")
+        _print_usage(data, model, f"{purpose} 섹션 정리")
+    except _CompletionError as exc:
+        print(f"  [정리 생략] {exc.summary} — 기본 검사를 통과한 원본 유지", flush=True)
+        return content
+    if (
+        not output_is_clean_korean(revised)[0]
+        or not output_has_required_structure(revised)[0]
+        or len(revised) < MIN_BODY_CHARS
+        or looks_truncated(revised)
+        or primary_section_count(revised) >= count
+    ):
+        print("  [정리 생략] 수정본 검사 실패 또는 섹션 수 미개선 — 원본 유지", flush=True)
+        return content
+    remaining = primary_section_count(revised)
+    print(f"  [가독성 정리 완료] 큰 소제목 {count}개 → {remaining}개", flush=True)
+    return revised
+
+
 def generate(
     system_prompt: str,
     user_prompt: str,
@@ -394,6 +441,9 @@ def generate(
                 errors.append(f"{model}: 잘린 출력 의심")
                 print(f"  [스킵] {model} — 출력이 중간에 끊긴 듯, 다음 모델로")
                 continue
+            content = _compact_primary_sections(
+                payload, content, key=api_key, purpose=purpose
+            )
             return content, model
 
         # 체인 한 바퀴 실패. rate limit이 많으면 기다렸다 재시도(작은 모델로 안 떨어짐).

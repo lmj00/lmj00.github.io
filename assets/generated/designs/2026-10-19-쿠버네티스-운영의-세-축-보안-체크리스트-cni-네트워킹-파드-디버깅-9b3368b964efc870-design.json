@@ -1,0 +1,8 @@
+{
+  "summary": "FailedScheduling 이벤트 메시지의 requested/used/capacity 수치를 읽어 Pending 파드의 원인을 좁히는 방법을, 같은 노드 상태에서 500m·1000m 요청을 비교하는 장면으로 보여준다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-10-19-쿠버네티스-운영의-세-축-보안-체크리스트-cni-네트워킹-파드-디버깅.md",
+  "assets": [
+    "2026-10-19-쿠버네티스-운영의-세-축-보안-체크리스트-cni-네트워킹-파드-디버깅-3a90f699b320988d-1.html"
+  ]
+}

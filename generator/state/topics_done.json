@@ -96,5 +96,6 @@
   "postgresql::https://www.postgresql.org/docs/current/managing-databases.html",
   "prometheus::https://prometheus.io/docs/introduction/design-doc/",
   "postgresql::https://www.postgresql.org/docs/current/docguide-authoring.html",
-  "kubernetes::https://kubernetes.io/docs/concepts/security/security-checklist/"
+  "kubernetes::https://kubernetes.io/docs/concepts/security/security-checklist/",
+  "postgresql::https://www.postgresql.org/docs/current/datetime-keywords.html"
 ]

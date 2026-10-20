@@ -1,0 +1,8 @@
+{
+  "summary": "PreStop 훅 시간이 60s 예산을 넘기면 정상 종료가 끝나기 전에 강제 종료된다",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-10-21-kubernetes-컨테이너-라이프사이클-훅-poststart와-prestop의-동작-원리.md",
+  "assets": [
+    "2026-10-21-kubernetes-컨테이너-라이프사이클-훅-poststart와-prestop의-동작-원리-569bc49c73f20a29-1.html"
+  ]
+}

@@ -98,5 +98,6 @@
   "postgresql::https://www.postgresql.org/docs/current/docguide-authoring.html",
   "kubernetes::https://kubernetes.io/docs/concepts/security/security-checklist/",
   "postgresql::https://www.postgresql.org/docs/current/datetime-keywords.html",
-  "kubernetes::https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/"
+  "kubernetes::https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/",
+  "postgresql::https://www.postgresql.org/docs/current/queries-values.html"
 ]

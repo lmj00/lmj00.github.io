@@ -1,0 +1,8 @@
+{
+  "summary": "같은 부분 INSERT 문인데 price 열에 기본값이 있느냐 없느냐만으로 완성되는 행의 값이 달라진다. INSERT는 항상 완전한 행만 만든다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-10-25-postgresql-insert-완전한-행을-만드는-데이터-삽입의-원리.md",
+  "assets": [
+    "2026-10-25-postgresql-insert-완전한-행을-만드는-데이터-삽입의-원리-94f876f7cb9e0b0b-1.html"
+  ]
+}

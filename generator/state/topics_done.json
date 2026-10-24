@@ -100,5 +100,6 @@
   "postgresql::https://www.postgresql.org/docs/current/datetime-keywords.html",
   "kubernetes::https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/",
   "postgresql::https://www.postgresql.org/docs/current/queries-values.html",
-  "rfc-standards::rfc865"
+  "rfc-standards::rfc865",
+  "postgresql::https://www.postgresql.org/docs/current/dml-insert.html"
 ]

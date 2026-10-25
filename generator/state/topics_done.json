@@ -101,5 +101,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/",
   "postgresql::https://www.postgresql.org/docs/current/queries-values.html",
   "rfc-standards::rfc865",
-  "postgresql::https://www.postgresql.org/docs/current/dml-insert.html"
+  "postgresql::https://www.postgresql.org/docs/current/dml-insert.html",
+  "postgresql::https://www.postgresql.org/docs/current/queries.html"
 ]

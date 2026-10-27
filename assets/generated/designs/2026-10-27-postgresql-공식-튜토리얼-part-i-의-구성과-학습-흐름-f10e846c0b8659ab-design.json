@@ -1,0 +1,8 @@
+{
+  "summary": "같은 튜토리얼 목차지만 버전 상태 표시는 18(현재 지원)과 10·11(지원 종료)이 다르다",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-10-27-postgresql-공식-튜토리얼-part-i-의-구성과-학습-흐름.md",
+  "assets": [
+    "2026-10-27-postgresql-공식-튜토리얼-part-i-의-구성과-학습-흐름-dc9355c7b70c5bde-1.html"
+  ]
+}

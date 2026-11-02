@@ -103,5 +103,6 @@
   "rfc-standards::rfc865",
   "postgresql::https://www.postgresql.org/docs/current/dml-insert.html",
   "postgresql::https://www.postgresql.org/docs/current/queries.html",
-  "postgresql::https://www.postgresql.org/docs/current/tutorial.html"
+  "postgresql::https://www.postgresql.org/docs/current/tutorial.html",
+  "rabbitmq::docs/http-api-reference.md"
 ]

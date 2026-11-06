@@ -1,0 +1,8 @@
+{
+  "summary": "메시지 크기가 저장 위치를 어떻게 결정하는가?",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-06-rabbitmq-classic-queues-비복제-fifo-큐의-저장-구조와-동작-원리.md",
+  "assets": [
+    "2026-11-06-rabbitmq-classic-queues-비복제-fifo-큐의-저장-구조와-동작-원리-da4c29e8cd586a1d-1.html"
+  ]
+}

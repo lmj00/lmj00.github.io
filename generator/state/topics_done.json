@@ -106,5 +106,6 @@
   "postgresql::https://www.postgresql.org/docs/current/tutorial.html",
   "rabbitmq::docs/http-api-reference.md",
   "rfc-standards::rfc863",
-  "kafka::docs/operations/hardware-and-os.md"
+  "kafka::docs/operations/hardware-and-os.md",
+  "rabbitmq::docs/classic-queues.md"
 ]

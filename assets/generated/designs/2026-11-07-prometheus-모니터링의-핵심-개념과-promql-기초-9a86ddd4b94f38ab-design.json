@@ -1,0 +1,8 @@
+{
+  "summary": "시간 리터럴의 유효 표기 비교: 10진 정수 조합 1h30m은 5400초로 환산되고, 부동소수점 표기 1.5h는 거부된다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-07-prometheus-모니터링의-핵심-개념과-promql-기초.md",
+  "assets": [
+    "2026-11-07-prometheus-모니터링의-핵심-개념과-promql-기초-fbe3c7d4598aeaff-1.html"
+  ]
+}

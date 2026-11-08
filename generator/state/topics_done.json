@@ -108,5 +108,6 @@
   "rfc-standards::rfc863",
   "kafka::docs/operations/hardware-and-os.md",
   "rabbitmq::docs/classic-queues.md",
-  "prometheus::https://prometheus.io/docs/introduction/overview/"
+  "prometheus::https://prometheus.io/docs/introduction/overview/",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/"
 ]

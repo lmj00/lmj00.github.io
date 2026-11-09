@@ -1,0 +1,8 @@
+{
+  "summary": "같은 PVC 요청(volumeName: foo-pv)에서 storageClassName을 생략하면 기본 StorageClass가 자동 설정되어 동적 프로비저닝이 가능해지고, 빈 문자열을 명시하면 어느 클래스에도 속하지 않아 동적 프로비저닝이 비활성화되고 특정 PV에 선결합된다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-09-storageclassname-를-명시해야-하는-이유-기본-storageclass-회피와-pv-선결합.md",
+  "assets": [
+    "2026-11-09-storageclassname-를-명시해야-하는-이유-기본-storageclass-회피와-pv-선결합-b3ccd55740304d0c-1.html"
+  ]
+}

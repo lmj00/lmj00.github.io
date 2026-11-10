@@ -1,0 +1,8 @@
+{
+  "summary": "같은 발행 요청에서 수신자(RabbitMQ)의 토폴로지 조건이 outcome을 바꾸는 이유",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-10-rabbitmq의-amqp-1-0-연결-인증부터-주소-체계와-outcome까지.md",
+  "assets": [
+    "2026-11-10-rabbitmq의-amqp-1-0-연결-인증부터-주소-체계와-outcome까지-9d93adeec0a64dc2-1.html"
+  ]
+}

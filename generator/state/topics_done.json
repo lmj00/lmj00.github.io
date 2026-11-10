@@ -110,5 +110,6 @@
   "rabbitmq::docs/classic-queues.md",
   "prometheus::https://prometheus.io/docs/introduction/overview/",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/",
-  "kubernetes::https://kubernetes.io/docs/concepts/storage/persistent-volumes/"
+  "kubernetes::https://kubernetes.io/docs/concepts/storage/persistent-volumes/",
+  "rabbitmq::docs/amqp.md"
 ]

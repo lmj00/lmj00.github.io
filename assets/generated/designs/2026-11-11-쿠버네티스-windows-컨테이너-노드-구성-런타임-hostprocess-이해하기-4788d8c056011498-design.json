@@ -1,0 +1,8 @@
+{
+  "summary": "systemd init 노드에서 cgroup 드라이버 선택이 노드 안정성을 결정하는 이유",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-11-쿠버네티스-windows-컨테이너-노드-구성-런타임-hostprocess-이해하기.md",
+  "assets": [
+    "2026-11-11-쿠버네티스-windows-컨테이너-노드-구성-런타임-hostprocess-이해하기-cc11caf854a8cd3d-1.html"
+  ]
+}

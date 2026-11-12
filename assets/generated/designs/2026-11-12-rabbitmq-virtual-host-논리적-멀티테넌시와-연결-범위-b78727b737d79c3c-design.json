@@ -1,0 +1,8 @@
+{
+  "summary": "같은 vhost 연결 요청에서 권한 유무가 연결 수립을 결정한다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-12-rabbitmq-virtual-host-논리적-멀티테넌시와-연결-범위.md",
+  "assets": [
+    "2026-11-12-rabbitmq-virtual-host-논리적-멀티테넌시와-연결-범위-69eba00531c35fd8-1.html"
+  ]
+}

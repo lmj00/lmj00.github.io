@@ -1,0 +1,8 @@
+{
+  "summary": "같은 시퀀스 번호 필드, SYN 플래그가 의미를 바꾼다",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-13-rfc-9293-현대-tcp-명세의-통합과-핵심-개념.md",
+  "assets": [
+    "2026-11-13-rfc-9293-현대-tcp-명세의-통합과-핵심-개념-74d5dfec6db81214-1.html"
+  ]
+}

@@ -113,5 +113,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/storage/persistent-volumes/",
   "rabbitmq::docs/amqp.md",
   "kubernetes::https://kubernetes.io/docs/concepts/windows/intro/",
-  "rabbitmq::docs/vhosts.md"
+  "rabbitmq::docs/vhosts.md",
+  "rfc-standards::rfc9293"
 ]

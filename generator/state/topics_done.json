@@ -114,5 +114,6 @@
   "rabbitmq::docs/amqp.md",
   "kubernetes::https://kubernetes.io/docs/concepts/windows/intro/",
   "rabbitmq::docs/vhosts.md",
-  "rfc-standards::rfc9293"
+  "rfc-standards::rfc9293",
+  "kubernetes::https://kubernetes.io/docs/concepts/security/service-accounts/"
 ]

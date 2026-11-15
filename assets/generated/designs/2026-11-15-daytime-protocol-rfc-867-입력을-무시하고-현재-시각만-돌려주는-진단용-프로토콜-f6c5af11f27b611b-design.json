@@ -1,0 +1,8 @@
+{
+  "summary": "같은 포트 13에서 TCP와 UDP의 daytime 응답 경로 비교",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-15-daytime-protocol-rfc-867-입력을-무시하고-현재-시각만-돌려주는-진단용-프로토콜.md",
+  "assets": [
+    "2026-11-15-daytime-protocol-rfc-867-입력을-무시하고-현재-시각만-돌려주는-진단용-프로토콜-591ac576991e5e9d-1.html"
+  ]
+}

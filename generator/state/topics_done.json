@@ -116,5 +116,6 @@
   "rabbitmq::docs/vhosts.md",
   "rfc-standards::rfc9293",
   "kubernetes::https://kubernetes.io/docs/concepts/security/service-accounts/",
-  "rfc-standards::rfc867"
+  "rfc-standards::rfc867",
+  "prometheus::https://prometheus.io/docs/introduction/roadmap/"
 ]

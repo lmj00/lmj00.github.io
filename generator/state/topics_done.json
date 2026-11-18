@@ -117,5 +117,6 @@
   "rfc-standards::rfc9293",
   "kubernetes::https://kubernetes.io/docs/concepts/security/service-accounts/",
   "rfc-standards::rfc867",
-  "prometheus::https://prometheus.io/docs/introduction/roadmap/"
+  "prometheus::https://prometheus.io/docs/introduction/roadmap/",
+  "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-hostname/"
 ]

@@ -1,0 +1,8 @@
+{
+  "summary": "hostnameOverride는 Pod 내부 호스트네임과 FQDN을 덮어쓰지만 DNS 레코드는 왜 그대로일까?",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-18-kubernetes-pod-호스트네임의-동작-원리.md",
+  "assets": [
+    "2026-11-18-kubernetes-pod-호스트네임의-동작-원리-a1d70b915c26b126-1.html"
+  ]
+}

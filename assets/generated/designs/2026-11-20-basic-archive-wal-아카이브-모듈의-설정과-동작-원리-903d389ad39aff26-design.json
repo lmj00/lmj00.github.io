@@ -1,0 +1,8 @@
+{
+  "summary": "archive_directory 값 하나가 WAL 아카이빙을 중단시키거나 완료된 세그먼트를 복사하게 만든다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-20-basic-archive-wal-아카이브-모듈의-설정과-동작-원리.md",
+  "assets": [
+    "2026-11-20-basic-archive-wal-아카이브-모듈의-설정과-동작-원리-a10081a7a44a6348-1.html"
+  ]
+}

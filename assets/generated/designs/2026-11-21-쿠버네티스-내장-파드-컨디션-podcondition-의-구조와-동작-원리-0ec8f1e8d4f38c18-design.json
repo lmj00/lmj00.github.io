@@ -1,0 +1,8 @@
+{
+  "summary": "컨테이너는 ready인데 왜 파드 Ready는 False일까?",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-21-쿠버네티스-내장-파드-컨디션-podcondition-의-구조와-동작-원리.md",
+  "assets": [
+    "2026-11-21-쿠버네티스-내장-파드-컨디션-podcondition-의-구조와-동작-원리-54be0418ea156fa4-1.html"
+  ]
+}

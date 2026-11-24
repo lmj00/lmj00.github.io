@@ -1,0 +1,8 @@
+{
+  "summary": "STAT 응답에서 삭제 표시된 메시지의 처리 비교",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-24-pop3-post-office-protocol-version-3-동작-원리-rfc-1939.md",
+  "assets": [
+    "2026-11-24-pop3-post-office-protocol-version-3-동작-원리-rfc-1939-08b3bb6745647e41-1.html"
+  ]
+}

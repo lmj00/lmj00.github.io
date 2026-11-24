@@ -120,5 +120,6 @@
   "prometheus::https://prometheus.io/docs/introduction/roadmap/",
   "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-hostname/",
   "postgresql::https://www.postgresql.org/docs/current/basic-archive.html",
-  "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-condition/"
+  "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-condition/",
+  "rfc-standards::rfc1939"
 ]

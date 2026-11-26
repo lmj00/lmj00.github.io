@@ -1,0 +1,8 @@
+{
+  "summary": "spec.replicas: 2라는 선언은 왜 계속 파드 2개를 유지할까?",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-26-쿠버네티스-오브젝트와-replicas-2-선언된-의도가-실제-파드가-되는-원리.md",
+  "assets": [
+    "2026-11-26-쿠버네티스-오브젝트와-replicas-2-선언된-의도가-실제-파드가-되는-원리-a2a3ea62bb5cf250-1.html"
+  ]
+}

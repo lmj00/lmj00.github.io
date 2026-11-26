@@ -121,5 +121,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-hostname/",
   "postgresql::https://www.postgresql.org/docs/current/basic-archive.html",
   "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-condition/",
-  "rfc-standards::rfc1939"
+  "rfc-standards::rfc1939",
+  "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/"
 ]

@@ -1,0 +1,8 @@
+{
+  "summary": "같은 입력 1.5를 integer와 floating point 파라미터에 넣어 타입이 저장 값을 어떻게 바꾸는지 비교한다.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "post": "2026-11-27-postgresql-파라미터-이름과-값-다섯-가지-타입의-문법-규칙.md",
+  "assets": [
+    "2026-11-27-postgresql-파라미터-이름과-값-다섯-가지-타입의-문법-규칙-cd843346cf78e28b-1.html"
+  ]
+}

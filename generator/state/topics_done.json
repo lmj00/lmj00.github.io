@@ -123,5 +123,6 @@
   "kubernetes::https://kubernetes.io/docs/concepts/workloads/pods/pod-condition/",
   "rfc-standards::rfc1939",
   "kubernetes::https://kubernetes.io/docs/concepts/overview/working-with-objects/",
-  "postgresql::https://www.postgresql.org/docs/current/config-setting.html"
+  "postgresql::https://www.postgresql.org/docs/current/config-setting.html",
+  "kubernetes::https://kubernetes.io/docs/concepts/scheduling-eviction/"
 ]
